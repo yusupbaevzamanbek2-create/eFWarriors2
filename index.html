@@ -192,7 +192,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 </head>
 <body>
 
-<!-- SPLASH -->
+<! SPLASH >
 <div id="splash">
   <div class="sp-ring">⚽</div>
   <div class="sp-title">eF WARRIORS</div>
@@ -202,7 +202,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 <div id="app">
 
-<!-- PAGE: MAIN MENU -->
+<! PAGE: MAIN MENU >
 <div class="page" id="page-menu">
   <div class="hdr">
     <div class="hdr-left">
@@ -233,7 +233,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <div class="menu-footer"><div class="menu-footer-txt">⚡ eF Warriors · Season 1</div></div>
 </div>
 
-<!-- PAGE: WORLD CUP -->
+<! PAGE: WORLD CUP >
 <div class="page" id="page-wc">
   <div class="hdr">
     <div class="hdr-left">
@@ -242,7 +242,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div class="hdr-badge">WC 2026</div>
   </div>
 
-  <!-- WC TABS -->
+  <! WC TABS >
   <div style="display:flex;border-bottom:1px solid var(--border);background:var(--bg);">
     <div id="wt-home" style="flex:1;padding:12px;text-align:center;font-size:11px;letter-spacing:2px;color:var(--accent);border-bottom:2px solid var(--accent);cursor:pointer;text-transform:uppercase;" onclick="wcTab('home')">Guruhlar</div>
     <div id="wt-matches" style="flex:1;padding:12px;text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;" onclick="wcTab('matches')">O'yinlar</div>
@@ -251,7 +251,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div id="wt-admin" style="flex:1;padding:12px;text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;" onclick="wcTab('admin')">Admin</div>
   </div>
 
-  <!-- TAB: GROUPS -->
+  <! TAB: GROUPS >
   <div id="wc-home" class="tab on" style="padding-bottom:20px;">
     <div class="banner">
       <div class="banner-eye">World Cup 2026</div>
@@ -265,7 +265,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div style="padding:0 16px;" id="hg-recent"></div>
   </div>
 
-  <!-- TAB: MATCHES -->
+  <! TAB: MATCHES >
   <div id="wc-matches" class="tab" style="padding-bottom:20px;">
     <div class="banner">
       <div class="banner-eye">O'yinlar</div>
@@ -276,7 +276,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div style="padding:0 16px;margin-top:8px;" id="mg-list"></div>
   </div>
 
-  <!-- TAB: PLAYOFF -->
+  <! TAB: PLAYOFF >
   <div id="wc-playoff" class="tab" style="padding-bottom:20px;">
     <div class="banner">
       <div class="banner-eye">Knock-out</div>
@@ -286,7 +286,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div id="bracket-wrap" class="playoff-wrap"></div>
   </div>
 
-  <!-- TAB: PLAYERS -->
+  <! TAB: PLAYERS >
   <div id="wc-players" class="tab" style="padding-bottom:20px;">
     <div class="banner">
       <div class="banner-eye">Ishtirokchilar</div>
@@ -295,7 +295,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div style="padding:0 16px;margin-top:12px;" id="pl-list"></div>
   </div>
 
-  <!-- TAB: ADMIN -->
+  <! TAB: ADMIN >
   <div id="wc-admin" class="tab" style="padding-bottom:20px;">
     <div id="adm-lock-screen">
       <div class="banner">
@@ -362,7 +362,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   </div>
 </div>
 
-</div><!-- /app -->
+</div><! /app >
 <div class="toast" id="toast"></div>
 
 <script>
@@ -440,7 +440,7 @@ function matchHTML(grp,r){
   </div>`;
 }
 
-// PAGES
+/ PAGES
 function openWC(){
   document.getElementById('page-menu').classList.remove('on');
   document.getElementById('page-wc').classList.add('on');
@@ -451,7 +451,7 @@ function backToMenu(){
   document.getElementById('page-menu').classList.add('on');
 }
 
-// WC TABS
+/ WC TABS
 let curWcTab='home';
 function wcTab(name){
   ['home','matches','playoff','players','admin'].forEach(t=>{
@@ -467,7 +467,7 @@ function wcTab(name){
   if(name==='players') renderPlayers();
 }
 
-// HOME TAB
+/ HOME TAB
 let hGrp='H';
 function initHomeTab(){
   const el=document.getElementById('hg-btns');
@@ -487,7 +487,7 @@ function renderRecent(){
   document.getElementById('hg-recent').innerHTML=html||'<div class="empty"><div class="empty-ic">📅</div><div>Natija yo\'q</div></div>';
 }
 
-// MATCHES TAB
+/ MATCHES TAB
 let mGrp='H';
 function initMatchesTab(){
   const el=document.getElementById('mg-btns');
@@ -521,7 +521,7 @@ function renderMatchList(grp){
   document.getElementById('mg-list').innerHTML=html;
 }
 
-// PLAYERS
+/ PLAYERS
 function renderPlayers(){
   const all=[];
   Object.keys(GROUPS).forEach(grp=>getStats(grp).forEach(t=>all.push({...t,grp})));
@@ -535,18 +535,18 @@ function renderPlayers(){
     </div>`).join('');
 }
 
-// PLAYOFF BRACKET
+/ PLAYOFF BRACKET
 function generatePlayoff(){
   playoff={r16:[],qf:[],sf:[],final:[]};
   const grpKeys=Object.keys(GROUPS);
-  // WC 2026 format: A1vsB2, B1vsA2, C1vsD2, D1vsC2, E1vsF2, F1vsE2, G1vsH2, H1vsG2, I1vsJ2, J1vsI2, K1vsL2, L1vsK2
+  / WC 2026 format: A1vsB2, B1vsA2, C1vsD2, D1vsC2, E1vsF2, F1vsE2, G1vsH2, H1vsG2, I1vsJ2, J1vsI2, K1vsL2, L1vsK2
   const pairs=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L']];
   pairs.forEach(([g1,g2])=>{
     const s1=getStats(g1), s2=getStats(g2);
     playoff.r16.push({h:{...s1[0],grp:g1},a:{...s2[1],grp:g2},hs:null,as:null});
     playoff.r16.push({h:{...s2[0],grp:g2},a:{...s1[1],grp:g1},hs:null,as:null});
   });
-  // QF: 8 matches placeholders
+  / QF: 8 matches placeholders
   for(let i=0;i<4;i++) playoff.qf.push({h:null,a:null,hs:null,as:null});
   for(let i=0;i<2;i++) playoff.sf.push({h:null,a:null,hs:null,as:null});
   playoff.final=[{h:null,a:null,hs:null,as:null}];
@@ -596,7 +596,7 @@ function renderBracket(){
   </div>`;
 }
 
-// ADMIN
+/ADMIN
 function checkPin(){
   if(document.getElementById('pin-val').value===ADMIN_PIN){
     document.getElementById('adm-lock-screen').style.display='none';
@@ -664,7 +664,7 @@ function savePlayoff(){
   if(!playoff[rnd]||!playoff[rnd][idx]){showToast('❌ O\'yin topilmadi');return;}
   const m=playoff[rnd][idx];
   m.hs=parseInt(p[0]);m.as=parseInt(p[1]);
-  // advance winner
+  / advance winner
   const w=getWinner(m);
   if(w){
     const nextRnd={r16:'qf',qf:'sf',sf:'final'}[rnd];
