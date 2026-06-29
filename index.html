@@ -126,21 +126,36 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .pcard-ptslb{font-size:9px;color:var(--muted);letter-spacing:2px;text-align:right;}
 
 /* PLAYOFF */
-.playoff-wrap{overflow-x:auto;padding:16px;}
-.bracket{display:flex;gap:4px;min-width:680px;}
-.round{display:flex;flex-direction:column;flex:1;}
-.round-title{font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;text-align:center;padding:8px 4px;border-bottom:1px solid var(--border);margin-bottom:8px;}
-.matches-col{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:4px;}
-.pom{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px;margin:4px 0;}
+.playoff-wrap{overflow-x:auto;padding:16px 8px;}
+.bracket{display:flex;gap:6px;min-width:900px;}
+.round{display:flex;flex-direction:column;flex:1;min-width:110px;}
+.round-title{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:center;padding:8px 4px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.matches-col{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:2px;}
+.pom{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px;margin:3px 0;}
+.pom.third{border-color:var(--teal);}
+.pom.final-match{border-color:var(--gold);background:rgba(245,166,35,.04);}
 .pom-team{display:flex;align-items:center;justify-content:space-between;padding:5px 0;}
 .pom-team:first-child{border-bottom:1px solid var(--border);}
 .pom-left{display:flex;align-items:center;gap:6px;}
-.pom-flag{font-size:14px;}
-.pom-name{font-size:11px;font-weight:500;}
+.pom-flag{font-size:13px;}
+.pom-name{font-size:10px;font-weight:500;}
 .pom-name.tbd{color:var(--muted);}
-.pom-score{font-family:'Roboto',sans-serif;font-size:13px;font-weight:700;color:var(--gold);}
-.pom-score.pend{color:var(--muted);font-size:11px;}
+.pom-score{font-family:'Roboto',sans-serif;font-size:12px;font-weight:700;color:var(--gold);}
+.pom-score.pend{color:var(--muted);font-size:10px;}
 .pom-winner{border-left:2px solid var(--gold);}
+.pom-winner-bronze{border-left:2px solid var(--teal);}
+/* REYTING */
+.rating-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.rating-medal{font-size:28px;min-width:36px;text-align:center;}
+.rating-info{flex:1;}
+.rating-name{font-size:14px;font-weight:700;}
+.rating-user{font-size:11px;color:var(--accent);margin-top:2px;}
+.rating-detail{font-size:10px;color:var(--muted);margin-top:2px;}
+.rating-pts{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:right;}
+.rating-ptslb{font-size:9px;color:var(--muted);letter-spacing:2px;text-align:right;}
+.rating-card.gold{border-color:var(--gold);background:rgba(245,166,35,.05);}
+.rating-card.silver{border-color:#94A3B8;background:rgba(148,163,184,.04);}
+.rating-card.bronze{border-color:#C47A3A;background:rgba(196,122,58,.04);}
 
 /* MENU PAGE */
 .menu-hero{padding:36px 20px 24px;text-align:center;}
@@ -286,6 +301,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   <div class="wc-tabs">
     <div id="wt-home" class="wt on" onclick="wcTab('home')">Guruhlar</div>
     <div id="wt-matches" class="wt" onclick="wcTab('matches')">O'yinlar</div>
+    <div id="wt-rating" class="wt" onclick="wcTab('rating')">🥇 Reyting</div>
     <div id="wt-playoff" class="wt" onclick="wcTab('playoff')">Playoff</div>
     <div id="wt-players" class="wt" onclick="wcTab('players')">Profil</div>
     <div id="wt-admin" class="wt" onclick="wcTab('admin')">Admin</div>
@@ -333,6 +349,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       </div>
     </div>
     <div id="bracket-wrap" class="playoff-wrap"></div>
+  </div>
+
+  <!-- TAB: REYTING -->
+  <div id="wc-rating" class="tab" style="padding-bottom:20px;">
+    <div id="rating-content"></div>
   </div>
 
   <!-- TAB: PROFIL -->
@@ -392,9 +413,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
           <div class="adm-ct">🏆 Playoff natijasi</div>
           <label class="flb">Bosqich</label>
           <select class="fsel" id="po-round">
-            <option value="r16">1/8 Final</option>
+            <option value="r32">1/16 Final (32→16)</option>
+            <option value="r16">1/8 Final (16→8)</option>
             <option value="qf">Chorak Final</option>
             <option value="sf">Yarim Final</option>
+            <option value="third">3-o'rin O'yini</option>
             <option value="final">Final</option>
           </select>
           <label class="flb">O'yin raqami</label>
@@ -404,8 +427,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
           <button class="fbtn" onclick="savePlayoff()">Saqlash ✓</button>
         </div>
         <div class="adm-c">
-          <div class="adm-ct">🔄 Playoff: Guruh bosqichi tugadi</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Har guruhdan top-2 ni playoff ga chiqaradi</div>
+          <div class="adm-ct">🔄 WC 2026: Guruh bosqichi tugadi</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">24 ta 1-o'rin + 8 ta eng yaxshi 3-o'rin = 32 jamoa playoff ga chiqadi</div>
           <button class="fbtn-g" onclick="generatePlayoff()">Playoff setkasini yaratish ✓</button>
         </div>
       </div>
@@ -436,7 +459,8 @@ const GROUPS = {
 };
 
 let results = {};
-let playoff = {"r16":[],"qf":[],"sf":[],"final":[]};
+// WC 2026: 32 jamoa → r32(16 o'yin) → r16(8) → qf(4) → sf(2) → third(1) + final(1)
+let playoff = {"r32":[],"r16":[],"qf":[],"sf":[],"third":[],"final":[]};
 
 const tg = window.Telegram && window.Telegram.WebApp;
 const CS = tg && tg.CloudStorage;
@@ -457,13 +481,13 @@ function loadData(cb){
     CS.getItems(['wc26_res','wc26_po'], function(err, values){
       if(!err && values){
         try{ results = JSON.parse(values['wc26_res']||'{}'); }catch(e){ results={}; }
-        try{ playoff = JSON.parse(values['wc26_po']||'{"r16":[],"qf":[],"sf":[],"final":[]}'); }catch(e){ playoff={"r16":[],"qf":[],"sf":[],"final":[]}; }
+        try{ playoff = ensurePlayoff(JSON.parse(values['wc26_po']||'null')); }catch(e){ playoff=ensurePlayoff(null); }
       }
       cb();
     });
   } else {
     try{ results = JSON.parse(localStorage.getItem('wc26_res')||'{}'); }catch(e){ results={}; }
-    try{ playoff = JSON.parse(localStorage.getItem('wc26_po')||'{"r16":[],"qf":[],"sf":[],"final":[]}'); }catch(e){ playoff={"r16":[],"qf":[],"sf":[],"final":[]}; }
+    try{ playoff = ensurePlayoff(JSON.parse(localStorage.getItem('wc26_po')||'null')); }catch(e){ playoff=ensurePlayoff(null); }
     cb();
   }
 }
@@ -529,13 +553,14 @@ function backToMenu(){
 
 let curWcTab='home';
 function wcTab(name){
-  ['home','matches','playoff','players','admin'].forEach(t=>{
+  ['home','matches','rating','playoff','players','admin'].forEach(t=>{
     document.getElementById('wc-'+t).classList.toggle('on',t===name);
     document.getElementById('wt-'+t).classList.toggle('on',t===name);
   });
   curWcTab=name;
   if(name==='home') initHomeTab();
   if(name==='matches') initMatchesTab();
+  if(name==='rating') renderRating();
   if(name==='playoff') renderBracket();
   if(name==='players') renderPlayers();
 }
@@ -592,78 +617,91 @@ function renderMatchList(grp){
   document.getElementById('mg-list').innerHTML=html;
 }
 
+function getMatchNumber(grp, teamA, teamB){
+  // Barcha guruhlar bo'yicha match raqamini hisoblash (global raqam)
+  const grpKeys = Object.keys(GROUPS);
+  let num = 0;
+  for(let gi=0; gi<grpKeys.length; gi++){
+    const g = grpKeys[gi];
+    const teams = GROUPS[g];
+    for(let i=0;i<teams.length;i++) for(let j=i+1;j<teams.length;j++){
+      num++;
+      if(g===grp && ((teams[i].name===teamA && teams[j].name===teamB)||(teams[i].name===teamB && teams[j].name===teamA))){
+        return num;
+      }
+    }
+  }
+  return num;
+}
+
 function renderPlayers(){
-  // Telegram dan username olish
   const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   const myUsername = tgUser ? '@' + tgUser.username : null;
-  const myFirstName = tgUser ? tgUser.first_name : 'Mehmon';
+  const myFirstName = tgUser ? tgUser.first_name : null;
 
-  // Barcha jamoalar statistikasi
-  const all=[];
-  Object.keys(GROUPS).forEach(grp=>getStats(grp).forEach(t=>all.push({...t,grp})));
-  all.sort((a,b)=>b.pts-a.pts);
-
-  // Mening jamoamni top
+  // Barcha jamoalar statistikasi (guruh ichida rank uchun)
   let myTeam = null;
   let myRank = 0;
+  let myGrpStats = null;
+
   if(myUsername){
-    myTeam = all.find((t,i)=>{ if(t.user===myUsername){myRank=i+1;return true;} return false; });
+    for(const grp of Object.keys(GROUPS)){
+      const stats = getStats(grp);
+      const idx = stats.findIndex(t => t.user === myUsername);
+      if(idx !== -1){
+        myTeam = stats[idx];
+        myGrpStats = stats;
+        myRank = idx + 1;
+        break;
+      }
+    }
   }
 
   const wrap = document.getElementById('profile-content');
 
   if(!myTeam){
-    // Telegram user yo'q yoki ro'yxatda emas — umumiy reyting ko'rsat
     wrap.innerHTML = `
       <div class="hero-banner">
         <div class="hero-img-overlay"></div>
         <div class="hero-content">
-          <div class="hero-eyebrow">Reyting jadvali</div>
-          <div class="hero-title">Barcha <span>O'yinchilar</span></div>
+          <div class="hero-eyebrow">Profil</div>
+          <div class="hero-title">Siz <span>Ro'yxatda</span> emassiz</div>
+          <div class="hero-sub">Telegram orqali kiring</div>
         </div>
       </div>
-      <div class="slb">Umumiy reyting</div>
-      <div style="padding:0 16px;">
-        ${all.map((t,i)=>`
-        <div class="pcard">
-          <div class="pcard-l">
-            <div style="font-size:18px;font-weight:900;color:${i===0?'#F5A623':i===1?'#94A3B8':i===2?'#C47A3A':'var(--muted)'};min-width:28px;text-align:center;">${i+1}</div>
-            <div class="pcard-flag">${t.flag}</div>
-            <div><div class="pcard-name">${t.name}</div><div class="pcard-user">${t.user}</div><div class="pcard-grp">${t.grp} Guruh</div></div>
-          </div>
-          <div><div class="pcard-pts">${t.pts}</div><div class="pcard-ptslb">PTS</div></div>
-        </div>`).join('')}
-      </div>`;
+      <div class="empty"><div class="empty-ic">👤</div><div>Telegram username topilmadi</div></div>`;
     return;
   }
 
-  // Mening o'yinlarim
-  const grpMatches = [];
+  // Mening o'yinlarim (global match raqami bilan)
   const grpTeams = GROUPS[myTeam.grp];
+  const grpMatches = [];
   for(let i=0;i<grpTeams.length;i++) for(let j=i+1;j<grpTeams.length;j++){
-    const ht=grpTeams[i],at=grpTeams[j];
+    const ht=grpTeams[i], at=grpTeams[j];
     if(ht.name!==myTeam.name && at.name!==myTeam.name) continue;
     const rs=results[myTeam.grp]||[];
     const r=rs.find(x=>(x.h===ht.name&&x.a===at.name)||(x.h===at.name&&x.a===ht.name));
     const opp = ht.name===myTeam.name ? at : ht;
-    let score='',done=!!r,win=false,draw=false;
+    const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
+    let score='', done=!!r, win=false, draw=false;
     if(r){
       const myScore = r.h===myTeam.name?r.hs:r.as;
       const oppScore = r.h===myTeam.name?r.as:r.hs;
       score=`${myScore}:${oppScore}`;
       win=myScore>oppScore; draw=myScore===oppScore;
     }
-    grpMatches.push({opp,score,done,win,draw});
+    grpMatches.push({opp, score, done, win, draw, matchNum});
   }
 
   const rankColor = myRank===1?'#F5A623':myRank===2?'#94A3B8':myRank===3?'#C47A3A':'var(--accent)';
+  const displayName = myFirstName || myTeam.user;
 
   wrap.innerHTML = `
     <div style="padding:16px;">
       <div class="prof-card">
         <div class="prof-avatar">👤</div>
         <div class="prof-info">
-          <div class="prof-name">${myFirstName}</div>
+          <div class="prof-name">${displayName}</div>
           <div class="prof-team">${myTeam.flag} ${myTeam.name}</div>
           <div class="prof-user">${myTeam.user}</div>
         </div>
@@ -677,11 +715,11 @@ function renderPlayers(){
       <div class="stat-box"><div class="stat-val">${myTeam.d}</div><div class="stat-lbl">Durang</div></div>
       <div class="stat-box"><div class="stat-val" style="color:var(--red);">${myTeam.l}</div><div class="stat-lbl">Mag'lubiyat</div></div>
     </div>
-    <div class="slb">Mening o'yinlarim</div>
+    <div class="slb">Mening O'yinlarim</div>
     <div style="padding:0 16px;">
-      ${grpMatches.map((m,idx)=>`
+      ${grpMatches.map(m=>`
       <div class="my-match">
-        <div class="my-match-num">#${idx+1}</div>
+        <div class="my-match-num">#${m.matchNum}</div>
         <div class="my-match-flags">
           <span>${myTeam.flag}</span>
           <span class="my-match-score ${m.done?'':'pend'}">${m.done?m.score:'—:—'}</span>
@@ -691,133 +729,230 @@ function renderPlayers(){
           ${m.done?(m.win?'G\'ALABA':m.draw?'DURANG':'MAG\'LUBIYAT'):'KUTILMOQDA'}
         </div>
       </div>`).join('')}
-    </div>
-    <div class="slb" style="margin-top:8px;">Guruh reytingi</div>
-    <div style="padding:0 16px;">
-      ${all.map((t,i)=>`
-      <div class="pcard ${t.name===myTeam.name?'my-row':''}">
-        <div class="pcard-l">
-          <div style="font-size:16px;font-weight:900;color:${i===0?'#F5A623':i===1?'#94A3B8':i===2?'#C47A3A':'var(--muted)'};min-width:24px;text-align:center;">${i+1}</div>
-          <div class="pcard-flag">${t.flag}</div>
-          <div><div class="pcard-name">${t.name}</div><div class="pcard-user">${t.user}</div><div class="pcard-grp">${t.grp} Guruh</div></div>
-        </div>
-        <div><div class="pcard-pts">${t.pts}</div><div class="pcard-ptslb">PTS</div></div>
-      </div>`).join('')}
     </div>`;
 }
 
-function generatePlayoff(){
-  playoff={r16:[],qf:[],sf:[],final:[]};
-  const pairs=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L']];
-  pairs.forEach(([g1,g2])=>{
-    const s1=getStats(g1), s2=getStats(g2);
-    playoff.r16.push({h:{...s1[0],grp:g1},a:{...s2[1],grp:g2},hs:null,as:null});
-    playoff.r16.push({h:{...s2[0],grp:g2},a:{...s1[1],grp:g1},hs:null,as:null});
+function ensurePlayoff(po){
+  const def={r32:[],r16:[],qf:[],sf:[],third:[{h:null,a:null,hs:null,as:null}],final:[{h:null,a:null,hs:null,as:null}]};
+  if(!po||typeof po!=='object') return def;
+  // eski format (r16 bor, r32 yo'q) — reset
+  if(!Array.isArray(po.r32)) return def;
+  ['r32','r16','qf','sf','third','final'].forEach(k=>{ if(!Array.isArray(po[k])) po[k]=def[k]; });
+  return po;
+}
+
+// 12 guruhdan har biri 3-o'rinlarini topib eng yaxshi 8 ni aniqlaymiz
+function getBest3rds(){
+  const thirds=[];
+  Object.keys(GROUPS).forEach(grp=>{
+    const s=getStats(grp);
+    if(s[2]) thirds.push({...s[2],grp});
   });
-  for(let i=0;i<4;i++) playoff.qf.push({h:null,a:null,hs:null,as:null});
-  for(let i=0;i<2;i++) playoff.sf.push({h:null,a:null,hs:null,as:null});
-  playoff.final=[{h:null,a:null,hs:null,as:null}];
+  // Saralash: pts → gd → gf
+  thirds.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+  return thirds.slice(0,8);
+}
+
+// WC2026 rasmiy r32 setkasi
+// 12 guruh: A-L. 1-o'rinlar: A1-L1 (12ta), 2-o'rinlar: A2-L2 (12ta), 8 eng yaxshi 3-o'rin
+// Rasmiy juftlashish sxemasi bo'yicha
+function generatePlayoff(){
+  const tops={}, seconds={};
+  Object.keys(GROUPS).forEach(g=>{
+    const s=getStats(g);
+    tops[g]={...s[0],grp:g};
+    seconds[g]={...s[1],grp:g};
+  });
+  const best3=getBest3rds();
+
+  // 32 jamoa — WC2026 sxemasi bo'yicha juftlashish
+  // Har 2 qo'shni guruh 1-o'rinlari o'rtasida + 2-o'rinlari chalkashtiriladi
+  // Soddalashtirilgan sxema: A1vB2, B1vA2, C1vD2, D1vC2, ... + 8 best3rd
+  const r32=[];
+  // 12 guruh top1 vs top2 (qo'shni guruhlar bilan)
+  const grpKeys=Object.keys(GROUPS); // A-L
+  // 6 juft guruh: AB, CD, EF, GH, IJ, KL
+  const grpPairs=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L']];
+  grpPairs.forEach(([g1,g2])=>{
+    r32.push({h:tops[g1],a:seconds[g2],hs:null,as:null});
+    r32.push({h:tops[g2],a:seconds[g1],hs:null,as:null});
+  });
+  // 12 ta o'yin (top1+top2 juftlar) + 4 ta o'yin qoldi = 16 ta o'yin kerak
+  // Eng yaxshi 3-o'rinlar qo'shiladi: 8 ta 3-o'rin vs top1 lardan 4 ta qolgan
+  // Oddiy: best3rd[0..3] vs grpKeys[6..9] tops
+  const remaining3rdOpponents=['A','C','E','G','I','K','B','D'].map((g,i)=>tops[g]);
+  best3.forEach((t,i)=>{
+    r32.push({h:remaining3rdOpponents[i]||{flag:'?',name:'TBD',user:'—',grp:'?'},a:t,hs:null,as:null});
+  });
+
+  playoff={
+    r32: r32.slice(0,16),
+    r16: Array(8).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
+    qf:  Array(4).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
+    sf:  Array(2).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
+    third:[{h:null,a:null,hs:null,as:null}],
+    final:[{h:null,a:null,hs:null,as:null}]
+  };
   saveData();
   renderBracket();
-  showToast('✅ Playoff setkasi yaratildi!');
+  showToast('✅ WC2026 playoff setkasi yaratildi! 32 jamoa →');
 }
 
 function getWinner(m){
-  if(m.hs===null) return null;
+  if(!m||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
   if(m.hs>m.as) return m.h;
   if(m.as>m.hs) return m.a;
-  return m.h;
+  return null;
+}
+function getLoser(m){
+  if(!m||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
+  if(m.hs>m.as) return m.a;
+  if(m.as>m.hs) return m.h;
+  return null;
 }
 
-function teamBox(t,score,isWinner){
+// Natija kiritilganda avto keyingi bosqichga ko'chirish
+function autoAdvance(rnd, idx){
+  const m=playoff[rnd][idx];
+  const w=getWinner(m);
+  const l=getLoser(m);
+  if(!w) return;
+
+  const flow={
+    r32:{next:'r16', slots:[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]]},
+    r16:{next:'qf',  slots:[[0,1],[2,3],[4,5],[6,7]]},
+    qf: {next:'sf',  slots:[[0,1],[2,3]]},
+    sf: {next:'final',slots:[[0,1]]}
+  };
+  if(flow[rnd]){
+    const nextRnd=flow[rnd].next;
+    const nextIdx=Math.floor(idx/2);
+    if(!playoff[nextRnd][nextIdx]) playoff[nextRnd][nextIdx]={h:null,a:null,hs:null,as:null};
+    if(idx%2===0) playoff[nextRnd][nextIdx].h=w;
+    else playoff[nextRnd][nextIdx].a=w;
+  }
+  // Yarim final yutqazuvchilari 3-o'rin o'yiniga
+  if(rnd==='sf' && l){
+    if(!playoff.third[0]) playoff.third[0]={h:null,a:null,hs:null,as:null};
+    if(idx===0) playoff.third[0].h=l;
+    else playoff.third[0].a=l;
+  }
+}
+
+function teamBox(t,score,isWin,isBronze){
   if(!t) return `<div class="pom-team"><div class="pom-left"><div class="pom-flag">?</div><div class="pom-name tbd">TBD</div></div><div class="pom-score pend">—</div></div>`;
-  const wCls=isWinner?'pom-winner':'';
-  return `<div class="pom-team ${wCls}"><div class="pom-left"><div class="pom-flag">${t.flag||'?'}</div><div class="pom-name ${t.flag?'':'tbd'}">${t.name||'TBD'}</div></div><div class="pom-score ${score===null?'pend':''}">${score===null?'—':score}</div></div>`;
+  const wCls=isWin?(isBronze?'pom-winner-bronze':'pom-winner'):'';
+  const pend=score===null||score===undefined;
+  return `<div class="pom-team ${wCls}"><div class="pom-left"><div class="pom-flag">${t.flag||'?'}</div><div class="pom-name ${t.flag?'':'tbd'}">${t.name||'TBD'}</div></div><div class="pom-score ${pend?'pend':''}">${pend?'—':score}</div></div>`;
 }
 
 function renderBracket(){
   const wrap=document.getElementById('bracket-wrap');
-  if(!playoff.r16.length){
-    wrap.innerHTML='<div class="empty"><div class="empty-ic">🏆</div><div>Guruh bosqichi tugagach admin "Playoff setkasini yaratish" tugmasini bossin</div></div>';
+  if(!playoff.r32||!playoff.r32.length){
+    wrap.innerHTML='<div class="empty"><div class="empty-ic">🏆</div><div>Admin "Playoff setkasini yaratish" tugmasini bossin</div></div>';
     return;
   }
   const rounds=[
+    {key:'r32',title:'1/16 Final',matches:playoff.r32},
     {key:'r16',title:'1/8 Final',matches:playoff.r16},
     {key:'qf',title:'Chorak Final',matches:playoff.qf},
     {key:'sf',title:'Yarim Final',matches:playoff.sf},
-    {key:'final',title:'Final',matches:playoff.final}
   ];
-  wrap.innerHTML=`<div class="bracket">${rounds.map(rnd=>`
-    <div class="round">
-      <div class="round-title">${rnd.title}</div>
-      <div class="matches-col">
-        ${rnd.matches.map(m=>{
-          const w=getWinner(m);
-          return `<div class="pom">
-            ${teamBox(m.h,m.hs,w&&m.h&&w.name===m.h.name)}
-            ${teamBox(m.a,m.as,w&&m.a&&w.name===m.a.name)}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`).join('')}
-  </div>`;
-}
-
-function generatePlayoff(){
-  playoff={r16:[],qf:[],sf:[],final:[]};
-  const pairs=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L']];
-  pairs.forEach(([g1,g2])=>{
-    const s1=getStats(g1), s2=getStats(g2);
-    playoff.r16.push({h:{...s1[0],grp:g1},a:{...s2[1],grp:g2},hs:null,as:null});
-    playoff.r16.push({h:{...s2[0],grp:g2},a:{...s1[1],grp:g1},hs:null,as:null});
+  let html=`<div class="bracket">`;
+  rounds.forEach(rnd=>{
+    html+=`<div class="round"><div class="round-title">${rnd.title}</div><div class="matches-col">`;
+    rnd.matches.forEach(m=>{
+      const w=getWinner(m);
+      html+=`<div class="pom">
+        ${teamBox(m.h,m.hs,w&&m.h&&w.name===m.h.name,false)}
+        ${teamBox(m.a,m.as,w&&m.a&&w.name===m.a.name,false)}
+      </div>`;
+    });
+    html+=`</div></div>`;
   });
-  for(let i=0;i<4;i++) playoff.qf.push({h:null,a:null,hs:null,as:null});
-  for(let i=0;i<2;i++) playoff.sf.push({h:null,a:null,hs:null,as:null});
-  playoff.final=[{h:null,a:null,hs:null,as:null}];
-  saveData();
-  renderBracket();
-  showToast('✅ Playoff setkasi yaratildi!');
-}
-
-function getWinner(m){
-  if(m.hs===null) return null;
-  if(m.hs>m.as) return m.h;
-  if(m.as>m.hs) return m.a;
-  return m.h;
-}
-
-function teamBox(t,score,isWinner){
-  if(!t) return `<div class="pom-team"><div class="pom-left"><div class="pom-flag">?</div><div class="pom-name tbd">TBD</div></div><div class="pom-score pend">—</div></div>`;
-  const wCls=isWinner?'pom-winner':'';
-  return `<div class="pom-team ${wCls}"><div class="pom-left"><div class="pom-flag">${t.flag||'?'}</div><div class="pom-name ${t.flag?'':'tbd'}">${t.name||'TBD'}</div></div><div class="pom-score ${score===null?'pend':''}">${score===null?'—':score}</div></div>`;
-}
-
-function renderBracket(){
-  const wrap=document.getElementById('bracket-wrap');
-  if(!playoff.r16.length){
-    wrap.innerHTML='<div class="empty"><div class="empty-ic">🏆</div><div>Guruh bosqichi tugagach admin "Playoff setkasini yaratish" tugmasini bossin</div></div>';
-    return;
-  }
-  const rounds=[
-    {key:'r16',title:'1/8 Final',matches:playoff.r16},
-    {key:'qf',title:'Chorak Final',matches:playoff.qf},
-    {key:'sf',title:'Yarim Final',matches:playoff.sf},
-    {key:'final',title:'Final',matches:playoff.final}
-  ];
-  wrap.innerHTML=`<div class="bracket">${rounds.map(rnd=>`
-    <div class="round">
-      <div class="round-title">${rnd.title}</div>
-      <div class="matches-col">
-        ${rnd.matches.map(m=>{
-          const w=getWinner(m);
-          return `<div class="pom">
-            ${teamBox(m.h,m.hs,w&&m.h&&w.name===m.h.name)}
-            ${teamBox(m.a,m.as,w&&m.a&&w.name===m.a.name)}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`).join('')}
+  // Final + 3-o'rin
+  html+=`<div class="round"><div class="round-title">Final</div><div class="matches-col">`;
+  const fin=playoff.final[0]||{h:null,a:null,hs:null,as:null};
+  const finW=getWinner(fin);
+  html+=`<div class="pom final-match">
+    ${teamBox(fin.h,fin.hs,finW&&fin.h&&finW.name===fin.h.name,false)}
+    ${teamBox(fin.a,fin.as,finW&&fin.a&&finW.name===fin.a.name,false)}
   </div>`;
+  const trd=playoff.third[0]||{h:null,a:null,hs:null,as:null};
+  const trdW=getWinner(trd);
+  html+=`<div style="font-size:8px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;text-align:center;padding:8px 0 4px;">3-O'RIN</div>`;
+  html+=`<div class="pom third">
+    ${teamBox(trd.h,trd.hs,trdW&&trd.h&&trdW.name===trd.h.name,true)}
+    ${teamBox(trd.a,trd.as,trdW&&trd.a&&trdW.name===trd.a.name,true)}
+  </div>`;
+  html+=`</div></div>`;
+  wrap.innerHTML=html;
+}
+
+// ─── REYTING (1,2,3 o'rin) ──────────────────────────────────────────────────
+function renderRating(){
+  const wrap=document.getElementById('rating-content');
+  const fin=playoff.final[0];
+  const trd=playoff.third[0];
+  const finW=fin?getWinner(fin):null;
+  const finL=fin?getLoser(fin):null;
+  const trdW=trd?getWinner(trd):null;
+
+  let podium=[];
+  if(finW) podium.push({place:1,medal:'🥇',team:finW,cls:'gold'});
+  if(finL) podium.push({place:2,medal:'🥈',team:finL,cls:'silver'});
+  if(trdW) podium.push({place:3,medal:'🥉',team:trdW,cls:'bronze'});
+
+  let html=`
+    <div class="hero-banner">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">World Cup 2026</div>
+        <div class="hero-title">🏆 <span>Reyting</span></div>
+        <div class="hero-sub">Eng yaxshi 3 o'rin</div>
+      </div>
+    </div>`;
+
+  if(!podium.length){
+    html+=`<div class="empty"><div class="empty-ic">🏆</div><div>Playoff o'yinlari tugagach natijalar shu yerda ko'rinadi</div></div>`;
+  } else {
+    html+=`<div class="slb">Podium</div><div style="padding:0 16px;">`;
+    podium.forEach(p=>{
+      html+=`<div class="rating-card ${p.cls}">
+        <div class="rating-medal">${p.medal}</div>
+        <div class="rating-info">
+          <div class="rating-name">${p.team.flag} ${p.team.name}</div>
+          <div class="rating-user">${p.team.user||'—'}</div>
+          <div class="rating-detail">${p.team.grp||''} Guruh</div>
+        </div>
+        <div>
+          <div class="rating-pts">#${p.place}</div>
+          <div class="rating-ptslb">O'RIN</div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Guruh bosqichi umumiy reytingi ham ko'rsat
+  const allTeams=[];
+  Object.keys(GROUPS).forEach(grp=>getStats(grp).forEach(t=>allTeams.push({...t,grp})));
+  allTeams.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga));
+  html+=`<div class="slb" style="margin-top:8px;">Guruh bosqichi reytingi</div><div style="padding:0 16px;">`;
+  allTeams.slice(0,10).forEach((t,i)=>{
+    const colors=['#F5A623','#94A3B8','#C47A3A'];
+    const c=i<3?colors[i]:'var(--muted)';
+    html+=`<div class="pcard">
+      <div class="pcard-l">
+        <div style="font-size:15px;font-weight:900;color:${c};min-width:26px;text-align:center;">${i+1}</div>
+        <div class="pcard-flag">${t.flag}</div>
+        <div><div class="pcard-name">${t.name}</div><div class="pcard-user">${t.user}</div><div class="pcard-grp">${t.grp} Guruh</div></div>
+      </div>
+      <div><div class="pcard-pts">${t.pts}</div><div class="pcard-ptslb">PTS</div></div>
+    </div>`;
+  });
+  html+=`</div>`;
+  wrap.innerHTML=html;
 }
 
 function checkPin(){
@@ -876,7 +1011,9 @@ function deleteResult(){
 function loadPoMatches(){
   const rnd=document.getElementById('po-round').value;
   const ms=playoff[rnd]||[];
-  document.getElementById('po-match').innerHTML=ms.length?ms.map((m,i)=>`<option value="${i}">${i+1}. ${m.h?m.h.name:'TBD'} vs ${m.a?m.a.name:'TBD'}</option>`).join(''):'<option>Avval setkani yarating</option>';
+  document.getElementById('po-match').innerHTML=ms.length
+    ? ms.map((m,i)=>`<option value="${i}">${i+1}. ${m.h?m.h.name:'TBD'} vs ${m.a?m.a.name:'TBD'}</option>`).join('')
+    : '<option>Avval setkani yarating</option>';
 }
 function savePlayoff(){
   const rnd=document.getElementById('po-round').value;
@@ -886,21 +1023,12 @@ function savePlayoff(){
   if(p.length!==2||isNaN(p[0])||isNaN(p[1])){showToast('❌ Format: 2-1');return;}
   if(!playoff[rnd]||!playoff[rnd][idx]){showToast('❌ O\'yin topilmadi');return;}
   const m=playoff[rnd][idx];
-  m.hs=parseInt(p[0]);m.as=parseInt(p[1]);
-  const w=getWinner(m);
-  if(w){
-    const nextRnd={r16:'qf',qf:'sf',sf:'final'}[rnd];
-    if(nextRnd&&playoff[nextRnd]){
-      const nextIdx=Math.floor(idx/2);
-      if(!playoff[nextRnd][nextIdx]) playoff[nextRnd][nextIdx]={h:null,a:null,hs:null,as:null};
-      if(idx%2===0) playoff[nextRnd][nextIdx].h=w;
-      else playoff[nextRnd][nextIdx].a=w;
-    }
-  }
+  m.hs=parseInt(p[0]); m.as=parseInt(p[1]);
+  autoAdvance(rnd, idx); // avtomatik keyingi bosqich
   saveData();
   document.getElementById('po-score').value='';
-  showToast('✅ Playoff natijasi saqlandi!');
-  loadPoMatches();renderBracket();
+  showToast('✅ Saqlandi! G\'olib avto keyingi bosqichga o\'tdi ✓');
+  loadPoMatches(); renderBracket();
 }
 
 function showToast(msg){
