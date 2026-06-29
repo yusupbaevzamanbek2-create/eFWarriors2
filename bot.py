@@ -3,8 +3,8 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from flask import Flask, request
 
 BOT_TOKEN = "8934195042:AAFgnJ5x4FlZ73mS1CYRQ6DDIDJHn9va47k"
-CHANNEL_USERNAME = "@FWarriorsbot"
-WEBHOOK_URL = "WEBHOOK_URL = "https://efwarriors2.onrender.com""  # Render URL
+CHANNEL_USERNAME = "@eFWarriors"
+WEBHOOK_URL = "https://efwarriors2.onrender.com"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
@@ -73,7 +73,7 @@ def set_language(call):
     lang = call.data.split("_")[1]
     user_lang[call.from_user.id] = lang
     bot.answer_callback_query(call.id, TEXTS[lang]["lang_set"])
-    
+
     if is_subscribed(call.from_user.id):
         bot.send_message(call.message.chat.id, TEXTS[lang]["welcome"])
     else:
@@ -87,14 +87,13 @@ def set_language(call):
 def check_subscription(call):
     uid = call.from_user.id
     lang = user_lang.get(uid, "uz")
-    
+
     if is_subscribed(uid):
         bot.answer_callback_query(call.id, "✅")
         bot.send_message(call.message.chat.id, TEXTS[lang]["welcome"])
     else:
         bot.answer_callback_query(call.id, TEXTS[lang]["not_subscribed"], show_alert=True)
 
-# Webhook endpoint
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     json_str = request.get_data().decode("UTF-8")
@@ -102,7 +101,6 @@ def webhook():
     bot.process_new_updates([update])
     return "ok", 200
 
-# Webhook o'rnatish
 @app.route("/set_webhook")
 def set_webhook():
     bot.remove_webhook()
