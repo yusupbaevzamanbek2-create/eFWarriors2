@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>eF Warriors — World Cup 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#0B0F1A;--bg2:#111827;--bg3:#1A2236;--bg4:#1E2A3A;
+  --accent:#00C8FF;--accent2:#0099CC;--gold:#F5A623;
+  --green:#22C55E;--red:#EF4444;--text:#F1F5F9;--muted:#64748B;--border:#1E293B;
+  --card:#131C2E;--teal:#0D9488;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .6s ease,visibility .6s;}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
+.sp-logo{font-size:56px;margin-bottom:16px;}
+.sp-title{font-family:'Roboto',sans-serif;font-size:28px;font-weight:900;letter-spacing:4px;color:#fff;}
+.sp-title span{color:var(--accent);}
+.sp-sub{font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:6px;}
+.sp-bar{width:160px;height:3px;background:var(--border);border-radius:3px;margin-top:32px;overflow:hidden;}
+.sp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;animation:fillBar 2.2s ease forwards;}
+@keyframes fillBar{0%{width:0%;}100%{width:100%;}}
+
+/* APP */
+#app{opacity:0;transition:opacity .4s ease;}
+#app.show{opacity:1;}
+
+/* PAGES */
+.page{display:none;min-height:100vh;padding-bottom:72px;}
+.page.on{display:block;}
+#page-menu{display:none;padding-bottom:0;}
+#page-menu.on{display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOP BAR (eFOOTBALL style) */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0B0F1A;border-bottom:1px solid var(--border);}
+.topbar-logo{display:flex;align-items:center;gap:8px;}
+.topbar-ic{font-size:22px;}
+.topbar-name{font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;letter-spacing:2px;color:#fff;}
+.topbar-name span{color:var(--accent);}
+.topbar-badge{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--accent);border:1.5px solid var(--accent);padding:2px 8px;border-radius:4px;}
+.topbar-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);cursor:pointer;padding:4px 0;}
+
+/* HERO BANNER (with image placeholder) */
+.hero-banner{position:relative;height:180px;background:linear-gradient(180deg,#0d1f3c 0%,#0B0F1A 100%);overflow:hidden;display:flex;align-items:flex-end;}
+.hero-banner::before{content:'🏆⚽🌍';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:80px;opacity:.08;letter-spacing:10px;}
+.hero-img-overlay{position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 0%,transparent 60%);}
+.hero-content{position:relative;z-index:2;padding:16px;}
+.hero-eyebrow{font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+.hero-title{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:#fff;}
+.hero-title span{color:var(--gold);}
+.hero-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#0B0F1A;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:100;}
+.bnav-i{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px 0;}
+.bnav-ic{font-size:20px;transition:transform .2s;}
+.bnav-lb{font-size:9px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;}
+.bnav-i.on .bnav-ic{transform:scale(1.1);}
+.bnav-i.on .bnav-lb{color:var(--accent);}
+
+/* TABS (WC page) */
+.wc-tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;}
+.wc-tabs::-webkit-scrollbar{display:none;}
+.wt{flex:0 0 auto;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;white-space:nowrap;transition:color .15s;}
+.wt.on{color:var(--accent);border-bottom-color:var(--accent);}
+.tab{display:none;}
+.tab.on{display:block;}
+
+/* SECTION LABEL */
+.slb{font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;padding:16px 16px 8px;}
+
+/* GROUP BUTTONS */
+.gbtns{padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
+.gbtn{padding:12px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;}
+.gbtn:active{transform:scale(.95);}
+.gbtn.on{background:rgba(0,200,255,.1);border-color:var(--accent);color:var(--accent);}
+
+/* STANDINGS TABLE */
+.grp-tbl{margin:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.grp-hd{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:10px 12px;background:var(--bg3);}
+.grp-hd span{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:center;}
+.grp-hd span:nth-child(2){text-align:left;}
+.grp-rw{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:11px 12px;border-top:1px solid var(--border);align-items:center;transition:background .15s;}
+.grp-rw:active{background:var(--bg3);}
+.grp-rw.q1{border-left:2px solid var(--gold);}
+.grp-rw.q2{border-left:2px solid var(--accent);}
+.rk{font-size:12px;font-weight:700;color:var(--muted);text-align:center;}
+.rk.t{color:var(--gold);}
+.nm{display:flex;align-items:center;gap:8px;}
+.fl{font-size:20px;line-height:1;}
+.cname{font-size:12px;font-weight:600;}
+.uname{font-size:10px;color:var(--accent);}
+.st{font-size:12px;color:var(--muted);text-align:center;}
+.pts{font-size:14px;font-weight:700;color:var(--gold);text-align:center;}
+
+/* MATCH CARD */
+.mcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.mcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.mcard-grp{font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
+.mstatus{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:6px;font-weight:600;}
+.mstatus.done{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.mstatus.wait{background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);}
+.mcard-body{display:flex;align-items:center;justify-content:space-between;}
+.mteam{flex:1;}
+.mteam.r{text-align:right;}
+.mteam-flag{font-size:30px;line-height:1;}
+.mteam-name{font-size:12px;font-weight:600;margin-top:4px;}
+.mteam-user{font-size:10px;color:var(--accent);}
+.mscore{font-family:'Roboto',sans-serif;font-size:28px;font-weight:900;letter-spacing:4px;padding:0 12px;text-align:center;min-width:80px;}
+.mscore.pend{font-size:18px;letter-spacing:2px;color:var(--muted);}
+
+/* PLAYER CARD */
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pcard-l{display:flex;align-items:center;gap:12px;}
+.pcard-flag{font-size:30px;}
+.pcard-name{font-size:13px;font-weight:600;}
+.pcard-user{font-size:11px;color:var(--accent);margin-top:2px;}
+.pcard-grp{font-size:10px;color:var(--muted);margin-top:1px;}
+.pcard-pts{font-family:'Roboto',sans-serif;font-size:24px;font-weight:900;color:var(--gold);text-align:right;}
+.pcard-ptslb{font-size:9px;color:var(--muted);letter-spacing:2px;text-align:right;}
+
+/* PLAYOFF */
+.playoff-wrap{overflow-x:auto;padding:16px 8px;}
+.bracket{display:flex;gap:6px;min-width:900px;}
+.round{display:flex;flex-direction:column;flex:1;min-width:110px;}
+.round-title{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:center;padding:8px 4px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.matches-col{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:2px;}
+.pom{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px;margin:3px 0;}
+.pom.third{border-color:var(--teal);}
+.pom.final-match{border-color:var(--gold);background:rgba(245,166,35,.04);}
+.pom-team{display:flex;align-items:center;justify-content:space-between;padding:5px 0;}
+.pom-team:first-child{border-bottom:1px solid var(--border);}
+.pom-left{display:flex;align-items:center;gap:6px;}
+.pom-flag{font-size:13px;}
+.pom-name{font-size:10px;font-weight:500;}
+.pom-name.tbd{color:var(--muted);}
+.pom-score{font-family:'Roboto',sans-serif;font-size:12px;font-weight:700;color:var(--gold);}
+.pom-score.pend{color:var(--muted);font-size:10px;}
+.pom-winner{border-left:2px solid var(--gold);}
+.pom-winner-bronze{border-left:2px solid var(--teal);}
+/* REYTING */
+.rating-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.rating-medal{font-size:28px;min-width:36px;text-align:center;}
+.rating-info{flex:1;}
+.rating-name{font-size:14px;font-weight:700;}
+.rating-user{font-size:11px;color:var(--accent);margin-top:2px;}
+.rating-detail{font-size:10px;color:var(--muted);margin-top:2px;}
+.rating-pts{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:right;}
+.rating-ptslb{font-size:9px;color:var(--muted);letter-spacing:2px;text-align:right;}
+.rating-card.gold{border-color:var(--gold);background:rgba(245,166,35,.05);}
+.rating-card.silver{border-color:#94A3B8;background:rgba(148,163,184,.04);}
+.rating-card.bronze{border-color:#C47A3A;background:rgba(196,122,58,.04);}
+
+/* MENU PAGE */
+.menu-hero{padding:36px 20px 24px;text-align:center;}
+.menu-icon{font-size:54px;margin-bottom:12px;display:block;}
+.menu-title{font-family:'Roboto',sans-serif;font-size:28px;font-weight:900;letter-spacing:2px;color:#fff;}
+.menu-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:6px;}
+.menu-cards{padding:0 16px;display:flex;flex-direction:column;gap:12px;}
+.mnu-card{border-radius:16px;padding:20px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;}
+.mnu-card:active{transform:scale(.98);}
+.mnu-card.wc{background:linear-gradient(135deg,#0d1f3c,#1a3050);border:1px solid var(--accent);}
+.mnu-card.wc::before{content:'🌍';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:54px;opacity:.12;}
+.mnu-card.liga{background:var(--card);border:1px solid var(--border);opacity:.55;}
+.mnu-card.liga::before{content:'🏆';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:54px;opacity:.08;}
+.mc-eye{font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+.mc-eye.locked{color:var(--muted);}
+.mc-title{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;}
+.mc-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.mc-badge{display:inline-block;font-size:9px;letter-spacing:2px;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.3);color:var(--accent);padding:4px 10px;border-radius:6px;margin-top:10px;text-transform:uppercase;font-weight:600;}
+.mc-badge.locked{background:var(--bg4);border-color:var(--border);color:var(--muted);}
+.menu-footer{padding:20px;text-align:center;}
+.menu-footer-txt{font-size:11px;color:var(--muted);letter-spacing:2px;}
+
+/* ADMIN */
+.adm-lock{padding:40px 16px;text-align:center;}
+.al-ic{font-size:48px;margin-bottom:16px;}
+.al-tt{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;letter-spacing:1px;margin-bottom:6px;}
+.al-sb{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.pin-in{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-size:20px;letter-spacing:8px;text-align:center;outline:none;margin-bottom:12px;transition:border-color .15s;}
+.pin-in:focus{border-color:var(--accent);}
+.pin-btn{width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;color:#000;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.adm-sec{padding:0 16px;}
+.adm-c{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+.adm-ct{font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:14px;}
+.flb{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px;}
+.fin{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;transition:border-color .15s;}
+.fin:focus{border-color:var(--accent);}
+.fsel{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;}
+.fbtn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.fbtn-r{width:100%;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
+.fbtn-g{width:100%;padding:12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:10px;color:var(--green);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
+
+/* PROFILE */
+.prof-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
+.prof-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,200,255,.08),transparent 70%);border-radius:50%;}
+.prof-avatar{width:52px;height:52px;border-radius:50%;background:var(--bg3);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.prof-info{flex:1;}
+.prof-name{font-size:16px;font-weight:700;}
+.prof-team{font-size:13px;color:var(--muted);margin-top:3px;}
+.prof-user{font-size:12px;color:var(--accent);margin-top:2px;}
+.prof-flag{font-size:40px;opacity:.3;position:absolute;right:16px;}
+
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center;}
+.stat-val{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--text);}
+.stat-lbl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+
+.my-match{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.my-match-num{font-size:11px;color:var(--muted);min-width:28px;font-weight:600;}
+.my-match-flags{display:flex;align-items:center;gap:8px;flex:1;font-size:22px;}
+.my-match-score{font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:var(--text);letter-spacing:1px;}
+.my-match-score.pend{color:var(--muted);font-size:13px;}
+.my-match-status{font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 9px;border-radius:6px;}
+.my-match-status.wait{background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);}
+.my-match-status.win{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);}
+.my-match-status.draw{background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);}
+.my-match-status.loss{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+
+.pcard.my-row{border-color:var(--accent);background:rgba(0,200,255,.06);}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-ic{font-size:40px;margin-bottom:12px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(.9);background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:10px 20px;border-radius:10px;font-size:13px;white-space:nowrap;z-index:999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1);}
+
+/* INFO CARD (menu page) */
+.info-strip{margin:12px 16px 0;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.info-num{text-align:center;}
+.info-val{font-family:'Roboto',sans-serif;font-size:24px;font-weight:900;color:var(--accent);}
+.info-lbl{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.info-div{width:1px;height:36px;background:var(--border);}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-logo">⚽</div>
+  <div class="sp-title">eF <span>WARRIORS</span></div>
+  <div class="sp-sub">World Cup 2026</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
+</div>
+
+<div id="app">
+
+<!-- PAGE: MAIN MENU -->
+<div class="page" id="page-menu">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <span class="topbar-ic">⚽</span>
+      <span class="topbar-name">eF <span>WARRIORS</span></span>
+    </div>
+    <div class="topbar-badge">2026</div>
+  </div>
+  <div class="menu-hero">
+    <span class="menu-icon">🏆</span>
+    <div class="menu-title">REJIMNI TANLANG</div>
+    <div class="menu-sub">Virtual Football League</div>
+  </div>
+  <div class="info-strip">
+    <div class="info-num"><div class="info-val">12</div><div class="info-lbl">Guruh</div></div>
+    <div class="info-div"></div>
+    <div class="info-num"><div class="info-val">48</div><div class="info-lbl">Jamoa</div></div>
+    <div class="info-div"></div>
+    <div class="info-num"><div class="info-val">1</div><div class="info-lbl">Mavsum</div></div>
+  </div>
+  <div class="menu-cards" style="margin-top:16px;">
+    <div class="mnu-card wc" onclick="openWC()">
+      <div class="mc-eye">Ochiq — Ro'yxat davom etmoqda</div>
+      <div class="mc-title">🌍 Jahon Chempionati</div>
+      <div class="mc-sub">12 guruh · 48 jamoa · Playoff setkasi</div>
+      <div class="mc-badge">World Cup 2026 →</div>
+    </div>
+    <div class="mnu-card liga">
+      <div class="mc-eye locked">Tez kunda</div>
+      <div class="mc-title" style="color:var(--muted);">🏟 Ligalar</div>
+      <div class="mc-sub">Premier League, La Liga va boshqalar</div>
+      <div class="mc-badge locked">🔒 Yopiq</div>
+    </div>
+  </div>
+  <!-- RO'YXATDAN O'TISH BLOKI -->
+  <div style="padding:0 16px;margin-top:16px;">
+    <div style="background:var(--card);border:1px solid var(--accent);border-radius:16px;padding:18px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;">🌍</div>
+      <div style="font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:6px;">Ochiq — Ro'yxat davom etmoqda</div>
+      <div style="font-family:'Roboto',sans-serif;font-size:20px;font-weight:900;margin-bottom:4px;">Jahon Chempionati</div>
+      <div style="display:flex;gap:24px;margin:14px 0 16px;">
+        <div style="text-align:center;">
+          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">48</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Jamoalar</div>
+        </div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;">
+          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">48</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Jamoalar</div>
+        </div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;">
+          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">4</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Maksimal</div>
+        </div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;">
+          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">1</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Mavsum</div>
+        </div>
+      </div>
+      <div id="reg-status-btn" style="width:100%;padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;text-align:center;letter-spacing:1px;">
+        Tekshirilmoqda...
+      </div>
+
+      <!-- RO'YXATDAN O'TISH FORMASI (ro'yxatda yo'q bo'lsa ko'rinadi) -->
+      <div id="reg-form" style="display:none;margin-top:14px;">
+        <div style="font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Guruh va Jamoa tanlang</div>
+        <select id="rf-grp" onchange="loadRegTeams()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
+        </select>
+        <select id="rf-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px;-webkit-appearance:none;">
+        </select>
+        <button onclick="registerUser()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">
+          Ro'yxatdan o'tish →
+        </button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Guruh tanlash</div>
+        <div id="reg-grp-btns" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-footer"><div class="menu-footer-txt">⚡ eF Warriors · Season 1</div></div>
+</div>
+
+<!-- PAGE: WORLD CUP -->
+<div class="page" id="page-wc">
+  <div class="topbar">
+    <div class="topbar-back" onclick="backToMenu()">← Orqaga</div>
+    <div class="topbar-badge">WC 2026</div>
+  </div>
+
+  <!-- BOTTOM NAV (WC page) -->
+  <div class="bnav" id="wc-bnav">
+    <div class="bnav-i on" id="wt-home" onclick="wcTab('home')">
+      <div class="bnav-ic">⚽</div>
+      <div class="bnav-lb">Guruhlar</div>
+    </div>
+    <div class="bnav-i" id="wt-matches" onclick="wcTab('matches')">
+      <div class="bnav-ic">📅</div>
+      <div class="bnav-lb">O'yinlar</div>
+    </div>
+    <div class="bnav-i" id="wt-rating" onclick="wcTab('rating')">
+      <div class="bnav-ic">🥇</div>
+      <div class="bnav-lb">Reyting</div>
+    </div>
+    <div class="bnav-i" id="wt-playoff" onclick="wcTab('playoff')">
+      <div class="bnav-ic">🏆</div>
+      <div class="bnav-lb">Playoff</div>
+    </div>
+    <div class="bnav-i" id="wt-players" onclick="wcTab('players')">
+      <div class="bnav-ic">👤</div>
+      <div class="bnav-lb">Profil</div>
+    </div>
+    <div class="bnav-i" id="wt-admin" onclick="wcTab('admin')" style="display:none;">
+      <div class="bnav-ic">🔐</div>
+      <div class="bnav-lb">Admin</div>
+    </div>
+  </div>
+
+  <!-- TAB: GROUPS -->
+  <div id="wc-home" class="tab on" style="padding-bottom:20px;">
+    <div class="hero-banner">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">World Cup 2026</div>
+        <div class="hero-title">Guruh <span>Bosqichi</span></div>
+        <div class="hero-sub">12 guruh · Har guruhdan top-2 o'tadi</div>
+      </div>
+    </div>
+    <div class="slb">Guruh tanlang</div>
+    <div class="gbtns" id="hg-btns"></div>
+    <div id="hg-table"></div>
+    <div class="slb" style="margin-top:4px;">So'nggi natijalar</div>
+    <div style="padding:0 16px;" id="hg-recent"></div>
+  </div>
+
+  <!-- TAB: MATCHES -->
+  <div id="wc-matches" class="tab" style="padding-bottom:20px;">
+    <div class="hero-banner">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">O'yinlar</div>
+        <div class="hero-title">Guruh <span>O'yinlari</span></div>
+      </div>
+    </div>
+    <div class="slb">Guruh tanlang</div>
+    <div class="gbtns" id="mg-btns"></div>
+    <div style="padding:0 16px;margin-top:4px;" id="mg-list"></div>
+  </div>
+
+  <!-- TAB: PLAYOFF -->
+  <div id="wc-playoff" class="tab" style="padding-bottom:20px;">
+    <div class="hero-banner">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">Knock-out</div>
+       <div class="hero-title">Playoff <span>Setkasi</span></div>
+        <div class="hero-sub">Chapdan o'ngga: 1/8 → 1/4 → Yarim → Final</div>
+      </div>
+    </div>
+    <div id="bracket-wrap" class="playoff-wrap"></div>
+  </div>
+
+  <!-- TAB: REYTING -->
+  <div id="wc-rating" class="tab" style="padding-bottom:20px;">
+    <div id="rating-content"></div>
+  </div>
+
+  <!-- TAB: PROFIL -->
+  <div id="wc-players" class="tab" style="padding-bottom:20px;">
+    <div id="profile-content"></div>
+  </div>
+
+  <!-- TAB: ADMIN -->
+  <div id="wc-admin" class="tab" style="padding-bottom:20px;">
+    <div id="adm-lock-screen">
+      <div class="hero-banner">
+        <div class="hero-img-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-eyebrow">Boshqaruv</div>
+          <div class="hero-title">Admin <span>Panel</span></div>
+        </div>
+      </div>
+      <div class="adm-lock">
+        <div class="al-ic">🔐</div>
+        <div class="al-tt">Kirish kerak</div>
+        <div class="al-sb">Admin PIN kodini kiriting</div>
+        <input class="pin-in" type="password" id="pin-val" maxlength="6" placeholder="••••••">
+        <button class="pin-btn" onclick="checkPin()">Kirish →</button>
+      </div>
+    </div>
+    <div id="adm-panel" style="display:none;">
+      <div class="hero-banner">
+        <div class="hero-img-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-eyebrow">Boshqaruv</div>
+          <div class="hero-title">Admin <span>Panel</span></div>
+        </div>
+      </div>
+      <div class="slb">Guruh natijasi</div>
+      <div class="adm-sec">
+        <div class="adm-c">
+          <div class="adm-ct">⚽ Natija kiritish</div>
+          <label class="flb">Guruh</label>
+          <select class="fsel" id="a-grp" onchange="loadATeams()"></select>
+          <label class="flb">1-Jamoa</label>
+          <select class="fsel" id="a-home"></select>
+          <label class="flb">2-Jamoa</label>
+          <select class="fsel" id="a-away"></select>
+          <label class="flb">Natija (2-1)</label>
+          <input class="fin" id="a-score" placeholder="2-1">
+          <button class="fbtn" onclick="saveResult()">Saqlash ✓</button>
+        </div>
+        <div class="adm-c">
+          <div class="adm-ct">🗑 Natijani o'chirish</div>
+          <label class="flb">Guruh</label>
+          <select class="fsel" id="d-grp" onchange="loadDelMatches()"></select>
+          <label class="flb">O'yin</label>
+          <select class="fsel" id="d-match"></select>
+          <button class="fbtn-r" onclick="deleteResult()">O'chirish</button>
+        </div>
+        <div class="adm-c">
+          <div class="adm-ct">🏆 Playoff natijasi</div>
+          <label class="flb">Bosqich</label>
+          <select class="fsel" id="po-round">
+            <option value="r32">1/16 Final (32→16)</option>
+            <option value="r16">1/8 Final (16→8)</option>
+            <option value="qf">Chorak Final</option>
+            <option value="sf">Yarim Final</option>
+            <option value="third">3-o'rin O'yini</option>
+            <option value="final">Final</option>
+          </select>
+          <label class="flb">O'yin raqami</label>
+          <select class="fsel" id="po-match"></select>
+          <label class="flb">Natija (2-1)</label>
+          <input class="fin" id="po-score" placeholder="2-1">
+          <button class="fbtn" onclick="savePlayoff()">Saqlash ✓</button>
+        </div>
+        <div class="adm-c">
+          <div class="adm-ct">📋 Kutayotgan ro'yxatlar</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">O'yinchilar tomonidan yuborilgan so'rovlar</div>
+          <div id="pending-regs-list"></div>
+          <button onclick="renderPendingRegs()" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;cursor:pointer;margin-top:6px;">🔄 Yangilash</button>
+        </div>
+
+        <div class="adm-c">
+          <div class="adm-ct">🔄 WC 2026: Guruh bosqichi tugadi</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">24 ta 1-o'rin + 8 ta eng yaxshi 3-o'rin = 32 jamoa playoff ga chiqadi</div>
+          <button class="fbtn-g" onclick="generatePlayoff()">Playoff setkasini yaratish ✓</button>
+        </div>
+
+        <div class="adm-c">
+          <div class="adm-ct">🗂 Turlarni boshqarish</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Har bir guruh uchun turni ochish yoki yopish</div>
+
+          <label class="flb">Guruhni tanlang</label>
+          <select class="fsel" id="t-grp" onchange="loadTurTeams()"></select>
+
+          <div id="tur-teams-wrap" style="margin-bottom:10px;"></div>
+
+          <label class="flb">Tur raqami</label>
+          <select class="fsel" id="t-round">
+            <option value="1">1-tur</option>
+            <option value="2">2-tur</option>
+            <option value="3">3-tur</option>
+          </select>
+
+          <label class="flb">Holat</label>
+          <select class="fsel" id="t-status">
+            <option value="open">🟢 Ochiq (o'yinchilar natija kirита oladi)</option>
+            <option value="closed">🔴 Yopiq (natija kiritish bloklangan)</option>
+          </select>
+
+          <button class="fbtn" onclick="saveTurStatus()" style="margin-top:4px;">Saqlash ✓</button>
+
+          <div id="tur-status-list" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PIN = "1234";
+
+const GROUPS = {
+  A:[{flag:"🇲🇽",name:"Mexico",user:"@toirovvvv"},{flag:"🇿🇦",name:"South Africa",user:"—"},{flag:"🇰🇷",name:"South Korea",user:"@AT_Navbahor_7"},{flag:"🇨🇿",name:"Czechia",user:"—"}],
+  B:[{flag:"🇨🇦",name:"Canada",user:"@ramziddin_4406"},{flag:"🇧🇦",name:"Bosnia",user:"—"},{flag:"🇶🇦",name:"Qatar",user:"—"},{flag:"🇨🇭",name:"Switzerland",user:"—"}],
+  C:[{flag:"🇧🇷",name:"Brazil",user:"@dlmrdv1ch"},{flag:"🇲🇦",name:"Morocco",user:"@mr_qarshiyew"},{flag:"🇭🇹",name:"Haiti",user:"@kkhy_1"},{flag:"🏴",name:"Scotland",user:"@isAbbas_C7"}],
+  D:[{flag:"🇺🇸",name:"United States",user:"—"},{flag:"🇵🇾",name:"Paraguay",user:"—"},{flag:"🇦🇺",name:"Australia",user:"—"},{flag:"🇹🇷",name:"Türkiye",user:"@the_asraevv"}],
+  E:[{flag:"🇩🇪",name:"Germany",user:"@elshod_068"},{flag:"🇨🇼",name:"Curaçao",user:"@umid_1902"},{flag:"🇨🇮",name:"Ivory Coast",user:"—"},{flag:"🇪🇨",name:"Ecuador",user:"—"}],
+  F:[{flag:"🇳🇱",name:"Netherlands",user:"@Ali_xxx_777"},{flag:"🇯🇵",name:"Japan",user:"@kiddofoxx17"},{flag:"🇸🇪",name:"Sweden",user:"@baxa_0614"},{flag:"🇹🇳",name:"Tunisia",user:"@inomov0401"}],
+  G:[{flag:"🇧🇪",name:"Belgium",user:"@Muhammadjanov17"},{flag:"🇪🇬",name:"Egypt",user:"@jumaef"},{flag:"🇮🇷",name:"Iran",user:"@Kib1lanmang"},{flag:"🇳🇿",name:"New Zealand",user:"@AT_Navbahor_7"}],
+  H:[{flag:"🇪🇸",name:"Spain",user:"@Isa_uz05"},{flag:"🇨🇻",name:"Cape Verde",user:"@umrvv3"},{flag:"🇸🇦",name:"Saudi Arabia",user:"@fm_murod1l"},{flag:"🇺🇾",name:"Uruguay",user:"@MBR_3010"}],
+  I:[{flag:"🇫🇷",name:"France",user:"@Alik28k"},{flag:"🇸🇳",name:"Senegal",user:"@PRosTOY_4"},{flag:"🇮🇶",name:"Iraq",user:"@yasser13288"},{flag:"🇳🇴",name:"Norway",user:"@thecoko"}],
+  J:[{flag:"🇦🇷",name:"Argentina",user:"@mamurjonov_0506"},{flag:"🇩🇿",name:"Algeria",user:"—"},{flag:"🇦🇹",name:"Austria",user:"@Jaxongir_2026"},{flag:"🇯🇴",name:"Jordan",user:"@MNS_MNF"}],
+  K:[{flag:"🇵🇹",name:"Portugal",user:"@itskamo7"},{flag:"🇨🇩",name:"DR Congo",user:"@I_see_su_bitch"},{flag:"🇺🇿",name:"Uzbekistan",user:"@yusupbaevvvv"},{flag:"🇨🇴",name:"Colombia",user:"@inamjanovich_7"}],
+  L:[{flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",name:"England",user:"@Shukurullo2004"},{flag:"🇭🇷",name:"Croatia",user:"@shukuraliyev_d1yorbeek"},{flag:"🇬🇭",name:"Ghana",user:"—"},{flag:"🇵🇦",name:"Panama",user:"—"}]
+};
+
+let results = {};
+// WC 2026: 32 jamoa → r32(16 o'yin) → r16(8) → qf(4) → sf(2) → third(1) + final(1)
+let playoff = {"r32":[],"r16":[],"qf":[],"sf":[],"third":[],"final":[]};
+
+const tg = window.Telegram && window.Telegram.WebApp;
+const CS = tg && tg.CloudStorage;
+
+function saveData(){
+  const resStr = JSON.stringify(results);
+  const poStr = JSON.stringify(playoff);
+  if(CS){
+    CS.setItem('wc26_res', resStr);
+    CS.setItem('wc26_po', poStr);
+  } else {
+    try{ localStorage.setItem('wc26_res', resStr); localStorage.setItem('wc26_po', poStr); }catch(e){}
+  }
+}
+
+function loadData(cb){
+  if(CS){
+    let done=false;
+    const finish=()=>{ if(done) return; done=true; cb(); };
+    const failsafe=setTimeout(finish, 3000); // never hang forever if CloudStorage doesn't respond
+    try{
+      CS.getItems(['wc26_res','wc26_po','wc26_tur'], function(err, values){
+        clearTimeout(failsafe);
+        if(!err && values){
+          try{ results = JSON.parse(values['wc26_res']||'{}'); }catch(e){ results={}; }
+          try{ playoff = ensurePlayoff(JSON.parse(values['wc26_po']||'null')); }catch(e){ playoff=ensurePlayoff(null); }
+          try{ window.turStatus = JSON.parse(values['wc26_tur']||'{}'); }catch(e){ window.turStatus={}; }
+        }
+        finish();
+      });
+    }catch(e){
+      clearTimeout(failsafe);
+      finish();
+    }
+  } else {
+    try{ results = JSON.parse(localStorage.getItem('wc26_res')||'{}'); }catch(e){ results={}; }
+    try{ playoff = ensurePlayoff(JSON.parse(localStorage.getItem('wc26_po')||'null')); }catch(e){ playoff=ensurePlayoff(null); }
+    try{ window.turStatus = JSON.parse(localStorage.getItem('wc26_tur')||'{}'); }catch(e){ window.turStatus={}; }
+    cb();
+  }
+}
+
+function initData(){
+  if(!results.H) results.H=[];
+  if(!results.F) results.F=[];
+  if(!results.H.find(r=>r.h==='Spain'&&r.a==='Cape Verde')) results.H.push({h:'Spain',a:'Cape Verde',hs:2,as:0});
+  if(!results.H.find(r=>r.h==='Uruguay'&&r.a==='Saudi Arabia')) results.H.push({h:'Uruguay',a:'Saudi Arabia',hs:3,as:0});
+  if(!results.F.find(r=>r.h==='Netherlands'&&r.a==='Japan')) results.F.push({h:'Netherlands',a:'Japan',hs:3,as:0});
+  if(!results.F.find(r=>r.h==='Sweden'&&r.a==='Tunisia')) results.F.push({h:'Sweden',a:'Tunisia',hs:2,as:3});
+  saveData();
+}
+
+function getStats(grp){
+  const teams=GROUPS[grp].map(t=>({...t,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
+  (results[grp]||[]).forEach(r=>{
+    const ht=teams.find(t=>t.name===r.h), at=teams.find(t=>t.name===r.a);
+    if(!ht||!at) return;
+    ht.p++;at.p++;ht.gf+=r.hs;ht.ga+=r.as;at.gf+=r.as;at.ga+=r.hs;
+    if(r.hs>r.as){ht.w++;ht.pts+=3;at.l++;}
+    else if(r.hs===r.as){ht.d++;ht.pts++;at.d++;at.pts++;}
+    else{at.w++;at.pts+=3;ht.l++;}
+  });
+  return teams.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga));
+}
+
+function tblHTML(grp){
+  const t=getStats(grp);
+  return `<div class="grp-tbl">
+    <div class="grp-hd"><span>#</span><span>${grp} Guruh</span><span>B</span><span>G</span><span>D</span><span>M</span><span>PTS</span></div>
+    ${t.map((p,i)=>`<div class="grp-rw ${i===0?'q1':i===1?'q2':''}">
+      <div class="rk ${i<2?'t':''}">${i+1}</div>
+      <div class="nm"><div class="fl">${p.flag}</div><div><div class="cname">${p.name}</div><div class="uname">${p.user}</div></div></div>
+      <div class="st">${p.p}</div><div class="st">${p.w}</div><div class="st">${p.d}</div><div class="st">${p.l}</div>
+      <div class="pts">${p.pts}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function matchHTML(grp,r){
+  const ht=GROUPS[grp].find(t=>t.name===r.h)||{flag:'',name:r.h,user:''};
+  const at=GROUPS[grp].find(t=>t.name===r.a)||{flag:'',name:r.a,user:''};
+  return `<div class="mcard">
+    <div class="mcard-top"><div class="mcard-grp">${grp} Guruh</div><div class="mstatus done">Yakunlandi</div></div>
+    <div class="mcard-body">
+      <div class="mteam"><div class="mteam-flag">${ht.flag}</div><div class="mteam-name">${ht.name}</div><div class="mteam-user">${ht.user}</div></div>
+      <div class="mscore">${r.hs} — ${r.as}</div>
+      <div class="mteam r"><div class="mteam-flag">${at.flag}</div><div class="mteam-name">${at.name}</div><div class="mteam-user">${at.user}</div></div>
+    </div>
+  </div>`;
+}
+
+const ADMIN_USER = 'yusupbaevvvv';
+
+function isAdmin(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  return tgUser && tgUser.username === ADMIN_USER;
+}
+
+function openWC(){
+  document.getElementById('page-menu').classList.remove('on');
+  document.getElementById('page-wc').classList.add('on');
+  const adminBtn = document.getElementById('wt-admin');
+  const adminPage = document.getElementById('wc-admin');
+  if(!isAdmin()){
+    adminBtn.style.display = 'none';
+    adminPage.style.display = 'none';
+  } else {
+    adminBtn.style.display = '';
+    adminPage.style.display = '';
+  }
+  initHomeTab();
+}
+function backToMenu(){
+  document.getElementById('page-wc').classList.remove('on');
+  document.getElementById('page-menu').classList.add('on');
+}
+
+let curWcTab='home';
+function wcTab(name){
+  ['home','matches','rating','playoff','players','admin'].forEach(t=>{
+    document.getElementById('wc-'+t).classList.toggle('on',t===name);
+    const btn=document.getElementById('wt-'+t);
+    if(btn) btn.classList.toggle('on',t===name);
+  });
+  curWcTab=name;
+  if(name==='home') initHomeTab();
+  if(name==='matches'){ initMatchesTab(); renderMatchList(mGrp); }
+  if(name==='rating') renderRating();
+  if(name==='playoff') renderBracket();
+  if(name==='players') renderPlayers();
+}
+
+let hGrp='H';
+function initHomeTab(){
+  const el=document.getElementById('hg-btns');
+  el.innerHTML=Object.keys(GROUPS).map(g=>`<div class="gbtn ${g===hGrp?'on':''}" onclick="selHG('${g}',this)">${g}</div>`).join('');
+  document.getElementById('hg-table').innerHTML=tblHTML(hGrp);
+  renderRecent();
+}
+function selHG(g,el){
+  hGrp=g;
+  document.querySelectorAll('#hg-btns .gbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('hg-table').innerHTML=tblHTML(g);
+}
+function renderRecent(){
+  let html='';
+  Object.keys(results).forEach(grp=>(results[grp]||[]).forEach(r=>{ html+=matchHTML(grp,r); }));
+  document.getElementById('hg-recent').innerHTML=html||'<div class="empty"><div class="empty-ic">📅</div><div>Natija yo\'q</div></div>';
+}
+
+let mGrp='H';
+function initMatchesTab(){
+  const el=document.getElementById('mg-btns');
+  el.innerHTML=Object.keys(GROUPS).map(g=>`<div class="gbtn ${g===mGrp?'on':''}" onclick="selMG('${g}',this)">${g}</div>`).join('');
+  renderMatchList(mGrp);
+}
+function selMG(g,el){
+  mGrp=g;
+  document.querySelectorAll('#mg-btns .gbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderMatchList(g);
+}
+function renderMatchList(grp){
+  const teams=GROUPS[grp], rs=results[grp]||[];
+  let html='';
+  for(let i=0;i<teams.length;i++) for(let j=i+1;j<teams.length;j++){
+    const ht=teams[i],at=teams[j];
+    const r=rs.find(x=>(x.h===ht.name&&x.a===at.name)||(x.h===at.name&&x.a===ht.name));
+    let sh=ht,sa=at,sc='',done=!!r;
+    if(r){if(r.h===at.name){sh=at;sa=ht;} sc=`<div class="mscore">${r.hs} — ${r.as}</div>`;}
+    else sc=`<div class="mscore pend">— : —</div>`;
+    html+=`<div class="mcard">
+      <div class="mcard-top"><div class="mcard-grp">${grp} Guruh</div><div class="mstatus ${done?'done':'wait'}">${done?'Yakunlandi':'Kutilmoqda'}</div></div>
+      <div class="mcard-body">
+        <div class="mteam"><div class="mteam-flag">${sh.flag}</div><div class="mteam-name">${sh.name}</div><div class="mteam-user">${sh.user}</div></div>
+        ${sc}
+        <div class="mteam r"><div class="mteam-flag">${sa.flag}</div><div class="mteam-name">${sa.name}</div><div class="mteam-user">${sa.user}</div></div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('mg-list').innerHTML=html;
+}
+
+function getMatchNumber(grp, teamA, teamB){
+  // Barcha guruhlar bo'yicha match raqamini hisoblash (global raqam)
+  const grpKeys = Object.keys(GROUPS);
+  let num = 0;
+  for(let gi=0; gi<grpKeys.length; gi++){
+    const g = grpKeys[gi];
+    const teams = GROUPS[g];
+    for(let i=0;i<teams.length;i++) for(let j=i+1;j<teams.length;j++){
+      num++;
+      if(g===grp && ((teams[i].name===teamA && teams[j].name===teamB)||(teams[i].name===teamB && teams[j].name===teamA))){
+        return num;
+      }
+    }
+  }
+  return num;
+}
+
+function renderPlayers(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@' + tgUser.username : null;
+  const myFirstName = tgUser ? tgUser.first_name : null;
+  const myPhoto = tgUser && tgUser.photo_url ? tgUser.photo_url : null;
+
+  let myTeam = null, myRank = 0;
+
+  if(myUsername){
+    for(const grp of Object.keys(GROUPS)){
+      const stats = getStats(grp);
+      const idx = stats.findIndex(t => t.user === myUsername);
+      if(idx !== -1){ myTeam = stats[idx]; myTeam.grp = grp; myRank = idx+1; break; }
+    }
+  }
+
+  const wrap = document.getElementById('profile-content');
+
+  if(!myTeam){
+    wrap.innerHTML = `
+      <div style="padding:24px 16px 16px;">
+        <div class="prof-card">
+          <div class="prof-avatar">👤</div>
+          <div class="prof-info">
+            <div class="prof-name">${myFirstName||'Mehmon'}</div>
+            <div class="prof-team" style="color:var(--muted);">Jamoangiz topilmadi</div>
+            <div class="prof-user" style="color:var(--muted);">${myUsername||'@username yo\'q'}</div>
+          </div>
+        </div>
+      </div>
+      <div class="empty"><div class="empty-ic">👤</div><div>Siz ro'yxatda emassiz yoki Telegram username ulangan emas</div></div>`;
+    return;
+  }
+
+  // O'yinlarni yig'ish (tur raqami bilan)
+  const grpTeams = GROUPS[myTeam.grp];
+  const grpMatches = [];
+  // Guruh ichida 4 jamoa: 6 o'yin, turlar: 1-tur (3 o'yin), 2-tur (2), 3-tur (1)
+  // Har bir o'yinchi 3 o'yin o'ynaydi: 1-tur, 2-tur, 3-tur (biri bilan 2 marta bo'ladi)
+  // Sodda: match raqami bo'yicha 1=1-tur, 2=2-tur, 3=3-tur deb belgilaymiz
+  let myMatchIdx = 0;
+  for(let i=0;i<grpTeams.length;i++) for(let j=i+1;j<grpTeams.length;j++){
+    const ht=grpTeams[i], at=grpTeams[j];
+    if(ht.name!==myTeam.name && at.name!==myTeam.name) continue;
+    myMatchIdx++;
+    const rs=results[myTeam.grp]||[];
+    const r=rs.find(x=>(x.h===ht.name&&x.a===at.name)||(x.h===at.name&&x.a===ht.name));
+    const opp = ht.name===myTeam.name ? at : ht;
+    const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
+    const turNum = myMatchIdx; // 1, 2 yoki 3-tur
+    let myScore=null, oppScore=null, done=!!r, win=false, draw=false;
+    if(r){
+      myScore = r.h===myTeam.name?r.hs:r.as;
+      oppScore = r.h===myTeam.name?r.as:r.hs;
+      win=myScore>oppScore; draw=myScore===oppScore;
+    }
+    grpMatches.push({opp, myScore, oppScore, done, win, draw, matchNum, turNum,
+      myName:myTeam.name, oppName:opp.name, grp:myTeam.grp});
+  }
+
+  const rankColor = myRank===1?'#F5A623':myRank===2?'#94A3B8':myRank===3?'#C47A3A':'var(--accent)';
+  const displayName = myFirstName || myTeam.user;
+  const avatarHTML = myPhoto
+    ? `<img src="${myPhoto}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);">`
+    : `<div class="prof-avatar">👤</div>`;
+
+  wrap.innerHTML = `
+    <div style="padding:16px 16px 8px;">
+      <div class="prof-card">
+        ${avatarHTML}
+        <div class="prof-info">
+          <div class="prof-name">${displayName}</div>
+          <div class="prof-team">${myTeam.flag} ${myTeam.name}</div>
+          <div class="prof-user">${myTeam.user}</div>
+        </div>
+        <div class="prof-flag">${myTeam.flag}</div>
+      </div>
+    </div>
+    <div class="slb">Statistika</div>
+    <div style="padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div class="stat-box"><div class="stat-val" style="color:${rankColor};">#${myRank}</div><div class="stat-lbl">O'rin</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--green);">${myTeam.w}</div><div class="stat-lbl">G'alaba</div></div>
+      <div class="stat-box"><div class="stat-val">${myTeam.d}</div><div class="stat-lbl">Durang</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--red);">${myTeam.l}</div><div class="stat-lbl">Mag'lubiyat</div></div>
+    </div>
+    <div class="slb" style="margin-top:12px;">Mening O'yinlarim</div>
+    <div style="padding:0 16px 80px;">
+      ${grpMatches.map(m=>{
+        const scoreStr = m.done ? `${m.myScore}:${m.oppScore}` : '—:—';
+        const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
+        const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):'KUTILMOQDA';
+        const oppUserClean = m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
+        const canChat = !!oppUserClean;
+        // Natija kiritish (faqat yakunlanmagan o'yinlar + tur ochiq bo'lsa)
+        const turOpen = getTurStatus(m.grp, m.turNum) === 'open';
+        const inputBlock = !m.done ? (turOpen ? `
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+            <input id="sc-${m.matchNum}" placeholder="2-1" maxlength="5"
+              style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
+            <button onclick="submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')"
+              style="padding:9px 16px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+              Kiritish ✓
+            </button>
+          </div>` : `
+          <div style="margin-top:10px;padding:9px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;font-size:12px;color:var(--red);text-align:center;">
+            🔒 ${m.turNum}-tur yopiq — admin tomonidan bloklangan
+          </div>`) : '';
+        // Tasdiq/rad tugmalari (admin emas, natija kiritilgan bo'lsa)
+        const confirmBlock = m.done ? `
+          <div style="margin-top:8px;display:flex;gap:6px;">
+            <button onclick="confirmScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}',true)"
+              style="flex:1;padding:8px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;">
+              ✅ Tasdiq
+            </button>
+            <button onclick="confirmScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}',false)"
+              style="flex:1;padding:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;">
+              ❌ Rad
+            </button>
+          </div>` : '';
+        return `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="font-size:11px;color:var(--muted);font-weight:600;min-width:30px;">#${m.matchNum} <span style="font-size:9px;color:var(--accent);">${m.turNum}-TUR</span></div>
+            <div style="display:flex;align-items:center;gap:6px;flex:1;font-size:22px;">
+              <span>${myTeam.flag}</span>
+              <span style="font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;color:${m.done?'var(--text)':'var(--muted)'};">${scoreStr}</span>
+              <span>${m.opp.flag}</span>
+            </div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 10px;border-radius:8px;
+              ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
+                statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
+                statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
+                'background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);'}">${statusTxt}</div>
+            ${canChat?`<button onclick="openChat('${oppUserClean}')"
+              style="width:36px;height:36px;background:rgba(13,148,136,.15);border:1px solid rgba(13,148,136,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
+              :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${m.opp.flag} ${m.opp.name} · ${m.opp.user}</div>
+          ${inputBlock}
+          ${confirmBlock}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function submitMyScore(matchNum, myName, oppName, grp){
+  const inp = document.getElementById('sc-'+matchNum);
+  if(!inp) return;
+  const raw = inp.value.trim();
+  const p = raw.split('-');
+  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  if(!results[grp]) results[grp]=[];
+  results[grp] = results[grp].filter(r=>!((r.h===myName&&r.a===oppName)||(r.h===oppName&&r.a===myName)));
+  results[grp].push({h:myName,a:oppName,hs:parseInt(p[0]),as:parseInt(p[1]),pending:true});
+  saveData();
+  showToast('📨 Natija yuborildi! Admin tasdiqlaydi');
+  renderPlayers();
+}
+
+function confirmScore(matchNum, myName, oppName, grp, approve){
+  if(approve){
+    // Tasdiqlash — pending ni olib tashlash
+    if(results[grp]){
+      const r = results[grp].find(x=>(x.h===myName&&x.a===oppName)||(x.h===oppName&&x.a===myName));
+      if(r) delete r.pending;
+    }
+    saveData();
+    showToast('✅ Natija tasdiqlandi!');
+  } else {
+    // Rad etish — natijani o'chirish
+    if(results[grp]){
+      results[grp] = results[grp].filter(r=>!((r.h===myName&&r.a===oppName)||(r.h===oppName&&r.a===myName)));
+    }
+    saveData();
+    showToast('❌ Natija rad etildi');
+  }
+  renderPlayers();
+}
+
+function openChat(username){
+  if(tg && tg.openTelegramLink){
+    tg.openTelegramLink('https://t.me/'+username);
+  } else {
+    window.open('https://t.me/'+username,'_blank');
+  }
+}
+
+function ensurePlayoff(po){
+  const def={r32:[],r16:[],qf:[],sf:[],third:[{h:null,a:null,hs:null,as:null}],final:[{h:null,a:null,hs:null,as:null}]};
+  if(!po||typeof po!=='object') return def;
+  // eski format (r16 bor, r32 yo'q) — reset
+  if(!Array.isArray(po.r32)) return def;
+  ['r32','r16','qf','sf','third','final'].forEach(k=>{ if(!Array.isArray(po[k])) po[k]=def[k]; });
+  return po;
+}
+
+// 12 guruhdan har biri 3-o'rinlarini topib eng yaxshi 8 ni aniqlaymiz
+function getBest3rds(){
+  const thirds=[];
+  Object.keys(GROUPS).forEach(grp=>{
+    const s=getStats(grp);
+    if(s[2]) thirds.push({...s[2],grp});
+  });
+  // Saralash: pts → gd → gf
+  thirds.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+  return thirds.slice(0,8);
+}
+
+// WC2026 rasmiy r32 setkasi
+// 12 guruh: A-L. 1-o'rinlar: A1-L1 (12ta), 2-o'rinlar: A2-L2 (12ta), 8 eng yaxshi 3-o'rin
+// Rasmiy juftlashish sxemasi bo'yicha
+function generatePlayoff(){
+  const tops={}, seconds={};
+  Object.keys(GROUPS).forEach(g=>{
+    const s=getStats(g);
+    tops[g]={...s[0],grp:g};
+    seconds[g]={...s[1],grp:g};
+  });
+  const best3=getBest3rds();
+
+  // 32 jamoa — WC2026 sxemasi bo'yicha juftlashish
+  // Har 2 qo'shni guruh 1-o'rinlari o'rtasida + 2-o'rinlari chalkashtiriladi
+  // Soddalashtirilgan sxema: A1vB2, B1vA2, C1vD2, D1vC2, ... + 8 best3rd
+  const r32=[];
+  // 12 guruh top1 vs top2 (qo'shni guruhlar bilan)
+  const grpKeys=Object.keys(GROUPS); // A-L
+  // 6 juft guruh: AB, CD, EF, GH, IJ, KL
+  const grpPairs=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L']];
+  grpPairs.forEach(([g1,g2])=>{
+    r32.push({h:tops[g1],a:seconds[g2],hs:null,as:null});
+    r32.push({h:tops[g2],a:seconds[g1],hs:null,as:null});
+  });
+  // 12 ta o'yin (top1+top2 juftlar) + 4 ta o'yin qoldi = 16 ta o'yin kerak
+  // Eng yaxshi 3-o'rinlar qo'shiladi: 8 ta 3-o'rin vs top1 lardan 4 ta qolgan
+  // Oddiy: best3rd[0..3] vs grpKeys[6..9] tops
+  const remaining3rdOpponents=['A','C','E','G','I','K','B','D'].map((g,i)=>tops[g]);
+  best3.forEach((t,i)=>{
+    r32.push({h:remaining3rdOpponents[i]||{flag:'?',name:'TBD',user:'—',grp:'?'},a:t,hs:null,as:null});
+  });
+
+  playoff={
+    r32: r32.slice(0,16),
+    r16: Array(8).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
+    qf:  Array(4).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
+    sf:  Array(2).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
+    third:[{h:null,a:null,hs:null,as:null}],
+    final:[{h:null,a:null,hs:null,as:null}]
+  };
+  saveData();
+  renderBracket();
+  showToast('✅ WC2026 playoff setkasi yaratildi! 32 jamoa →');
+}
+
+function getWinner(m){
+  if(!m||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
+  if(m.hs>m.as) return m.h;
+  if(m.as>m.hs) return m.a;
+  return null;
+}
+function getLoser(m){
+  if(!m||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
+  if(m.hs>m.as) return m.a;
+  if(m.as>m.hs) return m.h;
+  return null;
+}
+
+// Natija kiritilganda avto keyingi bosqichga ko'chirish
+function autoAdvance(rnd, idx){
+  const m=playoff[rnd][idx];
+  const w=getWinner(m);
+  const l=getLoser(m);
+  if(!w) return;
+
+  const flow={
+    r32:{next:'r16', slots:[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]]},
+    r16:{next:'qf',  slots:[[0,1],[2,3],[4,5],[6,7]]},
+    qf: {next:'sf',  slots:[[0,1],[2,3]]},
+    sf: {next:'final',slots:[[0,1]]}
+  };
+  if(flow[rnd]){
+    const nextRnd=flow[rnd].next;
+    const nextIdx=Math.floor(idx/2);
+    if(!playoff[nextRnd][nextIdx]) playoff[nextRnd][nextIdx]={h:null,a:null,hs:null,as:null};
+    if(idx%2===0) playoff[nextRnd][nextIdx].h=w;
+    else playoff[nextRnd][nextIdx].a=w;
+  }
+  // Yarim final yutqazuvchilari 3-o'rin o'yiniga
+  if(rnd==='sf' && l){
+    if(!playoff.third[0]) playoff.third[0]={h:null,a:null,hs:null,as:null};
+    if(idx===0) playoff.third[0].h=l;
+    else playoff.third[0].a=l;
+  }
+}
+
+function teamBox(t,score,isWin,isBronze){
+  if(!t) return `<div class="pom-team"><div class="pom-left"><div class="pom-flag">?</div><div class="pom-name tbd">TBD</div></div><div class="pom-score pend">—</div></div>`;
+  const wCls=isWin?(isBronze?'pom-winner-bronze':'pom-winner'):'';
+  const pend=score===null||score===undefined;
+  return `<div class="pom-team ${wCls}"><div class="pom-left"><div class="pom-flag">${t.flag||'?'}</div><div class="pom-name ${t.flag?'':'tbd'}">${t.name||'TBD'}</div></div><div class="pom-score ${pend?'pend':''}">${pend?'—':score}</div></div>`;
+}
+
+function renderBracket(){
+  const wrap=document.getElementById('bracket-wrap');
+  if(!playoff.r32||!playoff.r32.length){
+    wrap.innerHTML='<div class="empty"><div class="empty-ic">🏆</div><div>Admin "Playoff setkasini yaratish" tugmasini bossin</div></div>';
+    return;
+  }
+  const rounds=[
+    {key:'r32',title:'1/16 Final',matches:playoff.r32},
+    {key:'r16',title:'1/8 Final',matches:playoff.r16},
+    {key:'qf',title:'Chorak Final',matches:playoff.qf},
+    {key:'sf',title:'Yarim Final',matches:playoff.sf},
+  ];
+  let html=`<div class="bracket">`;
+  rounds.forEach(rnd=>{
+    html+=`<div class="round"><div class="round-title">${rnd.title}</div><div class="matches-col">`;
+    rnd.matches.forEach(m=>{
+      const w=getWinner(m);
+      html+=`<div class="pom">
+        ${teamBox(m.h,m.hs,w&&m.h&&w.name===m.h.name,false)}
+        ${teamBox(m.a,m.as,w&&m.a&&w.name===m.a.name,false)}
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  // Final + 3-o'rin
+  html+=`<div class="round"><div class="round-title">Final</div><div class="matches-col">`;
+  const fin=playoff.final[0]||{h:null,a:null,hs:null,as:null};
+  const finW=getWinner(fin);
+  html+=`<div class="pom final-match">
+    ${teamBox(fin.h,fin.hs,finW&&fin.h&&finW.name===fin.h.name,false)}
+    ${teamBox(fin.a,fin.as,finW&&fin.a&&finW.name===fin.a.name,false)}
+  </div>`;
+  const trd=playoff.third[0]||{h:null,a:null,hs:null,as:null};
+  const trdW=getWinner(trd);
+  html+=`<div style="font-size:8px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;text-align:center;padding:8px 0 4px;">3-O'RIN</div>`;
+  html+=`<div class="pom third">
+    ${teamBox(trd.h,trd.hs,trdW&&trd.h&&trdW.name===trd.h.name,true)}
+    ${teamBox(trd.a,trd.as,trdW&&trd.a&&trdW.name===trd.a.name,true)}
+  </div>`;
+  html+=`</div></div>`;
+  wrap.innerHTML=html;
+}
+
+// ─── REYTING: Playoff Top-8 va Podium ──────────────────────────────────────
+function renderRating(){
+  const wrap=document.getElementById('rating-content');
+  const fin=playoff.final[0];
+  const trd=playoff.third[0];
+  const finW=fin?getWinner(fin):null;
+  const finL=fin?getLoser(fin):null;
+  const trdW=trd?getWinner(trd):null;
+
+  let podium=[];
+  if(finW) podium.push({place:1,medal:'🥇',team:finW,cls:'gold'});
+  if(finL) podium.push({place:2,medal:'🥈',team:finL,cls:'silver'});
+  if(trdW) podium.push({place:3,medal:'🥉',team:trdW,cls:'bronze'});
+
+  let html=`
+    <div class="hero-banner">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">World Cup 2026</div>
+        <div class="hero-title">🏆 <span>Playoff Reyting</span></div>
+        <div class="hero-sub">Guruhlardan Play-off ga o'tuvchilar</div>
+      </div>
+    </div>`;
+
+  // Podium (agar playoff tugagan bo'lsa)
+  if(podium.length){
+    html+=`<div class="slb">Podium</div><div style="padding:0 16px;">`;
+    podium.forEach(p=>{
+      html+=`<div class="rating-card ${p.cls}">
+        <div class="rating-medal">${p.medal}</div>
+        <div class="rating-info">
+          <div class="rating-name">${p.team.flag} ${p.team.name}</div>
+          <div class="rating-user">${p.team.user||'—'}</div>
+          <div class="rating-detail">${p.team.grp||''} Guruh</div>
+        </div>
+        <div>
+          <div class="rating-pts">#${p.place}</div>
+          <div class="rating-ptslb">O'RIN</div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Har guruhdan 1-o'rin (12 ta) + 2-o'rinlar eng yaxshi 8 ta = 20 ta play-off ishtirokchilari
+  // Lekin 12 guruh x 3-o'rin = 12 ta, shundan eng yaxshi 8 tasi ham o'tadi
+  // Jami: 12 (birinchi) + 12 (ikkinchi) + 8 (eng yaxshi uchinchi) = 32 ta
+  // Ko'rsatamiz: har guruh 1-o'rin va 2-o'rinlar (24 ta) + eng yaxshi 8 uchinchi (8 ta)
+
+  const grpKeys = Object.keys(GROUPS);
+
+  // 1-o'rinlar (12 ta)
+  const firstPlaces = grpKeys.map(g=>({...getStats(g)[0], grp:g}));
+  // 2-o'rinlar (12 ta)
+  const secondPlaces = grpKeys.map(g=>({...getStats(g)[1], grp:g}));
+  // Eng yaxshi 8 ta 3-o'rin
+  const best3rds = getBest3rds();
+
+  function qualCard(t, badge, badgeCls){
+    return `<div class="pcard">
+      <div class="pcard-l">
+        <div class="pcard-flag">${t.flag}</div>
+        <div>
+          <div class="pcard-name">${t.name}</div>
+          <div class="pcard-user">${t.user||'—'}</div>
+          <div class="pcard-grp">${t.grp} Guruh</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 8px;border-radius:6px;${badgeCls}">${badge}</div>
+        <div class="pcard-ptslb" style="margin-top:4px;">${t.pts} PTS</div>
+      </div>
+    </div>`;
+  }
+
+  html+=`<div class="slb">1-O'rinlar (12 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
+  firstPlaces.forEach(t=>{ html+=qualCard(t,'#1 🥇','background:rgba(245,166,35,.15);color:#F5A623;border:1px solid rgba(245,166,35,.3);'); });
+  html+=`</div>`;
+
+  html+=`<div class="slb">2-O'rinlar (12 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
+  secondPlaces.forEach(t=>{ html+=qualCard(t,'#2','background:rgba(0,200,255,.1);color:var(--accent);border:1px solid rgba(0,200,255,.2);'); });
+  html+=`</div>`;
+
+  html+=`<div class="slb">Eng yaxshi 3-O'rinlar (8 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
+  if(best3rds.length===0){
+    html+=`<div class="empty" style="padding:20px;"><div class="empty-ic">📊</div><div>O'yinlar tugagach aniqlanadi</div></div>`;
+  } else {
+    best3rds.forEach((t,i)=>{ html+=qualCard(t,`#3 (${i+1})`, 'background:rgba(13,148,136,.15);color:#0D9488;border:1px solid rgba(13,148,136,.3);'); });
+  }
+  html+=`</div>`;
+
+  wrap.innerHTML=html;
+}
+
+function checkPin(){
+  if(document.getElementById('pin-val').value===ADMIN_PIN){
+    document.getElementById('adm-lock-screen').style.display='none';
+    document.getElementById('adm-panel').style.display='block';
+    initAdmin();
+  } else {
+    const el=document.getElementById('pin-val');
+    el.style.borderColor='var(--red)';
+    setTimeout(()=>el.style.borderColor='var(--border)',1000);
+  }
+}
+function initAdmin(){
+  const gs=document.getElementById('a-grp');
+  gs.innerHTML=Object.keys(GROUPS).map(g=>`<option value="${g}">${g} Guruh</option>`).join('');
+  document.getElementById('d-grp').innerHTML=gs.innerHTML;
+  document.getElementById('t-grp').innerHTML=gs.innerHTML;
+  gs.addEventListener('change',loadATeams);
+  document.getElementById('d-grp').addEventListener('change',loadDelMatches);
+  document.getElementById('po-round').addEventListener('change',loadPoMatches);
+  loadATeams();loadDelMatches();loadPoMatches();
+  loadTurTeams();renderTurStatusList();
+  try{ window.pendingRegs = JSON.parse(localStorage.getItem('wc26_pending')||'[]'); }catch(e){ window.pendingRegs=[]; }
+  if(CS) CS.getItems(['wc26_pending'],function(err,v){ try{ window.pendingRegs=JSON.parse((v&&v['wc26_pending'])||'[]'); }catch(e){} renderPendingRegs(); });
+  else renderPendingRegs();
+}
+
+// Tur holatlari: {grp: {1: 'open'/'closed', 2: ..., 3: ...}}
+if(!window.turStatus) window.turStatus = {};
+
+function saveTurData(){
+  const str = JSON.stringify(window.turStatus);
+  if(CS){ CS.setItem('wc26_tur', str); }
+  else { try{ localStorage.setItem('wc26_tur', str); }catch(e){} }
+}
+function loadTurData(cb){
+  if(CS){
+    CS.getItems(['wc26_tur'], function(err,vals){
+      try{ window.turStatus = JSON.parse((vals&&vals['wc26_tur'])||'{}'); }catch(e){ window.turStatus={}; }
+      if(cb) cb();
+    });
+  } else {
+    try{ window.turStatus = JSON.parse(localStorage.getItem('wc26_tur')||'{}'); }catch(e){ window.turStatus={}; }
+    if(cb) cb();
+  }
+}
+
+function getTurStatus(grp, tur){
+  return (window.turStatus[grp] && window.turStatus[grp][tur]) || 'open';
+}
+
+function loadTurTeams(){
+  const grp = document.getElementById('t-grp').value;
+  const teams = GROUPS[grp];
+  document.getElementById('tur-teams-wrap').innerHTML=`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:2px;">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">GURUH JAMOALARI</div>
+      ${teams.map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;">
+        <span>${t.flag}</span><span>${t.name}</span><span style="color:var(--accent);font-size:11px;">${t.user}</span>
+      </div>`).join('')}
+    </div>`;
+  renderTurStatusList();
+}
+
+function saveTurStatus(){
+  const grp = document.getElementById('t-grp').value;
+  const tur = document.getElementById('t-round').value;
+  const status = document.getElementById('t-status').value;
+  if(!window.turStatus[grp]) window.turStatus[grp]={};
+  window.turStatus[grp][tur] = status;
+  saveTurData();
+  showToast(`✅ ${grp} guruh ${tur}-tur: ${status==='open'?'Ochiq':'Yopiq'}`);
+  renderTurStatusList();
+}
+
+function renderPendingRegs(){
+  if(!window.pendingRegs) {
+    try{ window.pendingRegs = JSON.parse(localStorage.getItem('wc26_pending')||'[]'); }catch(e){ window.pendingRegs=[]; }
+  }
+  const wrap = document.getElementById('pending-regs-list');
+  if(!wrap) return;
+  if(!window.pendingRegs.length){
+    wrap.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:13px;padding:12px;">Hech qanday so'rov yo'q</div>`;
+    return;
+  }
+  wrap.innerHTML = window.pendingRegs.map((r,i)=>{
+    const team = GROUPS[r.grp] && GROUPS[r.grp].find(t=>t.name===r.teamName);
+    const flag = team ? team.flag : '🏳';
+    const alreadyDone = team && team.user === r.username;
+    return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="font-size:24px;">${flag}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;">${r.teamName} <span style="color:var(--muted);font-size:10px;">(${r.grp} Guruh)</span></div>
+          <div style="font-size:11px;color:var(--accent);">${r.username}</div>
+        </div>
+        ${alreadyDone ? `<span style="font-size:10px;color:var(--green);font-weight:700;">✅ Tasdiqlandi</span>` : ''}
+      </div>
+      ${!alreadyDone ? `<div style="display:flex;gap:8px;">
+        <button onclick="approvePendingReg(${i})" style="flex:1;padding:9px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;">✅ Tasdiqlash</button>
+        <button onclick="rejectPendingReg(${i})" style="flex:1;padding:9px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;">❌ Rad etish</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function approvePendingReg(i){
+  const r = window.pendingRegs[i];
+  if(!r) return;
+  const team = GROUPS[r.grp] && GROUPS[r.grp].find(t=>t.name===r.teamName);
+  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+  if(team.user !== '—' && team.user !== r.username){ showToast('❌ Bu jamoa allaqachon band!'); return; }
+  team.user = r.username;
+  window.pendingRegs.splice(i,1);
+  try{ localStorage.setItem('wc26_pending', JSON.stringify(window.pendingRegs)); }catch(e){}
+  if(CS) CS.setItem('wc26_pending', JSON.stringify(window.pendingRegs));
+  showToast(`✅ ${r.username} → ${r.teamName} tasdiqlandi!`);
+  renderPendingRegs();
+}
+
+function rejectPendingReg(i){
+  const r = window.pendingRegs[i];
+  if(!r) return;
+  // Jamoadan usernameni olib tashlash
+  const team = GROUPS[r.grp] && GROUPS[r.grp].find(t=>t.name===r.teamName);
+  if(team && team.user === r.username) team.user = '—';
+  window.pendingRegs.splice(i,1);
+  try{ localStorage.setItem('wc26_pending', JSON.stringify(window.pendingRegs)); }catch(e){}
+  if(CS) CS.setItem('wc26_pending', JSON.stringify(window.pendingRegs));
+  showToast(`🗑 ${r.username} so'rovi rad etildi`);
+  renderPendingRegs();
+}
+
+function renderTurStatusList(){
+  const wrap = document.getElementById('tur-status-list');
+  if(!wrap) return;
+  let html = '<div style="font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">BARCHA TURLAR HOLATI</div>';
+  Object.keys(GROUPS).forEach(grp=>{
+    const turlar = window.turStatus[grp]||{};
+    const statuses = [1,2,3].map(t=>{
+      const s = turlar[t]||'open';
+      return `<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;
+        ${s==='open'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);'
+        :'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);'}">
+        ${t}-tur ${s==='open'?'🟢':'🔴'}</span>`;
+    }).join('');
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:700;min-width:28px;color:var(--accent);">${grp}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">${statuses}</div>
+    </div>`;
+  });
+  wrap.innerHTML=html;
+}
+function loadATeams(){
+  const grp=document.getElementById('a-grp').value, ts=GROUPS[grp];
+  const opts=ts.map(t=>`<option value="${t.name}">${t.flag} ${t.name}</option>`).join('');
+  document.getElementById('a-home').innerHTML=opts;
+  document.getElementById('a-away').innerHTML=opts;
+  if(document.getElementById('a-away').options.length>1) document.getElementById('a-away').selectedIndex=1;
+}
+function saveResult(){
+  const grp=document.getElementById('a-grp').value;
+  const home=document.getElementById('a-home').value;
+  const away=document.getElementById('a-away').value;
+  const raw=document.getElementById('a-score').value.trim();
+  if(home===away){showToast('❌ Bir xil jamoa!');return;}
+  const p=raw.split('-');
+  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){showToast('❌ Format: 2-1');return;}
+  if(!results[grp]) results[grp]=[];
+  results[grp]=results[grp].filter(r=>!((r.h===home&&r.a===away)||(r.h===away&&r.a===home)));
+  results[grp].push({h:home,a:away,hs:parseInt(p[0]),as:parseInt(p[1])});
+  saveData();
+  document.getElementById('a-score').value='';
+  showToast('✅ Saqlandi!');
+  renderRecent();
+}
+function loadDelMatches(){
+  const grp=document.getElementById('d-grp').value, rs=results[grp]||[];
+  document.getElementById('d-match').innerHTML=rs.length?rs.map((r,i)=>`<option value="${i}">${r.h} ${r.hs}-${r.as} ${r.a}</option>`).join(''):'<option>Natija yo\'q</option>';
+}
+function deleteResult(){
+  const grp=document.getElementById('d-grp').value, idx=parseInt(document.getElementById('d-match').value);
+  if(!results[grp]||isNaN(idx)) return;
+  results[grp].splice(idx,1);saveData();loadDelMatches();
+  showToast('🗑 O\'chirildi');renderRecent();
+}
+function loadPoMatches(){
+  const rnd=document.getElementById('po-round').value;
+  const ms=playoff[rnd]||[];
+  document.getElementById('po-match').innerHTML=ms.length
+    ? ms.map((m,i)=>`<option value="${i}">${i+1}. ${m.h?m.h.name:'TBD'} vs ${m.a?m.a.name:'TBD'}</option>`).join('')
+    : '<option>Avval setkani yarating</option>';
+}
+function savePlayoff(){
+  const rnd=document.getElementById('po-round').value;
+  const idx=parseInt(document.getElementById('po-match').value);
+  const raw=document.getElementById('po-score').value.trim();
+  const p=raw.split('-');
+  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){showToast('❌ Format: 2-1');return;}
+  if(!playoff[rnd]||!playoff[rnd][idx]){showToast('❌ O\'yin topilmadi');return;}
+  const m=playoff[rnd][idx];
+  m.hs=parseInt(p[0]); m.as=parseInt(p[1]);
+  autoAdvance(rnd, idx); // avtomatik keyingi bosqich
+  saveData();
+  document.getElementById('po-score').value='';
+  showToast('✅ Saqlandi! G\'olib avto keyingi bosqichga o\'tdi ✓');
+  loadPoMatches(); renderBracket();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function initRegGroupBtns(){
+  const el = document.getElementById('reg-grp-btns');
+  if(!el) return;
+  el.innerHTML = Object.keys(GROUPS).map(g=>`
+    <div onclick="openWCGroup('${g}')" style="padding:14px 0;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;"
+      onmousedown="this.style.transform='scale(.95)'" onmouseup="this.style.transform=''">${g}</div>
+  `).join('');
+
+  // Guruh select ni to'ldirish (ro'yxatdan o'tish formasi uchun)
+  const rfGrp = document.getElementById('rf-grp');
+  if(rfGrp){
+    rfGrp.innerHTML = Object.keys(GROUPS).map(g=>`<option value="${g}">${g} Guruh</option>`).join('');
+    loadRegTeams();
+  }
+
+  // Foydalanuvchi ro'yxatda borligini tekshir
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@' + tgUser.username : null;
+  const btn = document.getElementById('reg-status-btn');
+  const form = document.getElementById('reg-form');
+  if(!btn) return;
+
+  let found = false;
+  if(myUsername){
+    for(const grp of Object.keys(GROUPS)){
+      if(GROUPS[grp].find(t => t.user === myUsername)){ found = true; break; }
+    }
+  }
+
+  if(found){
+    btn.style.background = 'rgba(34,197,94,.1)';
+    btn.style.border = '1px solid rgba(34,197,94,.3)';
+    btn.style.color = 'var(--green)';
+    btn.textContent = "✅ Ro'yxatdan o'tgansiz";
+    if(form) form.style.display = 'none';
+  } else {
+    btn.style.background = 'rgba(245,166,35,.08)';
+    btn.style.border = '1px solid rgba(245,166,35,.25)';
+    btn.style.color = 'var(--gold)';
+    btn.textContent = "⏳ Siz ro'yxatda emassiz — quyida ro'yxatdan o'ting";
+    if(form) form.style.display = 'block';
+  }
+}
+
+function loadRegTeams(){
+  const grp = document.getElementById('rf-grp').value;
+  const teams = GROUPS[grp];
+  // Faqat bo'sh (user "—") jamoalarni ko'rsat
+  const free = teams.filter(t => t.user === '—');
+  const sel = document.getElementById('rf-team');
+  if(free.length === 0){
+    sel.innerHTML = `<option value="">Bu guruhda bo'sh jamoa yo'q</option>`;
+  } else {
+    sel.innerHTML = free.map(t=>`<option value="${t.name}">${t.flag} ${t.name}</option>`).join('');
+  }
+}
+
+function registerUser(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if(!tgUser || !tgUser.username){
+    showToast('❌ Telegram username topilmadi');
+    return;
+  }
+  const myUsername = '@' + tgUser.username;
+  const grp = document.getElementById('rf-grp').value;
+  const teamName = document.getElementById('rf-team').value;
+  if(!teamName){ showToast('❌ Jamoa tanlang'); return; }
+
+  const team = GROUPS[grp].find(t => t.name === teamName);
+  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+  if(team.user !== '—'){ showToast('❌ Bu jamoa band!'); return; }
+
+  // Oldingi ro'yxatni tekshir
+  for(const g of Object.keys(GROUPS)){
+    if(GROUPS[g].find(t => t.user === myUsername)){
+      showToast('❌ Siz allaqachon ro\'yxatdasiz!');
+      return;
+    }
+  }
+
+  // Ro'yxatdan o'tkazish
+  team.user = myUsername;
+
+  // Pending ro'yxat sifatida saqlash (admin tasdiqlashi uchun)
+  if(!window.pendingRegs) window.pendingRegs = [];
+  window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
+  try{ localStorage.setItem('wc26_pending', JSON.stringify(window.pendingRegs)); }catch(e){}
+  if(CS) CS.setItem('wc26_pending', JSON.stringify(window.pendingRegs));
+
+  showToast(`✅ ${team.flag} ${team.name} — ro'yxatdan o'tdingiz!`);
+  initRegGroupBtns();
+}
+
+function openWCGroup(grp){
+  openWC();
+  setTimeout(()=>{ wcTab('matches'); selMG(grp, document.querySelector('#mg-btns .gbtn')); },50);
+}
+
+window.addEventListener('load',()=>{
+  if(tg) tg.ready();
+  loadData(()=>{
+    initData();
+    initRegGroupBtns();
+    setTimeout(()=>{
+      document.getElementById('splash').classList.add('hide');
+      document.getElementById('app').classList.add('show');
+      document.getElementById('page-menu').classList.add('on');
+    },2400);
+  });
+});
+</script>
+</body>
+</html>
