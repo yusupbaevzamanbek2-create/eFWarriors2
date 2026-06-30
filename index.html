@@ -727,6 +727,117 @@ function selMG(g,el){
   renderMatchList(g);
 }
 function renderMatchList(grp){
+  const teams=GROUPS[grp].map(t=>({...t,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
+  (results[grp]||[]).forEach(r=>{
+    const ht=teams.find(t=>t.name===r.h), at=teams.find(t=>t.name===r.a);
+    if(!ht||!at) return;
+    ht.p++;at.p++;ht.gf+=r.hs;ht.ga+=r.as;at.gf+=r.as;at.ga+=r.hs;
+    if(r.hs>r.as){ht.w++;ht.pts+=3;at.l++;}
+    else if(r.hs===r.as){ht.d++;ht.pts++;at.d++;at.pts++;}
+    else{at.w++;at.pts+=3;ht.l++;}
+  });
+  return teams.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga));
+}
+
+function tblHTML(grp){
+  const t=getStats(grp);
+  return `<div class="grp-tbl">
+    <div class="grp-hd"><span>#</span><span>${grp} Guruh</span><span>B</span><span>G</span><span>D</span><span>M</span><span>PTS</span></div>
+    ${t.map((p,i)=>`<div class="grp-rw ${i===0?'q1':i===1?'q2':''}">
+      <div class="rk ${i<2?'t':''}">${i+1}</div>
+      <div class="nm"><div class="fl">${p.flag}</div><div><div class="cname">${p.name}</div><div class="uname">${p.user}</div></div></div>
+      <div class="st">${p.p}</div><div class="st">${p.w}</div><div class="st">${p.d}</div><div class="st">${p.l}</div>
+      <div class="pts">${p.pts}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function matchHTML(grp,r){
+  const ht=GROUPS[grp].find(t=>t.name===r.h)||{flag:'',name:r.h,user:''};
+  const at=GROUPS[grp].find(t=>t.name===r.a)||{flag:'',name:r.a,user:''};
+  return `<div class="mcard">
+    <div class="mcard-top"><div class="mcard-grp">${grp} Guruh</div><div class="mstatus done">Yakunlandi</div></div>
+    <div class="mcard-body">
+      <div class="mteam"><div class="mteam-flag">${ht.flag}</div><div class="mteam-name">${ht.name}</div><div class="mteam-user">${ht.user}</div></div>
+      <div class="mscore">${r.hs} — ${r.as}</div>
+      <div class="mteam r"><div class="mteam-flag">${at.flag}</div><div class="mteam-name">${at.name}</div><div class="mteam-user">${at.user}</div></div>
+    </div>
+  </div>`;
+}
+
+const ADMIN_USER = 'yusupbaevvvv';
+
+function isAdmin(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  return tgUser && tgUser.username === ADMIN_USER;
+}
+
+function openWC(){
+  document.getElementById('page-menu').classList.remove('on');
+  document.getElementById('page-wc').classList.add('on');
+  const adminBtn = document.getElementById('wt-admin');
+  const adminPage = document.getElementById('wc-admin');
+  if(!isAdmin()){
+    adminBtn.style.display = 'none';
+    adminPage.style.display = 'none';
+  } else {
+    adminBtn.style.display = '';
+    adminPage.style.display = '';
+  }
+  initHomeTab();
+}
+function backToMenu(){
+  document.getElementById('page-wc').classList.remove('on');
+  document.getElementById('page-menu').classList.add('on');
+}
+
+let curWcTab='home';
+function wcTab(name){
+  ['home','matches','rating','playoff','players','admin'].forEach(t=>{
+    document.getElementById('wc-'+t).classList.toggle('on',t===name);
+    const btn=document.getElementById('wt-'+t);
+    if(btn) btn.classList.toggle('on',t===name);
+  });
+  curWcTab=name;
+  if(name==='home') initHomeTab();
+  if(name==='matches'){ initMatchesTab(); renderMatchList(mGrp); }
+  if(name==='rating') renderRating();
+  if(name==='playoff') renderBracket();
+  if(name==='players') renderPlayers();
+}
+
+let hGrp='H';
+function initHomeTab(){
+  const el=document.getElementById('hg-btns');
+  el.innerHTML=Object.keys(GROUPS).map(g=>`<div class="gbtn ${g===hGrp?'on':''}" onclick="selHG('${g}',this)">${g}</div>`).join('');
+  document.getElementById('hg-table').innerHTML=tblHTML(hGrp);
+  renderRecent();
+}
+function selHG(g,el){
+  hGrp=g;
+  document.querySelectorAll('#hg-btns .gbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('hg-table').innerHTML=tblHTML(g);
+}
+function renderRecent(){
+  let html='';
+  Object.keys(results).forEach(grp=>(results[grp]||[]).forEach(r=>{ html+=matchHTML(grp,r); }));
+  document.getElementById('hg-recent').innerHTML=html||'<div class="empty"><div class="empty-ic">📅</div><div>Natija yo\'q</div></div>';
+}
+
+let mGrp='H';
+function initMatchesTab(){
+  const el=document.getElementById('mg-btns');
+  el.innerHTML=Object.keys(GROUPS).map(g=>`<div class="gbtn ${g===mGrp?'on':''}" onclick="selMG('${g}',this)">${g}</div>`).join('');
+  renderMatchList(mGrp);
+}
+function selMG(g,el){
+  mGrp=g;
+  document.querySelectorAll('#mg-btns .gbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderMatchList(g);
+}
+function renderMatchList(grp){
   const teams=GROUPS[grp], rs=results[grp]||[];
   let html='';
   for(let i=0;i<teams.length;i++) for(let j=i+1;j<teams.length;j++){
@@ -776,7 +887,7 @@ function renderPlayers(){
     for(const grp of Object.keys(GROUPS)){
       const stats = getStats(grp);
       const idx = stats.findIndex(t => t.user === myUsername);
-      if(idx !== -1){ myTeam = stats[idx]; myRank = idx+1; break; }
+      if(idx !== -1){ myTeam = stats[idx]; myTeam.grp = grp; myRank = idx+1; break; }
     }
   }
 
