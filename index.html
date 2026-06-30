@@ -578,18 +578,45 @@ function saveData(){
   }
 }
 
+function saveGroupRegs(){
+  // Jamoa-foydalanuvchi bog'lanishlarini saqlash: {A:{Mexico:'@user',...}, ...}
+  const regs = {};
+  Object.keys(GROUPS).forEach(g=>{
+    regs[g] = {};
+    GROUPS[g].forEach(t=>{ if(t.user && t.user !== '—') regs[g][t.name] = t.user; });
+  });
+  const regsStr = JSON.stringify(regs);
+  if(CS){
+    CS.setItem('wc26_groups', regsStr);
+  } else {
+    try{ localStorage.setItem('wc26_groups', regsStr); }catch(e){}
+  }
+}
+
+function applyGroupRegs(regs){
+  if(!regs) return;
+  Object.keys(regs).forEach(g=>{
+    if(!GROUPS[g]) return;
+    Object.keys(regs[g]).forEach(teamName=>{
+      const team = GROUPS[g].find(t=>t.name===teamName);
+      if(team) team.user = regs[g][teamName];
+    });
+  });
+}
+
 function loadData(cb){
   if(CS){
     let done=false;
     const finish=()=>{ if(done) return; done=true; cb(); };
     const failsafe=setTimeout(finish, 3000); // never hang forever if CloudStorage doesn't respond
     try{
-      CS.getItems(['wc26_res','wc26_po','wc26_tur'], function(err, values){
+      CS.getItems(['wc26_res','wc26_po','wc26_tur','wc26_groups'], function(err, values){
         clearTimeout(failsafe);
         if(!err && values){
           try{ results = JSON.parse(values['wc26_res']||'{}'); }catch(e){ results={}; }
           try{ playoff = ensurePlayoff(JSON.parse(values['wc26_po']||'null')); }catch(e){ playoff=ensurePlayoff(null); }
           try{ window.turStatus = JSON.parse(values['wc26_tur']||'{}'); }catch(e){ window.turStatus={}; }
+          try{ applyGroupRegs(JSON.parse(values['wc26_groups']||'null')); }catch(e){}
         }
         finish();
       });
@@ -601,6 +628,7 @@ function loadData(cb){
     try{ results = JSON.parse(localStorage.getItem('wc26_res')||'{}'); }catch(e){ results={}; }
     try{ playoff = ensurePlayoff(JSON.parse(localStorage.getItem('wc26_po')||'null')); }catch(e){ playoff=ensurePlayoff(null); }
     try{ window.turStatus = JSON.parse(localStorage.getItem('wc26_tur')||'{}'); }catch(e){ window.turStatus={}; }
+    try{ applyGroupRegs(JSON.parse(localStorage.getItem('wc26_groups')||'null')); }catch(e){}
     cb();
   }
 }
@@ -1314,6 +1342,7 @@ function approvePendingReg(i){
   if(!team){ showToast('❌ Jamoa topilmadi'); return; }
   if(team.user !== '—' && team.user !== r.username){ showToast('❌ Bu jamoa allaqachon band!'); return; }
   team.user = r.username;
+  saveGroupRegs();
   window.pendingRegs.splice(i,1);
   try{ localStorage.setItem('wc26_pending', JSON.stringify(window.pendingRegs)); }catch(e){}
   if(CS) CS.setItem('wc26_pending', JSON.stringify(window.pendingRegs));
@@ -1326,7 +1355,7 @@ function rejectPendingReg(i){
   if(!r) return;
   // Jamoadan usernameni olib tashlash
   const team = GROUPS[r.grp] && GROUPS[r.grp].find(t=>t.name===r.teamName);
-  if(team && team.user === r.username) team.user = '—';
+  if(team && team.user === r.username){ team.user = '—'; saveGroupRegs(); }
   window.pendingRegs.splice(i,1);
   try{ localStorage.setItem('wc26_pending', JSON.stringify(window.pendingRegs)); }catch(e){}
   if(CS) CS.setItem('wc26_pending', JSON.stringify(window.pendingRegs));
@@ -1497,6 +1526,7 @@ function registerUser(){
 
   // Ro'yxatdan o'tkazish
   team.user = myUsername;
+  saveGroupRegs();
 
   // Pending ro'yxat sifatida saqlash (admin tasdiqlashi uchun)
   if(!window.pendingRegs) window.pendingRegs = [];
