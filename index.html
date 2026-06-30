@@ -566,19 +566,26 @@ let playoff = {"r32":[],"r16":[],"qf":[],"sf":[],"third":[],"final":[]};
 
 const tg = window.Telegram && window.Telegram.WebApp;
 
-// ---- Umumiy (barcha foydalanuvchilar uchun bitta) bulutli xotira: JSONBin.io ----
-const JSONBIN_ID = '6a4373dcf5f4af5e294610ed';
-const JSONBIN_KEY = '$2a$10$iuenatd1i8qDLQBJh17cBenJYq4qjFaeWz0E.3mAkvCUf8fw1HYLG';
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
+// ================= UMUMIY (SHARED) MA'LUMOTLAR — JSONBin.io =================
+// MUHIM: avval tg.CloudStorage ishlatilgan, lekin u HAR BIR FOYDALANUVCHI uchun
+// ALOHIDA xotira — shu sabab natijalar hammaga bir xil ko'rinmasdi.
+// Endi BARCHA foydalanuvchilar bitta umumiy JSONBin bin'idan o'qiydi/yozadi.
+//
+// SOZLASH (1 marta qilinadi):
+// 1) https://jsonbin.io saytida ro'yxatdan o'ting (bepul)
+// 2) "Create Bin" tugmasi orqali yangi bin yarating, ichiga {} yozing
+// 3) Bin sahifasidagi BIN ID'ni va profilingizdagi X-MASTER-KEY'ni quyiga qo'ying:
+const JSONBIN_BIN_ID  = '6a4373dcf5f4af5e294610ed';
+const JSONBIN_API_KEY = '$2a$10$iuenatd1i8qDLQBJh17cBenJYq4qjFaeWz0E.3mAkvCUf8fw1HYLG';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-function buildGroupRegs(){
-  // Jamoa-foydalanuvchi bog'lanishlarini yig'ish: {A:{Mexico:'@user',...}, ...}
+function buildSharedPayload(){
   const regs = {};
   Object.keys(GROUPS).forEach(g=>{
     regs[g] = {};
     GROUPS[g].forEach(t=>{ if(t.user && t.user !== '—') regs[g][t.name] = t.user; });
   });
-  return regs;
+  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, pending: window.pendingRegs||[] };
 }
 
 function applyGroupRegs(regs){
@@ -592,111 +599,52 @@ function applyGroupRegs(regs){
   });
 }
 
-function getFullState(){
-  return {
-    res: results,
-    po: playoff,
-    tur: window.turStatus || {},
-    groups: buildGroupRegs(),
-    pending: window.pendingRegs || []
-  };
+let _saveTimer = null;
+function saveShared(){
+  // Internet uzilib qolsa ham ma'lumot yo'qolmasligi uchun darhol lokal zaxira
+  try{ localStorage.setItem('wc26_backup', JSON.stringify(buildSharedPayload())); }catch(e){}
+  clearTimeout(_saveTimer);
+  // Bir necha o'zgarish ketma-ket bo'lsa, bitta so'rovga birlashtirib yuborish (debounce)
+  _saveTimer = setTimeout(()=>{
+    fetch(JSONBIN_URL, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY,'X-Bin-Meta':'false'},
+      body: JSON.stringify(buildSharedPayload())
+    }).catch(e=>console.error('JSONBin saqlashda xato:', e));
+  }, 400);
 }
 
-function applyFullState(state){
-  if(!state) state = {};
-  try{ results = state.res || {}; }catch(e){ results={}; }
-  try{ playoff = ensurePlayoff(state.po || null); }catch(e){ playoff=ensurePlayoff(null); }
-  try{ window.turStatus = state.tur || {}; }catch(e){ window.turStatus={}; }
-  try{ applyGroupRegs(state.groups || null); }catch(e){}
-  try{ window.pendingRegs = state.pending || []; }catch(e){ window.pendingRegs=[]; }
-}
-
-// Barcha o'zgarishlarni umumiy bulutga (va lokal kesh sifatida localStorage'ga) yuboradi
-function mergeGroups(remote, local){
-  const out = {};
-  const allGrp = new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
-  allGrp.forEach(g=>{ out[g] = {...(remote&&remote[g])||{}, ...(local&&local[g])||{}}; });
-  return out;
-}
-
-function mergeResults(remote, local){
-  const out = {};
-  const allGrp = new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
-  allGrp.forEach(g=>{
-    const map = {};
-    ((remote&&remote[g])||[]).forEach(m=>{ map[m.h+'|'+m.a] = m; });
-    ((local&&local[g])||[]).forEach(m=>{ map[m.h+'|'+m.a] = m; }); // mahalliy o'zgarish ustun
-    out[g] = Object.values(map);
-  });
-  return out;
-}
-
-function mergeTur(remote, local){
-  const out = {};
-  const allGrp = new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
-  allGrp.forEach(g=>{ out[g] = {...(remote&&remote[g])||{}, ...(local&&local[g])||{}}; });
-  return out;
-}
-
-function mergePending(remote, local){
-  const map = {};
-  (remote||[]).forEach(p=>{ map[p.grp+'|'+p.teamName+'|'+p.username] = p; });
-  (local||[]).forEach(p=>{ map[p.grp+'|'+p.teamName+'|'+p.username] = p; });
-  return Object.values(map);
-}
-
-// Saqlashdan oldin bulutdagi eng so'nggi holatni o'qib, faqat o'zgargan qismni birlashtirib yozadi —
-// shu orqali parallel ishlayotgan boshqa foydalanuvchilarning yozuvlari o'chib ketmaydi.
-function syncCloud(){
-  const local = getFullState();
-  try{ localStorage.setItem('wc26_state', JSON.stringify(local)); }catch(e){}
-  fetch(JSONBIN_URL + '/latest', { headers:{ 'X-Master-Key': JSONBIN_KEY } })
-    .then(r=>r.json())
+function loadShared(cb){
+  fetch(`${JSONBIN_URL}/latest`, { headers:{'X-Master-Key':JSONBIN_API_KEY} })
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
     .then(data=>{
-      const remote = (data && data.record) || {};
-      const merged = {
-        res: mergeResults(remote.res, local.res),
-        po: ensurePlayoff(local.po || remote.po || null),
-        tur: mergeTur(remote.tur, local.tur),
-        groups: mergeGroups(remote.groups, local.groups),
-        pending: mergePending(remote.pending, local.pending)
-      };
-      applyFullState(merged);
-      try{ localStorage.setItem('wc26_state', JSON.stringify(merged)); }catch(e){}
-      return fetch(JSONBIN_URL, {
-        method:'PUT',
-        headers:{ 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-        body: JSON.stringify(merged)
-      });
-    })
-    .then(r=>{
-      if(r && !r.ok && typeof showToast==='function') showToast('⚠️ Bulutga saqlashda xato: '+r.status);
-    })
-    .catch(e=>{
-      console.warn('Cloud save xatosi:', e);
-      if(typeof showToast==='function') showToast('⚠️ Bulutga ulanib bo\'lmadi (offline saqlandi)');
-    });
-}
-
-function saveData(){ syncCloud(); }
-function saveGroupRegs(){ syncCloud(); }
-
-function loadData(cb){
-  fetch(JSONBIN_URL + '/latest', { headers:{ 'X-Master-Key': JSONBIN_KEY } })
-    .then(r=>r.json())
-    .then(data=>{
-      applyFullState(data && data.record);
-      try{ localStorage.setItem('wc26_state', JSON.stringify(data.record||{})); }catch(e){}
+      const rec = data.record || {};
+      results = rec.res || {};
+      playoff = ensurePlayoff(rec.po || null);
+      window.turStatus = rec.tur || {};
+      applyGroupRegs(rec.groups || null);
+      window.pendingRegs = rec.pending || [];
       cb();
     })
     .catch(e=>{
-      console.warn('Cloud load xatosi, lokal keshdan o\'qilmoqda:', e);
-      let state = {};
-      try{ state = JSON.parse(localStorage.getItem('wc26_state')||'{}'); }catch(err){}
-      applyFullState(state);
+      console.error('JSONBin yuklashda xato, lokal zaxiradan foydalanildi:', e);
+      try{
+        const backup = JSON.parse(localStorage.getItem('wc26_backup')||'null');
+        results = (backup&&backup.res) || {};
+        playoff = ensurePlayoff((backup&&backup.po) || null);
+        window.turStatus = (backup&&backup.tur) || {};
+        applyGroupRegs((backup&&backup.groups) || null);
+        window.pendingRegs = (backup&&backup.pending) || [];
+      }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; }
       cb();
     });
 }
+
+// Eski nomlar — kodning qolgan qismi shu funksiyalarni chaqiradi, ichida endi
+// JSONBin orqali umumiy saqlash ishlaydi:
+function saveData(){ saveShared(); }
+function saveGroupRegs(){ saveShared(); }
+function loadData(cb){ loadShared(cb); }
 
 function initData(){
   if(!results.H) results.H=[];
@@ -840,24 +788,6 @@ function renderMatchList(grp){
   document.getElementById('mg-list').innerHTML=html;
 }
 
-// "Circle method" — guruhdagi i,j (0-indeksli) jamoa juftligi uchun GLOBAL tur raqamini qaytaradi.
-// Bu funksiya qaysi jamoa nuqtai nazaridan chaqirilishidan qat'iy nazar har doim bir xil natija beradi.
-function getRoundRobinRound(n, i, j){
-  const N = (n % 2 === 0) ? n : n + 1;
-  const numRounds = N - 1;
-  let teams = Array.from({length: N}, (_, k) => k);
-  for(let r = 0; r < numRounds; r++){
-    for(let k = 0; k < N / 2; k++){
-      const a = teams[k], b = teams[N - 1 - k];
-      if(a < n && b < n && ((a === i && b === j) || (a === j && b === i))) return r + 1;
-    }
-    const last = teams[N - 1];
-    for(let k = N - 1; k > 1; k--) teams[k] = teams[k - 1];
-    teams[1] = last;
-  }
-  return numRounds;
-}
-
 function getMatchNumber(grp, teamA, teamB){
   // Barcha guruhlar bo'yicha match raqamini hisoblash (global raqam)
   const grpKeys = Object.keys(GROUPS);
@@ -873,6 +803,25 @@ function getMatchNumber(grp, teamA, teamB){
     }
   }
   return num;
+}
+
+// Tur (round) raqamini jamoa-pozitsiyasiga asoslangan FIKS jadval bo'yicha hisoblaymiz.
+// Bu raqam HAR IKKI jamoa uchun bir xil chiqadi (avvalgi "myMatchIdx" usuli noto'g'ri edi —
+// u har bir o'yinchi nuqtai-nazaridan boshqacha tur raqami berib, tugagan o'yinlarni ham
+// "bloklangan" deb ko'rsatib yuborardi). 4 jamoali guruh uchun standart round-robin jadvali:
+const ROUND_SCHEDULE = [[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
+function getRoundNumber(grp, teamA, teamB){
+  const teams = GROUPS[grp];
+  if(!teams) return 1;
+  const ia = teams.findIndex(t=>t.name===teamA);
+  const ib = teams.findIndex(t=>t.name===teamB);
+  if(ia===-1||ib===-1) return 1;
+  for(let r=0;r<ROUND_SCHEDULE.length;r++){
+    for(const pair of ROUND_SCHEDULE[r]){
+      if((pair[0]===ia&&pair[1]===ib)||(pair[0]===ib&&pair[1]===ia)) return r+1;
+    }
+  }
+  return 1;
 }
 
 function renderPlayers(){
@@ -913,8 +862,8 @@ function renderPlayers(){
   const grpTeams = GROUPS[myTeam.grp];
   const grpMatches = [];
   // Guruh ichida 4 jamoa: 6 o'yin, turlar: 1-tur (3 o'yin), 2-tur (2), 3-tur (1)
-  // Tur raqami "circle method" bo'yicha hisoblanadi — bu HAR DOIM ikkala jamoa uchun ham
-  // bir xil natija beradi (1-tur, 2-tur, 3-tur), shaxsiy ro'yxatdagi tartibga bog'liq emas.
+  // Har bir o'yinchi 3 o'yin o'ynaydi: 1-tur, 2-tur, 3-tur (biri bilan 2 marta bo'ladi)
+  // Sodda: match raqami bo'yicha 1=1-tur, 2=2-tur, 3=3-tur deb belgilaymiz
   for(let i=0;i<grpTeams.length;i++) for(let j=i+1;j<grpTeams.length;j++){
     const ht=grpTeams[i], at=grpTeams[j];
     if(ht.name!==myTeam.name && at.name!==myTeam.name) continue;
@@ -922,7 +871,7 @@ function renderPlayers(){
     const r=rs.find(x=>(x.h===ht.name&&x.a===at.name)||(x.h===at.name&&x.a===ht.name));
     const opp = ht.name===myTeam.name ? at : ht;
     const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
-    const turNum = getRoundRobinRound(grpTeams.length, i, j);
+    const turNum = getRoundNumber(myTeam.grp, ht.name, at.name); // barqaror, ikki tomon uchun bir xil
     let myScore=null, oppScore=null, done=!!r, win=false, draw=false;
     if(r){
       myScore = r.h===myTeam.name?r.hs:r.as;
@@ -965,6 +914,7 @@ function renderPlayers(){
         const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
         const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):'KUTILMOQDA';
         const oppUserClean = m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
+        const canChat = !!oppUserClean;
         // Natija kiritish (faqat yakunlanmagan o'yinlar + tur ochiq bo'lsa)
         const turOpen = getTurStatus(m.grp, m.turNum) === 'open';
         const inputBlock = !m.done ? (turOpen ? `
@@ -1005,7 +955,10 @@ function renderPlayers(){
                 statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
                 statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
                 'background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);'}">${statusTxt}</div>
-            </div>
+            ${canChat?`<button onclick="openChat('${oppUserClean}')"
+              style="width:36px;height:36px;background:rgba(13,148,136,.15);border:1px solid rgba(13,148,136,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
+              :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
+          </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${m.opp.flag} ${m.opp.name} · ${m.opp.user}</div>
           ${inputBlock}
           ${confirmBlock}
@@ -1046,6 +999,14 @@ function confirmScore(matchNum, myName, oppName, grp, approve){
     showToast('❌ Natija rad etildi');
   }
   renderPlayers();
+}
+
+function openChat(username){
+  if(tg && tg.openTelegramLink){
+    tg.openTelegramLink('https://t.me/'+username);
+  } else {
+    window.open('https://t.me/'+username,'_blank');
+  }
 }
 
 function ensurePlayoff(po){
@@ -1327,8 +1288,8 @@ function initAdmin(){
 // Tur holatlari: {grp: {1: 'open'/'closed', 2: ..., 3: ...}}
 if(!window.turStatus) window.turStatus = {};
 
-function saveTurData(){ syncCloud(); }
-function loadTurData(cb){ loadData(cb||function(){}); }
+function saveTurData(){ saveShared(); }
+function loadTurData(cb){ if(cb) cb(); }
 
 function getTurStatus(grp, tur){
   return (window.turStatus[grp] && window.turStatus[grp][tur]) || 'open';
@@ -1360,7 +1321,7 @@ function saveTurStatus(){
 
 function renderPendingRegs(){
   if(!window.pendingRegs) {
-    window.pendingRegs = [];
+    try{ window.pendingRegs = JSON.parse(localStorage.getItem('wc26_pending')||'[]'); }catch(e){ window.pendingRegs=[]; }
   }
   const wrap = document.getElementById('pending-regs-list');
   if(!wrap) return;
@@ -1398,7 +1359,7 @@ function approvePendingReg(i){
   team.user = r.username;
   saveGroupRegs();
   window.pendingRegs.splice(i,1);
-  syncCloud();
+  saveShared();
   showToast(`✅ ${r.username} → ${r.teamName} tasdiqlandi!`);
   renderPendingRegs();
 }
@@ -1410,7 +1371,7 @@ function rejectPendingReg(i){
   const team = GROUPS[r.grp] && GROUPS[r.grp].find(t=>t.name===r.teamName);
   if(team && team.user === r.username){ team.user = '—'; saveGroupRegs(); }
   window.pendingRegs.splice(i,1);
-  syncCloud();
+  saveShared();
   showToast(`🗑 ${r.username} so'rovi rad etildi`);
   renderPendingRegs();
 }
@@ -1564,44 +1525,29 @@ function registerUser(){
   const teamName = document.getElementById('rf-team').value;
   if(!teamName){ showToast('❌ Jamoa tanlang'); return; }
 
-  showToast('⏳ Tekshirilmoqda...');
+  const team = GROUPS[grp].find(t => t.name === teamName);
+  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+  if(team.user !== '—'){ showToast('❌ Bu jamoa band!'); return; }
 
-  // Avval bulutdagi ENG SO'NGGI holatni olib, shunga qarab bandlikni tekshiramiz
-  // (race condition: ikki kishi bir vaqtda yozilganda eski lokal nusxa asosida xato tekshiruv bo'lmasligi uchun)
-  fetch(JSONBIN_URL + '/latest', { headers:{ 'X-Master-Key': JSONBIN_KEY } })
-    .then(r=>r.json())
-    .then(data=>{
-      const remote = (data && data.record) || {};
-      applyGroupRegs(remote.groups || null); // eng so'nggi yozuvlarni lokal GROUPS'ga qo'shamiz
-      if(remote.pending){
-        window.pendingRegs = mergePending(remote.pending, window.pendingRegs || []);
-      }
+  // Oldingi ro'yxatni tekshir
+  for(const g of Object.keys(GROUPS)){
+    if(GROUPS[g].find(t => t.user === myUsername)){
+      showToast('❌ Siz allaqachon ro\'yxatdasiz!');
+      return;
+    }
+  }
 
-      const team = GROUPS[grp].find(t => t.name === teamName);
-      if(!team){ showToast('❌ Jamoa topilmadi'); return; }
-      if(team.user !== '—'){ showToast('❌ Bu jamoa band!'); initRegGroupBtns(); return; }
+  // Ro'yxatdan o'tkazish
+  team.user = myUsername;
+  saveGroupRegs();
 
-      // Oldingi ro'yxatni tekshir
-      for(const g of Object.keys(GROUPS)){
-        if(GROUPS[g].find(t => t.user === myUsername)){
-          showToast('❌ Siz allaqachon ro\'yxatdasiz!');
-          return;
-        }
-      }
+  // Pending ro'yxat sifatida saqlash (admin tasdiqlashi uchun)
+  if(!window.pendingRegs) window.pendingRegs = [];
+  window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
+  saveShared();
 
-      // Ro'yxatdan o'tkazish
-      team.user = myUsername;
-      if(!window.pendingRegs) window.pendingRegs = [];
-      window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
-      syncCloud();
-
-      showToast(`✅ ${team.flag} ${team.name} — ro'yxatdan o'tdingiz!`);
-      initRegGroupBtns();
-    })
-    .catch(e=>{
-      console.warn('Tekshirish xatosi:', e);
-      showToast('⚠️ Bulutga ulanib bo\'lmadi, qayta urinib ko\'ring');
-    });
+  showToast(`✅ ${team.flag} ${team.name} — ro'yxatdan o'tdingiz!`);
+  initRegGroupBtns();
 }
 
 function openWCGroup(grp){
