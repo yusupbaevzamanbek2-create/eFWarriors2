@@ -580,14 +580,23 @@ function saveData(){
 
 function loadData(cb){
   if(CS){
-    CS.getItems(['wc26_res','wc26_po','wc26_tur'], function(err, values){
-      if(!err && values){
-        try{ results = JSON.parse(values['wc26_res']||'{}'); }catch(e){ results={}; }
-        try{ playoff = ensurePlayoff(JSON.parse(values['wc26_po']||'null')); }catch(e){ playoff=ensurePlayoff(null); }
-        try{ window.turStatus = JSON.parse(values['wc26_tur']||'{}'); }catch(e){ window.turStatus={}; }
-      }
-      cb();
-    });
+    let done=false;
+    const finish=()=>{ if(done) return; done=true; cb(); };
+    const failsafe=setTimeout(finish, 3000); // never hang forever if CloudStorage doesn't respond
+    try{
+      CS.getItems(['wc26_res','wc26_po','wc26_tur'], function(err, values){
+        clearTimeout(failsafe);
+        if(!err && values){
+          try{ results = JSON.parse(values['wc26_res']||'{}'); }catch(e){ results={}; }
+          try{ playoff = ensurePlayoff(JSON.parse(values['wc26_po']||'null')); }catch(e){ playoff=ensurePlayoff(null); }
+          try{ window.turStatus = JSON.parse(values['wc26_tur']||'{}'); }catch(e){ window.turStatus={}; }
+        }
+        finish();
+      });
+    }catch(e){
+      clearTimeout(failsafe);
+      finish();
+    }
   } else {
     try{ results = JSON.parse(localStorage.getItem('wc26_res')||'{}'); }catch(e){ results={}; }
     try{ playoff = ensurePlayoff(JSON.parse(localStorage.getItem('wc26_po')||'null')); }catch(e){ playoff=ensurePlayoff(null); }
@@ -1324,6 +1333,8 @@ function rejectPendingReg(i){
   showToast(`🗑 ${r.username} so'rovi rad etildi`);
   renderPendingRegs();
 }
+
+function renderTurStatusList(){
   const wrap = document.getElementById('tur-status-list');
   if(!wrap) return;
   let html = '<div style="font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">BARCHA TURLAR HOLATI</div>';
