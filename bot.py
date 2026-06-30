@@ -13,6 +13,9 @@ CHANNEL_USERNAME = "@eFWarriors"
 WEBHOOK_URL = "https://efwarriors2.onrender.com"
 WEBAPP_URL = "https://yusupbaevzamanbek2-create.github.io/eFWarriors2/"
 
+# Deadline ogohlantirish funksiyasini yoqish/o'chirish uchun shu yerni True qiling
+ENABLE_DEADLINE_REMINDERS = False
+
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
@@ -103,20 +106,22 @@ def send_deadline_reminder():
 def send_tur2_open_notice():
     broadcast(TUR2_OPEN_TEXT)
 
-scheduler = BackgroundScheduler(timezone=TZ)
-now = datetime.now(TZ)
+# Deadline ogohlantirish vazifalari faqat ENABLE_DEADLINE_REMINDERS = True bo'lganda ishga tushadi
+if ENABLE_DEADLINE_REMINDERS:
+    scheduler = BackgroundScheduler(timezone=TZ)
+    now = datetime.now(TZ)
 
-# Agar vaqt allaqachon o'tib ketgan bo'lsa (bot keyinroq ishga tushgan bo'lsa) — darhol yuboramiz,
-# aks holda belgilangan vaqtga rejalashtiramiz.
-if now < REMINDER_DT:
-    scheduler.add_job(send_deadline_reminder, "date", run_date=REMINDER_DT)
-elif now < DEADLINE_DT:
-    scheduler.add_job(send_deadline_reminder, "date", run_date=now)
+    # Agar vaqt allaqachon o'tib ketgan bo'lsa (bot keyinroq ishga tushgan bo'lsa) — darhol yuboramiz,
+    # aks holda belgilangan vaqtga rejalashtiramiz.
+    if now < REMINDER_DT:
+        scheduler.add_job(send_deadline_reminder, "date", run_date=REMINDER_DT)
+    elif now < DEADLINE_DT:
+        scheduler.add_job(send_deadline_reminder, "date", run_date=now)
 
-if now < TUR2_OPEN_DT:
-    scheduler.add_job(send_tur2_open_notice, "date", run_date=TUR2_OPEN_DT)
+    if now < TUR2_OPEN_DT:
+        scheduler.add_job(send_tur2_open_notice, "date", run_date=TUR2_OPEN_DT)
 
-scheduler.start()
+    scheduler.start()
 
 TEXTS = {
     "uz": {
