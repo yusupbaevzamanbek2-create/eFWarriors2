@@ -612,14 +612,70 @@ function applyFullState(state){
 }
 
 // Barcha o'zgarishlarni umumiy bulutga (va lokal kesh sifatida localStorage'ga) yuboradi
+function mergeGroups(remote, local){
+  const out = {};
+  const allGrp = new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
+  allGrp.forEach(g=>{ out[g] = {...(remote&&remote[g])||{}, ...(local&&local[g])||{}}; });
+  return out;
+}
+
+function mergeResults(remote, local){
+  const out = {};
+  const allGrp = new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
+  allGrp.forEach(g=>{
+    const map = {};
+    ((remote&&remote[g])||[]).forEach(m=>{ map[m.h+'|'+m.a] = m; });
+    ((local&&local[g])||[]).forEach(m=>{ map[m.h+'|'+m.a] = m; }); // mahalliy o'zgarish ustun
+    out[g] = Object.values(map);
+  });
+  return out;
+}
+
+function mergeTur(remote, local){
+  const out = {};
+  const allGrp = new Set([...Object.keys(remote||{}), ...Object.keys(local||{})]);
+  allGrp.forEach(g=>{ out[g] = {...(remote&&remote[g])||{}, ...(local&&local[g])||{}}; });
+  return out;
+}
+
+function mergePending(remote, local){
+  const map = {};
+  (remote||[]).forEach(p=>{ map[p.grp+'|'+p.teamName+'|'+p.username] = p; });
+  (local||[]).forEach(p=>{ map[p.grp+'|'+p.teamName+'|'+p.username] = p; });
+  return Object.values(map);
+}
+
+// Saqlashdan oldin bulutdagi eng so'nggi holatni o'qib, faqat o'zgargan qismni birlashtirib yozadi —
+// shu orqali parallel ishlayotgan boshqa foydalanuvchilarning yozuvlari o'chib ketmaydi.
 function syncCloud(){
-  const state = getFullState();
-  try{ localStorage.setItem('wc26_state', JSON.stringify(state)); }catch(e){}
-  fetch(JSONBIN_URL, {
-    method:'PUT',
-    headers:{ 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-    body: JSON.stringify(state)
-  }).catch(e=>{ console.warn('Cloud save xatosi:', e); });
+  const local = getFullState();
+  try{ localStorage.setItem('wc26_state', JSON.stringify(local)); }catch(e){}
+  fetch(JSONBIN_URL + '/latest', { headers:{ 'X-Master-Key': JSONBIN_KEY } })
+    .then(r=>r.json())
+    .then(data=>{
+      const remote = (data && data.record) || {};
+      const merged = {
+        res: mergeResults(remote.res, local.res),
+        po: ensurePlayoff(local.po || remote.po || null),
+        tur: mergeTur(remote.tur, local.tur),
+        groups: mergeGroups(remote.groups, local.groups),
+        pending: mergePending(remote.pending, local.pending)
+      };
+      applyFullState(merged);
+      try{ localStorage.setItem('wc26_state', JSON.stringify(merged)); }catch(e){}
+      return fetch(JSONBIN_URL, {
+        method:'PUT',
+        headers:{ 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
+        body: JSON.stringify(merged)
+      });
+    })
+    .then(r=>{
+      if(r && !r.ok && typeof showToast==='function') showToast('⚠️ Bulutga saqlashda xato: '+r.status);
+    })
+    .catch(e=>{
+      console.warn('Cloud save xatosi:', e);
+      if(typeof showToast==='function') showToast('⚠️ Bulutga ulanib bo\'lmadi (offline saqlandi)');
+    });
 }
 
 function saveData(){ syncCloud(); }
@@ -784,6 +840,24 @@ function renderMatchList(grp){
   document.getElementById('mg-list').innerHTML=html;
 }
 
+// "Circle method" — guruhdagi i,j (0-indeksli) jamoa juftligi uchun GLOBAL tur raqamini qaytaradi.
+// Bu funksiya qaysi jamoa nuqtai nazaridan chaqirilishidan qat'iy nazar har doim bir xil natija beradi.
+function getRoundRobinRound(n, i, j){
+  const N = (n % 2 === 0) ? n : n + 1;
+  const numRounds = N - 1;
+  let teams = Array.from({length: N}, (_, k) => k);
+  for(let r = 0; r < numRounds; r++){
+    for(let k = 0; k < N / 2; k++){
+      const a = teams[k], b = teams[N - 1 - k];
+      if(a < n && b < n && ((a === i && b === j) || (a === j && b === i))) return r + 1;
+    }
+    const last = teams[N - 1];
+    for(let k = N - 1; k > 1; k--) teams[k] = teams[k - 1];
+    teams[1] = last;
+  }
+  return numRounds;
+}
+
 function getMatchNumber(grp, teamA, teamB){
   // Barcha guruhlar bo'yicha match raqamini hisoblash (global raqam)
   const grpKeys = Object.keys(GROUPS);
@@ -839,18 +913,16 @@ function renderPlayers(){
   const grpTeams = GROUPS[myTeam.grp];
   const grpMatches = [];
   // Guruh ichida 4 jamoa: 6 o'yin, turlar: 1-tur (3 o'yin), 2-tur (2), 3-tur (1)
-  // Har bir o'yinchi 3 o'yin o'ynaydi: 1-tur, 2-tur, 3-tur (biri bilan 2 marta bo'ladi)
-  // Sodda: match raqami bo'yicha 1=1-tur, 2=2-tur, 3=3-tur deb belgilaymiz
-  let myMatchIdx = 0;
+  // Tur raqami "circle method" bo'yicha hisoblanadi — bu HAR DOIM ikkala jamoa uchun ham
+  // bir xil natija beradi (1-tur, 2-tur, 3-tur), shaxsiy ro'yxatdagi tartibga bog'liq emas.
   for(let i=0;i<grpTeams.length;i++) for(let j=i+1;j<grpTeams.length;j++){
     const ht=grpTeams[i], at=grpTeams[j];
     if(ht.name!==myTeam.name && at.name!==myTeam.name) continue;
-    myMatchIdx++;
     const rs=results[myTeam.grp]||[];
     const r=rs.find(x=>(x.h===ht.name&&x.a===at.name)||(x.h===at.name&&x.a===ht.name));
     const opp = ht.name===myTeam.name ? at : ht;
     const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
-    const turNum = myMatchIdx; // 1, 2 yoki 3-tur
+    const turNum = getRoundRobinRound(grpTeams.length, i, j);
     let myScore=null, oppScore=null, done=!!r, win=false, draw=false;
     if(r){
       myScore = r.h===myTeam.name?r.hs:r.as;
@@ -893,7 +965,6 @@ function renderPlayers(){
         const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
         const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):'KUTILMOQDA';
         const oppUserClean = m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
-        const canChat = !!oppUserClean;
         // Natija kiritish (faqat yakunlanmagan o'yinlar + tur ochiq bo'lsa)
         const turOpen = getTurStatus(m.grp, m.turNum) === 'open';
         const inputBlock = !m.done ? (turOpen ? `
@@ -934,10 +1005,7 @@ function renderPlayers(){
                 statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
                 statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
                 'background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);'}">${statusTxt}</div>
-            ${canChat?`<button onclick="openChat('${oppUserClean}')"
-              style="width:36px;height:36px;background:rgba(13,148,136,.15);border:1px solid rgba(13,148,136,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
-              :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
-          </div>
+            </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${m.opp.flag} ${m.opp.name} · ${m.opp.user}</div>
           ${inputBlock}
           ${confirmBlock}
@@ -978,14 +1046,6 @@ function confirmScore(matchNum, myName, oppName, grp, approve){
     showToast('❌ Natija rad etildi');
   }
   renderPlayers();
-}
-
-function openChat(username){
-  if(tg && tg.openTelegramLink){
-    tg.openTelegramLink('https://t.me/'+username);
-  } else {
-    window.open('https://t.me/'+username,'_blank');
-  }
 }
 
 function ensurePlayoff(po){
@@ -1504,29 +1564,44 @@ function registerUser(){
   const teamName = document.getElementById('rf-team').value;
   if(!teamName){ showToast('❌ Jamoa tanlang'); return; }
 
-  const team = GROUPS[grp].find(t => t.name === teamName);
-  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
-  if(team.user !== '—'){ showToast('❌ Bu jamoa band!'); return; }
+  showToast('⏳ Tekshirilmoqda...');
 
-  // Oldingi ro'yxatni tekshir
-  for(const g of Object.keys(GROUPS)){
-    if(GROUPS[g].find(t => t.user === myUsername)){
-      showToast('❌ Siz allaqachon ro\'yxatdasiz!');
-      return;
-    }
-  }
+  // Avval bulutdagi ENG SO'NGGI holatni olib, shunga qarab bandlikni tekshiramiz
+  // (race condition: ikki kishi bir vaqtda yozilganda eski lokal nusxa asosida xato tekshiruv bo'lmasligi uchun)
+  fetch(JSONBIN_URL + '/latest', { headers:{ 'X-Master-Key': JSONBIN_KEY } })
+    .then(r=>r.json())
+    .then(data=>{
+      const remote = (data && data.record) || {};
+      applyGroupRegs(remote.groups || null); // eng so'nggi yozuvlarni lokal GROUPS'ga qo'shamiz
+      if(remote.pending){
+        window.pendingRegs = mergePending(remote.pending, window.pendingRegs || []);
+      }
 
-  // Ro'yxatdan o'tkazish
-  team.user = myUsername;
-  saveGroupRegs();
+      const team = GROUPS[grp].find(t => t.name === teamName);
+      if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+      if(team.user !== '—'){ showToast('❌ Bu jamoa band!'); initRegGroupBtns(); return; }
 
-  // Pending ro'yxat sifatida saqlash (admin tasdiqlashi uchun)
-  if(!window.pendingRegs) window.pendingRegs = [];
-  window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
-  syncCloud();
+      // Oldingi ro'yxatni tekshir
+      for(const g of Object.keys(GROUPS)){
+        if(GROUPS[g].find(t => t.user === myUsername)){
+          showToast('❌ Siz allaqachon ro\'yxatdasiz!');
+          return;
+        }
+      }
 
-  showToast(`✅ ${team.flag} ${team.name} — ro'yxatdan o'tdingiz!`);
-  initRegGroupBtns();
+      // Ro'yxatdan o'tkazish
+      team.user = myUsername;
+      if(!window.pendingRegs) window.pendingRegs = [];
+      window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
+      syncCloud();
+
+      showToast(`✅ ${team.flag} ${team.name} — ro'yxatdan o'tdingiz!`);
+      initRegGroupBtns();
+    })
+    .catch(e=>{
+      console.warn('Tekshirish xatosi:', e);
+      showToast('⚠️ Bulutga ulanib bo\'lmadi, qayta urinib ko\'ring');
+    });
 }
 
 function openWCGroup(grp){
