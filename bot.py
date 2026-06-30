@@ -1,6 +1,12 @@
+import json
+import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from flask import Flask, request
+from apscheduler.schedulers.background import BackgroundScheduler
 
 BOT_TOKEN = "8934195042:AAFgnJ5x4FlZ73mS1CYRQ6DDIDJHn9va47k"
 CHANNEL_USERNAME = "@eFWarriors"
@@ -11,6 +17,106 @@ bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
 user_lang = {}
+
+TZ = ZoneInfo("Asia/Tashkent")
+
+# ─── Foydalanuvchi chat_id larini saqlash (xabar yuborish uchun) ───────────
+USERS_FILE = "users.json"
+
+def load_users():
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+def save_users():
+    try:
+        with open(USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(known_users, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("users.json saqlashda xato:", e)
+
+# {"@username": chat_id, ...}
+known_users = load_users()
+
+def remember_user(message_or_call):
+    """Foydalanuvchi botga murojaat qilganda uning username -> chat_id ni saqlab qolamiz."""
+    user = message_or_call.from_user
+    if user and user.username:
+        key = "@" + user.username
+        chat_id = message_or_call.chat.id if hasattr(message_or_call, "chat") else message_or_call.message.chat.id
+        if known_users.get(key) != chat_id:
+            known_users[key] = chat_id
+            save_users()
+
+# ─── 2-tur ogohlantirish ro'yxati: C, G, I, K guruhlari ────────────────────
+DEADLINE_GROUPS = {
+    "C": ["@dlmrdv1ch", "@mr_qarshiyew", "@kkhy_1", "@isAbbas_C7"],
+    "G": ["@Muhammadjanov17", "@jumaef", "@Kib1lanmang", "@AT_Navbahor_7"],
+    "I": ["@Alik28k", "@PRosTOY_4", "@yasser13288", "@thecoko"],
+    "K": ["@itskamo7", "@I_see_su_bitch", "@yusupbaevvvv", "@inamjanovich_7"],
+}
+
+DEADLINE_DT = datetime(2026, 6, 30, 23, 59, tzinfo=TZ)
+REMINDER_DT = datetime(2026, 6, 30, 22, 59, tzinfo=TZ)   # deadline'dan 1 soat oldin
+TUR2_OPEN_DT = datetime(2026, 7, 1, 0, 0, tzinfo=TZ)     # 00:00 da 2-tur ochiladi
+
+REMINDER_TEXT = (
+    "⏰ Diqqat! C, G, I, K guruhlarida 1-tur deadline'iga 1 soat qoldi "
+    f"({DEADLINE_DT.strftime('%d.%m.%Y %H:%M')}). "
+    "O'yiningizni o'ynab, natijani ilovaga kiritib ulguring!"
+)
+
+TUR2_OPEN_TEXT = (
+    "⚽ C, G, I, K guruhlarida 2-tur ochildi! Bugungi o'yiningizni o'ynab, "
+    "natijani ilovaga kiriting."
+)
+
+def get_deadline_chat_ids():
+    """C, G, I, K guruhlaridagi va botda ro'yxatdan o'tgan (chat_id ma'lum) foydalanuvchilar."""
+    usernames = [u for grp in DEADLINE_GROUPS.values() for u in grp]
+    chat_ids = []
+    missing = []
+    for u in usernames:
+        cid = known_users.get(u)
+        if cid:
+            chat_ids.append(cid)
+        else:
+            missing.append(u)
+    if missing:
+        print("Bot bilan hali bog'lanmagan (xabar yuborib bo'lmaydi):", missing)
+    return chat_ids
+
+def broadcast(text):
+    for cid in get_deadline_chat_ids():
+        try:
+            bot.send_message(cid, text)
+        except Exception as e:
+            print(f"Xabar yuborishda xato ({cid}):", e)
+
+def send_deadline_reminder():
+    broadcast(REMINDER_TEXT)
+
+def send_tur2_open_notice():
+    broadcast(TUR2_OPEN_TEXT)
+
+scheduler = BackgroundScheduler(timezone=TZ)
+now = datetime.now(TZ)
+
+# Agar vaqt allaqachon o'tib ketgan bo'lsa (bot keyinroq ishga tushgan bo'lsa) — darhol yuboramiz,
+# aks holda belgilangan vaqtga rejalashtiramiz.
+if now < REMINDER_DT:
+    scheduler.add_job(send_deadline_reminder, "date", run_date=REMINDER_DT)
+elif now < DEADLINE_DT:
+    scheduler.add_job(send_deadline_reminder, "date", run_date=now)
+
+if now < TUR2_OPEN_DT:
+    scheduler.add_job(send_tur2_open_notice, "date", run_date=TUR2_OPEN_DT)
+
+scheduler.start()
 
 TEXTS = {
     "uz": {
@@ -75,6 +181,7 @@ def webapp_keyboard(lang):
 # QADAM 1: /start → til tanlash
 @bot.message_handler(commands=["start"])
 def start(message):
+    remember_user(message)
     bot.send_message(
         message.chat.id,
         "🌐 *Tilni tanlang / Выберите язык / Choose language:*",
@@ -85,6 +192,7 @@ def start(message):
 # QADAM 2: Til tanlangandan keyin → obuna tekshirish
 @bot.callback_query_handler(func=lambda c: c.data.startswith("lang_"))
 def set_language(call):
+    remember_user(call)
     lang = call.data.split("_")[1]
     user_lang[call.from_user.id] = lang
     bot.answer_callback_query(call.id)
@@ -108,6 +216,7 @@ def set_language(call):
 # QADAM 3: Obunani tekshirish → Web App tugmasi
 @bot.callback_query_handler(func=lambda c: c.data == "check_sub")
 def check_subscription(call):
+    remember_user(call)
     uid = call.from_user.id
     lang = user_lang.get(uid, "uz")
 
