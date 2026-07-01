@@ -661,30 +661,39 @@ function saveShared(){
 }
 
 function loadShared(cb){
+  let done=false;
+  const finish=(fn)=>{ if(done) return; done=true; try{ fn(); }catch(e){ console.error(e); } cb(); };
+  const useBackup=(reason)=>{
+    console.error('JSONBin yuklashda xato, lokal zaxiradan foydalanildi:', reason);
+    try{
+      const backup = JSON.parse(localStorage.getItem('wc26_backup')||'null');
+      results = (backup&&backup.res) || {};
+      playoff = ensurePlayoff((backup&&backup.po) || null);
+      window.turStatus = (backup&&backup.tur) || {};
+      applyGroupRegs((backup&&backup.groups) || null);
+      window.pendingRegs = (backup&&backup.pending) || [];
+      window.champions = (backup&&backup.champ) || [];
+    }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; }
+  };
+  const failsafe = setTimeout(()=>{ finish(()=>useBackup('timeout (6s)')); }, 6000);
+
   fetch(`${JSONBIN_URL}/latest`, { headers:{'X-Master-Key':JSONBIN_API_KEY} })
     .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
     .then(data=>{
-      const rec = data.record || {};
-      results = rec.res || {};
-      playoff = ensurePlayoff(rec.po || null);
-      window.turStatus = rec.tur || {};
-      applyGroupRegs(rec.groups || null);
-      window.pendingRegs = rec.pending || [];
-      window.champions = rec.champ || [];
-      cb();
+      clearTimeout(failsafe);
+      finish(()=>{
+        const rec = data.record || {};
+        results = rec.res || {};
+        playoff = ensurePlayoff(rec.po || null);
+        window.turStatus = rec.tur || {};
+        applyGroupRegs(rec.groups || null);
+        window.pendingRegs = rec.pending || [];
+        window.champions = rec.champ || [];
+      });
     })
     .catch(e=>{
-      console.error('JSONBin yuklashda xato, lokal zaxiradan foydalanildi:', e);
-      try{
-        const backup = JSON.parse(localStorage.getItem('wc26_backup')||'null');
-        results = (backup&&backup.res) || {};
-        playoff = ensurePlayoff((backup&&backup.po) || null);
-        window.turStatus = (backup&&backup.tur) || {};
-        applyGroupRegs((backup&&backup.groups) || null);
-        window.pendingRegs = (backup&&backup.pending) || [];
-        window.champions = (backup&&backup.champ) || [];
-      }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; }
-      cb();
+      clearTimeout(failsafe);
+      finish(()=>useBackup(e));
     });
 }
 
