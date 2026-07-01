@@ -32,7 +32,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 #app.show{opacity:1;}
 
 /* PAGES */
-.page{display:none;min-height:100vh;padding-bottom:72px;}
+.page{display:none;min-height:100vh;padding-bottom:90px;}
 .page.on{display:block;}
 #page-menu{display:none;padding-bottom:0;}
 #page-menu.on{display:flex;flex-direction:column;min-height:100vh;}
@@ -56,13 +56,42 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .hero-title span{color:var(--gold);}
 .hero-sub{font-size:11px;color:var(--muted);margin-top:3px;}
 
-/* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#0B0F1A;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:100;}
-.bnav-i{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px 0;}
-.bnav-ic{font-size:20px;transition:transform .2s;}
-.bnav-lb{font-size:9px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;}
-.bnav-i.on .bnav-ic{transform:scale(1.1);}
-.bnav-i.on .bnav-lb{color:var(--accent);}
+/* BOTTOM NAV — yangi dizayn: suzuvchi panel, faol tab uchun pill fon */
+.bnav{position:fixed;bottom:10px;left:10px;right:10px;background:rgba(17,24,39,.92);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:20px;display:flex;padding:6px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow-x:auto;}
+.bnav::-webkit-scrollbar{display:none;}
+.bnav-i{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:7px 2px;border-radius:14px;transition:background .2s,transform .15s;}
+.bnav-ic{font-size:18px;transition:transform .2s;line-height:1;}
+.bnav-lb{font-size:8px;letter-spacing:.3px;color:var(--muted);text-transform:uppercase;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bnav-i.on{background:linear-gradient(180deg,rgba(0,200,255,.16),rgba(0,200,255,.05));}
+.bnav-i.on .bnav-ic{transform:scale(1.15) translateY(-1px);}
+.bnav-i.on .bnav-lb{color:var(--accent);font-weight:700;}
+
+/* LEVEL / RANK badge + XP bar */
+.lvl-badge{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px 3px 6px;font-size:11px;font-weight:700;color:var(--text);}
+.lvl-badge .lvl-ic{font-size:14px;}
+.xp-bar-wrap{margin-top:8px;}
+.xp-bar-track{height:6px;background:var(--bg3);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:6px;transition:width .4s ease;}
+.xp-bar-txt{font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px;}
+.champ-crown{display:inline-block;margin-left:4px;font-size:13px;filter:drop-shadow(0 0 3px rgba(245,166,35,.6));}
+.champ-ribbon{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(90deg,rgba(245,166,35,.18),rgba(245,166,35,.05));border:1px solid rgba(245,166,35,.35);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;margin-top:6px;}
+
+/* AWARDS TAB (Sovrinlar) */
+.award-hero{background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(0,200,255,.06));border:1px solid rgba(245,166,35,.25);border-radius:18px;padding:20px 16px;text-align:center;margin:0 16px 16px;}
+.award-hero .aw-ic{font-size:38px;margin-bottom:6px;}
+.award-hero .aw-title{font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:#fff;}
+.award-hero .aw-name{font-size:19px;font-weight:900;color:var(--gold);margin-top:4px;}
+.award-hero .aw-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.award-list{padding:0 16px;}
+.award-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;}
+.award-row .aw-pos{font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;width:26px;text-align:center;color:var(--muted);}
+.award-row.p1 .aw-pos{color:#F5A623;}
+.award-row.p2 .aw-pos{color:#94A3B8;}
+.award-row.p3 .aw-pos{color:#C47A3A;}
+.award-row .aw-info{flex:1;}
+.award-row .aw-team{font-size:13px;font-weight:700;}
+.award-row .aw-user{font-size:11px;color:var(--accent);}
+.award-row .aw-stat{font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;color:var(--text);}
 
 /* TABS (WC page) */
 .wc-tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;}
@@ -365,6 +394,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <div class="bnav-ic">🏆</div>
       <div class="bnav-lb">Playoff</div>
     </div>
+    <div class="bnav-i" id="wt-awards" onclick="wcTab('awards')">
+      <div class="bnav-ic">🎖️</div>
+      <div class="bnav-lb">Sovrinlar</div>
+    </div>
     <div class="bnav-i" id="wt-players" onclick="wcTab('players')">
       <div class="bnav-ic">👤</div>
       <div class="bnav-lb">Profil</div>
@@ -417,6 +450,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       </div>
     </div>
     <div id="bracket-wrap" class="playoff-wrap"></div>
+  </div>
+
+  <!-- TAB: SOVRINLAR (Awards) -->
+  <div id="wc-awards" class="tab" style="padding-bottom:20px;">
+    <div class="hero-banner">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">Mavsum Yakunlari</div>
+        <div class="hero-title">🎖️ <span>Sovrinlar</span></div>
+        <div class="hero-sub">Chempion · Eng ko'p gol · Eng yaxshi himoya</div>
+      </div>
+    </div>
+    <div id="awards-content"></div>
   </div>
 
   <!-- TAB: REYTING -->
@@ -585,7 +631,7 @@ function buildSharedPayload(){
     regs[g] = {};
     GROUPS[g].forEach(t=>{ if(t.user && t.user !== '—') regs[g][t.name] = t.user; });
   });
-  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, pending: window.pendingRegs||[] };
+  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, pending: window.pendingRegs||[], champ: window.champions||[] };
 }
 
 function applyGroupRegs(regs){
@@ -624,6 +670,7 @@ function loadShared(cb){
       window.turStatus = rec.tur || {};
       applyGroupRegs(rec.groups || null);
       window.pendingRegs = rec.pending || [];
+      window.champions = rec.champ || [];
       cb();
     })
     .catch(e=>{
@@ -635,7 +682,8 @@ function loadShared(cb){
         window.turStatus = (backup&&backup.tur) || {};
         applyGroupRegs((backup&&backup.groups) || null);
         window.pendingRegs = (backup&&backup.pending) || [];
-      }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; }
+        window.champions = (backup&&backup.champ) || [];
+      }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; }
       cb();
     });
 }
@@ -675,7 +723,7 @@ function tblHTML(grp){
     <div class="grp-hd"><span>#</span><span>${grp} Guruh</span><span>B</span><span>G</span><span>D</span><span>M</span><span>PTS</span></div>
     ${t.map((p,i)=>`<div class="grp-rw ${i===0?'q1':i===1?'q2':''}">
       <div class="rk ${i<2?'t':''}">${i+1}</div>
-      <div class="nm"><div class="fl">${p.flag}</div><div><div class="cname">${p.name}</div><div class="uname">${p.user}</div></div></div>
+      <div class="nm"><div class="fl">${p.flag}</div><div><div class="cname">${p.name}</div><div class="uname">${p.user}${isDefendingChampion(p.user)?' <span class="champ-crown">👑</span>':''}</div></div></div>
       <div class="st">${p.p}</div><div class="st">${p.w}</div><div class="st">${p.d}</div><div class="st">${p.l}</div>
       <div class="pts">${p.pts}</div>
     </div>`).join('')}
@@ -723,7 +771,7 @@ function backToMenu(){
 
 let curWcTab='home';
 function wcTab(name){
-  ['home','matches','rating','playoff','players','admin'].forEach(t=>{
+  ['home','matches','rating','playoff','awards','players','admin'].forEach(t=>{
     document.getElementById('wc-'+t).classList.toggle('on',t===name);
     const btn=document.getElementById('wt-'+t);
     if(btn) btn.classList.toggle('on',t===name);
@@ -733,6 +781,7 @@ function wcTab(name){
   if(name==='matches'){ initMatchesTab(); renderMatchList(mGrp); }
   if(name==='rating') renderRating();
   if(name==='playoff') renderBracket();
+  if(name==='awards') renderAwards();
   if(name==='players') renderPlayers();
 }
 
@@ -824,6 +873,134 @@ function getRoundNumber(grp, teamA, teamB){
   return 1;
 }
 
+// ============================================================================
+// LEVEL / RANK / XP TIZIMI
+// ============================================================================
+// Har bir liga-mavsum uchun nom va raqam. Yangi liga (masalan APL) ochilganda
+// shu ikkita qiymatni o'zgartirish kifoya — chempionlar tarixi va "himoyachi
+// chempion" nishoni shu asosda ishlaydi.
+const CURRENT_LEAGUE = 'WC2026';
+const CURRENT_SEASON = 1;
+
+const XP_BASE = 100; // 1-> 2 darajaga o'tish uchun kerakli XP, har darajada 1.25x oshadi
+function levelInfo(xp){
+  let level=1, floor=0, need=XP_BASE;
+  while(xp>=floor+need){ floor+=need; level++; need=Math.round(need*1.25); }
+  const into = xp-floor;
+  const pct = need>0 ? Math.min(100, Math.round(into/need*100)) : 100;
+  return {level, into, need, pct};
+}
+function rankTier(level){
+  if(level>=9) return {emoji:'👑', name:'AFSONA'};
+  if(level>=7) return {emoji:'💎', name:'PLATINA'};
+  if(level>=5) return {emoji:'🥇', name:'OLTIN'};
+  if(level>=3) return {emoji:'🥈', name:'KUMUSH'};
+  return {emoji:'🥉', name:'BRONZA'};
+}
+function computeXP(w,d,l,bigWins){
+  return w*30 + d*10 + l*5 + bigWins*10;
+}
+// Playoff (knock-out) bosqichida bitta jamoaning statistikasini yig'ish.
+// Playoff match obyektlarida h/a maydonlari jamoa OBYEKTI (nom emas) sifatida saqlanadi.
+function getPlayoffRecordForTeam(teamName){
+  let w=0,d=0,l=0,gf=0,ga=0,bigWins=0;
+  ['r32','r16','qf','sf','third','final'].forEach(rnd=>{
+    (playoff[rnd]||[]).forEach(m=>{
+      if(!m || m.hs===null || m.hs===undefined || m.as===null || m.as===undefined) return;
+      let ms=null, os=null;
+      if(m.h && m.h.name===teamName){ ms=m.hs; os=m.as; }
+      else if(m.a && m.a.name===teamName){ ms=m.as; os=m.hs; }
+      else return;
+      gf+=ms; ga+=os;
+      if(ms>os){ w++; if(ms-os>=3) bigWins++; }
+      else if(ms===os) d++;
+      else l++;
+    });
+  });
+  return {w,d,l,gf,ga,bigWins};
+}
+
+// ============================================================================
+// CHEMPIONLAR TARIXI (ligalar aro saqlanadi — yangi mavsum boshlanganda ham qoladi)
+// ============================================================================
+function recordChampionIfFinal(rnd, m){
+  if(rnd!=='final') return;
+  if(m.hs===null||m.hs===undefined||m.as===null||m.as===undefined||m.hs===m.as) return;
+  const winner = m.hs>m.as ? m.h : m.a;
+  if(!winner || !winner.user || winner.user==='—') return;
+  if(!window.champions) window.champions=[];
+  // Shu liga-mavsum uchun eski yozuvni almashtirish (masalan final natijasi tuzatilsa)
+  window.champions = window.champions.filter(c=>!(c.league===CURRENT_LEAGUE && c.season===CURRENT_SEASON));
+  window.champions.push({league:CURRENT_LEAGUE, season:CURRENT_SEASON, username:winner.user, team:winner.name, flag:winner.flag||'', date:Date.now()});
+}
+// "Himoyachi chempion" — o'tgan mavsum g'olibi. Yangi mavsum boshlanganda (CURRENT_SEASON
+// oshirilganda) shu username hamma joyda tojli belgi bilan ko'rinadi.
+function getDefendingChampion(){
+  if(!window.champions) return null;
+  const prior = window.champions.filter(c=>c.league===CURRENT_LEAGUE && c.season===CURRENT_SEASON-1);
+  return prior.length ? prior[prior.length-1] : null;
+}
+function isDefendingChampion(username){
+  const dc = getDefendingChampion();
+  return !!(dc && username && dc.username===username);
+}
+
+// ============================================================================
+// SOVRINLAR (AWARDS) — Chempion, Eng ko'p gol, Eng yaxshi himoya
+// ============================================================================
+function getAllTeamsFlat(){
+  let all=[];
+  Object.keys(GROUPS).forEach(g=>{
+    getStats(g).forEach(t=>all.push(t));
+  });
+  return all;
+}
+function renderAwards(){
+  const wrap = document.getElementById('awards-content');
+  const teams = getAllTeamsFlat().filter(t=>t.user && t.user!=='—');
+
+  // 1) Liga chempioni
+  const champ = (window.champions||[]).find(c=>c.league===CURRENT_LEAGUE && c.season===CURRENT_SEASON);
+  const champHTML = champ ? `
+    <div class="award-hero">
+      <div class="aw-ic">🏆</div>
+      <div class="aw-title">LIGA CHEMPIONI</div>
+      <div class="aw-name">${champ.flag||''} ${champ.team}</div>
+      <div class="aw-sub">${champ.username}</div>
+    </div>` : `
+    <div class="award-hero" style="opacity:.6;">
+      <div class="aw-ic">🏆</div>
+      <div class="aw-title">LIGA CHEMPIONI</div>
+      <div class="aw-sub" style="margin-top:8px;">Hali aniqlanmagan — Final o'ynalmagan</div>
+    </div>`;
+
+  // 2) Eng ko'p gol urgan (top 3)
+  const scorers = [...teams].filter(t=>t.p>0).sort((a,b)=>b.gf-a.gf).slice(0,3);
+  const scorersHTML = scorers.length ? scorers.map((t,i)=>`
+    <div class="award-row p${i+1}">
+      <div class="aw-pos">${i+1}</div>
+      <div class="aw-info"><div class="aw-team">${t.flag} ${t.name}</div><div class="aw-user">${t.user}</div></div>
+      <div class="aw-stat">${t.gf}⚽</div>
+    </div>`).join('') : `<div class="empty"><div class="empty-ic">⚽</div><div>Hali o'yin yo'q</div></div>`;
+
+  // 3) Eng yaxshi himoya — eng kam gol o'tkazgan (top 3)
+  const defenders = [...teams].filter(t=>t.p>0).sort((a,b)=>a.ga-b.ga).slice(0,3);
+  const defendersHTML = defenders.length ? defenders.map((t,i)=>`
+    <div class="award-row p${i+1}">
+      <div class="aw-pos">${i+1}</div>
+      <div class="aw-info"><div class="aw-team">${t.flag} ${t.name}</div><div class="aw-user">${t.user}</div></div>
+      <div class="aw-stat">${t.ga}🛡️</div>
+    </div>`).join('') : `<div class="empty"><div class="empty-ic">🛡️</div><div>Hali o'yin yo'q</div></div>`;
+
+  wrap.innerHTML = `
+    ${champHTML}
+    <div class="slb">⚽ Eng ko'p gol urgan</div>
+    <div class="award-list">${scorersHTML}</div>
+    <div class="slb" style="margin-top:10px;">🛡️ Eng yaxshi himoya</div>
+    <div class="award-list" style="padding-bottom:20px;">${defendersHTML}</div>
+  `;
+}
+
 function renderPlayers(){
   const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   const myUsername = tgUser ? '@' + tgUser.username : null;
@@ -888,16 +1065,34 @@ function renderPlayers(){
     ? `<img src="${myPhoto}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);">`
     : `<div class="prof-avatar">👤</div>`;
 
+  // Guruh + playoff natijalarini birlashtirib XP hisoblash
+  let bigWins=0;
+  grpMatches.forEach(m=>{ if(m.win && (m.myScore-m.oppScore)>=3) bigWins++; });
+  const grpWDL = grpMatches.reduce((a,m)=>{ if(m.win)a.w++; else if(m.draw)a.d++; else if(m.done)a.l++; return a; },{w:0,d:0,l:0});
+  const poRec = getPlayoffRecordForTeam(myTeam.name);
+  const totalW = grpWDL.w+poRec.w, totalD = grpWDL.d+poRec.d, totalL = grpWDL.l+poRec.l, totalBig = bigWins+poRec.bigWins;
+  const xp = computeXP(totalW, totalD, totalL, totalBig);
+  const lvl = levelInfo(xp);
+  const tier = rankTier(lvl.level);
+  const champRibbon = isDefendingChampion(myTeam.user)
+    ? `<div class="champ-ribbon">👑 O'TGAN MAVSUM CHEMPIONI</div>` : '';
+
   wrap.innerHTML = `
     <div style="padding:16px 16px 8px;">
       <div class="prof-card">
         ${avatarHTML}
         <div class="prof-info">
-          <div class="prof-name">${displayName}</div>
+          <div class="prof-name">${displayName}${isDefendingChampion(myTeam.user)?'<span class="champ-crown">👑</span>':''}</div>
           <div class="prof-team">${myTeam.flag} ${myTeam.name}</div>
           <div class="prof-user">${myTeam.user}</div>
         </div>
         <div class="prof-flag">${myTeam.flag}</div>
+      </div>
+      <div class="lvl-badge" style="margin-top:10px;"><span class="lvl-ic">${tier.emoji}</span>LEVEL ${lvl.level} · ${tier.name}</div>
+      ${champRibbon}
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${lvl.pct}%;"></div></div>
+        <div class="xp-bar-txt">${lvl.into} / ${lvl.need} XP · Keyingi darajagacha</div>
       </div>
     </div>
     <div class="slb">Statistika</div>
@@ -1360,193 +1555,7 @@ function approvePendingReg(i){
   saveGroupRegs();
   window.pendingRegs.splice(i,1);
   saveShared();
-  showToast(`✅ ${r.username} → ${r.teamName} tasdiqlandi!`);
-  renderPendingRegs();
-}
-
-function rejectPendingReg(i){
-  const r = window.pendingRegs[i];
-  if(!r) return;
-  // Jamoadan usernameni olib tashlash
-  const team = GROUPS[r.grp] && GROUPS[r.grp].find(t=>t.name===r.teamName);
-  if(team && team.user === r.username){ team.user = '—'; saveGroupRegs(); }
-  window.pendingRegs.splice(i,1);
-  saveShared();
-  showToast(`🗑 ${r.username} so'rovi rad etildi`);
-  renderPendingRegs();
-}
-
-function renderTurStatusList(){
-  const wrap = document.getElementById('tur-status-list');
-  if(!wrap) return;
-  let html = '<div style="font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">BARCHA TURLAR HOLATI</div>';
-  Object.keys(GROUPS).forEach(grp=>{
-    const turlar = window.turStatus[grp]||{};
-    const statuses = [1,2,3].map(t=>{
-      const s = turlar[t]||'open';
-      return `<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;
-        ${s==='open'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);'
-        :'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);'}">
-        ${t}-tur ${s==='open'?'🟢':'🔴'}</span>`;
-    }).join('');
-    html+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:13px;font-weight:700;min-width:28px;color:var(--accent);">${grp}</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">${statuses}</div>
-    </div>`;
-  });
-  wrap.innerHTML=html;
-}
-function loadATeams(){
-  const grp=document.getElementById('a-grp').value, ts=GROUPS[grp];
-  const opts=ts.map(t=>`<option value="${t.name}">${t.flag} ${t.name}</option>`).join('');
-  document.getElementById('a-home').innerHTML=opts;
-  document.getElementById('a-away').innerHTML=opts;
-  if(document.getElementById('a-away').options.length>1) document.getElementById('a-away').selectedIndex=1;
-}
-function saveResult(){
-  const grp=document.getElementById('a-grp').value;
-  const home=document.getElementById('a-home').value;
-  const away=document.getElementById('a-away').value;
-  const raw=document.getElementById('a-score').value.trim();
-  if(home===away){showToast('❌ Bir xil jamoa!');return;}
-  const p=raw.split('-');
-  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){showToast('❌ Format: 2-1');return;}
-  if(!results[grp]) results[grp]=[];
-  results[grp]=results[grp].filter(r=>!((r.h===home&&r.a===away)||(r.h===away&&r.a===home)));
-  results[grp].push({h:home,a:away,hs:parseInt(p[0]),as:parseInt(p[1])});
-  saveData();
-  document.getElementById('a-score').value='';
-  showToast('✅ Saqlandi!');
-  renderRecent();
-}
-function loadDelMatches(){
-  const grp=document.getElementById('d-grp').value, rs=results[grp]||[];
-  document.getElementById('d-match').innerHTML=rs.length?rs.map((r,i)=>`<option value="${i}">${r.h} ${r.hs}-${r.as} ${r.a}</option>`).join(''):'<option>Natija yo\'q</option>';
-}
-function deleteResult(){
-  const grp=document.getElementById('d-grp').value, idx=parseInt(document.getElementById('d-match').value);
-  if(!results[grp]||isNaN(idx)) return;
-  results[grp].splice(idx,1);saveData();loadDelMatches();
-  showToast('🗑 O\'chirildi');renderRecent();
-}
-function loadPoMatches(){
-  const rnd=document.getElementById('po-round').value;
-  const ms=playoff[rnd]||[];
-  document.getElementById('po-match').innerHTML=ms.length
-    ? ms.map((m,i)=>`<option value="${i}">${i+1}. ${m.h?m.h.name:'TBD'} vs ${m.a?m.a.name:'TBD'}</option>`).join('')
-    : '<option>Avval setkani yarating</option>';
-}
-function savePlayoff(){
-  const rnd=document.getElementById('po-round').value;
-  const idx=parseInt(document.getElementById('po-match').value);
-  const raw=document.getElementById('po-score').value.trim();
-  const p=raw.split('-');
-  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){showToast('❌ Format: 2-1');return;}
-  if(!playoff[rnd]||!playoff[rnd][idx]){showToast('❌ O\'yin topilmadi');return;}
-  const m=playoff[rnd][idx];
-  m.hs=parseInt(p[0]); m.as=parseInt(p[1]);
-  autoAdvance(rnd, idx); // avtomatik keyingi bosqich
-  saveData();
-  document.getElementById('po-score').value='';
-  showToast('✅ Saqlandi! G\'olib avto keyingi bosqichga o\'tdi ✓');
-  loadPoMatches(); renderBracket();
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-function initRegGroupBtns(){
-  const el = document.getElementById('reg-grp-btns');
-  if(!el) return;
-  el.innerHTML = Object.keys(GROUPS).map(g=>`
-    <div onclick="openWCGroup('${g}')" style="padding:14px 0;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;"
-      onmousedown="this.style.transform='scale(.95)'" onmouseup="this.style.transform=''">${g}</div>
-  `).join('');
-
-  // Guruh select ni to'ldirish (ro'yxatdan o'tish formasi uchun)
-  const rfGrp = document.getElementById('rf-grp');
-  if(rfGrp){
-    rfGrp.innerHTML = Object.keys(GROUPS).map(g=>`<option value="${g}">${g} Guruh</option>`).join('');
-    loadRegTeams();
-  }
-
-  // Foydalanuvchi ro'yxatda borligini tekshir
-  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-  const myUsername = tgUser ? '@' + tgUser.username : null;
-  const btn = document.getElementById('reg-status-btn');
-  const form = document.getElementById('reg-form');
-  if(!btn) return;
-
-  let found = false;
-  if(myUsername){
-    for(const grp of Object.keys(GROUPS)){
-      if(GROUPS[grp].find(t => t.user === myUsername)){ found = true; break; }
-    }
-  }
-
-  if(found){
-    btn.style.background = 'rgba(34,197,94,.1)';
-    btn.style.border = '1px solid rgba(34,197,94,.3)';
-    btn.style.color = 'var(--green)';
-    btn.textContent = "✅ Ro'yxatdan o'tgansiz";
-    if(form) form.style.display = 'none';
-  } else {
-    btn.style.background = 'rgba(245,166,35,.08)';
-    btn.style.border = '1px solid rgba(245,166,35,.25)';
-    btn.style.color = 'var(--gold)';
-    btn.textContent = "⏳ Siz ro'yxatda emassiz — quyida ro'yxatdan o'ting";
-    if(form) form.style.display = 'block';
-  }
-}
-
-function loadRegTeams(){
-  const grp = document.getElementById('rf-grp').value;
-  const teams = GROUPS[grp];
-  // Faqat bo'sh (user "—") jamoalarni ko'rsat
-  const free = teams.filter(t => t.user === '—');
-  const sel = document.getElementById('rf-team');
-  if(free.length === 0){
-    sel.innerHTML = `<option value="">Bu guruhda bo'sh jamoa yo'q</option>`;
-  } else {
-    sel.innerHTML = free.map(t=>`<option value="${t.name}">${t.flag} ${t.name}</option>`).join('');
-  }
-}
-
-function registerUser(){
-  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-  if(!tgUser || !tgUser.username){
-    showToast('❌ Telegram username topilmadi');
-    return;
-  }
-  const myUsername = '@' + tgUser.username;
-  const grp = document.getElementById('rf-grp').value;
-  const teamName = document.getElementById('rf-team').value;
-  if(!teamName){ showToast('❌ Jamoa tanlang'); return; }
-
-  const team = GROUPS[grp].find(t => t.name === teamName);
-  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
-  if(team.user !== '—'){ showToast('❌ Bu jamoa band!'); return; }
-
-  // Oldingi ro'yxatni tekshir
-  for(const g of Object.keys(GROUPS)){
-    if(GROUPS[g].find(t => t.user === myUsername)){
-      showToast('❌ Siz allaqachon ro\'yxatdasiz!');
-      return;
-    }
-  }
-
-  // Ro'yxatdan o'tkazish
-  team.user = myUsername;
-  saveGroupRegs();
-
-  // Pending ro'yxat sifatida saqlash (admin tasdiqlashi uchun)
-  if(!window.pendingRegs) window.pendingRegs = [];
-  window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
-  saveShared();
-
-  showToast(`✅ ${team.flag} ${team.name} — ro'yxatdan o'tdingiz!`);
+  showToast(`✅ ${r.username} → ${r.teamName} — ro'yxatdan o'tdingiz!`);
   initRegGroupBtns();
 }
 
