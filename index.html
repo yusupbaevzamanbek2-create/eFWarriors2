@@ -1122,7 +1122,7 @@ function renderPlayers(){
         // Natija kiritish (faqat yakunlanmagan o'yinlar + tur ochiq bo'lsa)
         const turOpen = getTurStatus(m.grp, m.turNum) === 'open';
         const inputBlock = !m.done ? (turOpen ? `
-          <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
             <input id="sc-${m.matchNum}" placeholder="2-1" maxlength="5"
               style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
             <button onclick="submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')"
@@ -1487,6 +1487,95 @@ function initAdmin(){
   loadTurTeams();renderTurStatusList();
   if(!window.pendingRegs) window.pendingRegs = [];
   renderPendingRegs();
+}
+
+// ─── ADMIN: Guruh natijasi kiritish / o'chirish, Playoff natijasi ─────────
+function loadATeams(){
+  const grp = document.getElementById('a-grp').value;
+  const teams = GROUPS[grp] || [];
+  const opts = teams.map(t=>`<option value="${t.name}">${t.flag} ${t.name}</option>`).join('');
+  document.getElementById('a-home').innerHTML = opts;
+  document.getElementById('a-away').innerHTML = opts;
+}
+
+function saveResult(){
+  const grp = document.getElementById('a-grp').value;
+  const home = document.getElementById('a-home').value;
+  const away = document.getElementById('a-away').value;
+  const raw = document.getElementById('a-score').value.trim();
+  if(!home || !away){ showToast('❌ Jamoalarni tanlang'); return; }
+  if(home===away){ showToast('❌ Bir xil jamoa tanlandi'); return; }
+  const p = raw.split('-');
+  if(p.length!==2 || isNaN(p[0]) || isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  if(!results[grp]) results[grp]=[];
+  results[grp] = results[grp].filter(r=>!((r.h===home&&r.a===away)||(r.h===away&&r.a===home)));
+  results[grp].push({h:home,a:away,hs:parseInt(p[0]),as:parseInt(p[1])});
+  saveData();
+  showToast(`✅ ${home} ${p[0]}-${p[1]} ${away} saqlandi`);
+  document.getElementById('a-score').value='';
+  loadDelMatches();
+  if(typeof renderRecent==='function') renderRecent();
+  if(typeof mGrp!=='undefined' && typeof renderMatchList==='function') renderMatchList(mGrp);
+  if(typeof renderRating==='function') renderRating();
+  if(typeof renderPlayers==='function') renderPlayers();
+}
+
+function loadDelMatches(){
+  const grp = document.getElementById('d-grp').value;
+  const rs = results[grp] || [];
+  const sel = document.getElementById('d-match');
+  if(!rs.length){ sel.innerHTML='<option value="">— O\'yin yo\'q —</option>'; return; }
+  sel.innerHTML = rs.map((r,i)=>`<option value="${i}">${r.h} ${r.hs}-${r.as} ${r.a}</option>`).join('');
+}
+
+function deleteResult(){
+  const grp = document.getElementById('d-grp').value;
+  const idx = document.getElementById('d-match').value;
+  if(idx===''||idx===undefined||idx===null){ showToast('❌ O\'yin tanlanmagan'); return; }
+  if(!results[grp] || !results[grp][idx]){ showToast('❌ Topilmadi'); return; }
+  results[grp].splice(idx,1);
+  saveData();
+  showToast('🗑 Natija o\'chirildi');
+  loadDelMatches();
+  if(typeof renderRecent==='function') renderRecent();
+  if(typeof mGrp!=='undefined' && typeof renderMatchList==='function') renderMatchList(mGrp);
+  if(typeof renderRating==='function') renderRating();
+  if(typeof renderPlayers==='function') renderPlayers();
+}
+
+function loadPoMatches(){
+  const round = document.getElementById('po-round').value;
+  const counts = {r32:16,r16:8,qf:4,sf:2,third:1,final:1};
+  const n = counts[round]||0;
+  const sel = document.getElementById('po-match');
+  let html='';
+  for(let i=0;i<n;i++){
+    const m = (playoff[round]||[])[i];
+    const hn = m && m.h ? m.h.name : 'TBD';
+    const an = m && m.a ? m.a.name : 'TBD';
+    html += `<option value="${i}">${i+1}-o'yin: ${hn} vs ${an}</option>`;
+  }
+  sel.innerHTML = html || '<option value="">— Mavjud emas —</option>';
+}
+
+function savePlayoff(){
+  const round = document.getElementById('po-round').value;
+  const idx = parseInt(document.getElementById('po-match').value);
+  const raw = document.getElementById('po-score').value.trim();
+  if(isNaN(idx)){ showToast('❌ O\'yin tanlanmagan'); return; }
+  const m = playoff[round] && playoff[round][idx];
+  if(!m || !m.h || !m.a){ showToast('❌ Ikki jamoa ham aniqlanmagan'); return; }
+  const p = raw.split('-');
+  if(p.length!==2 || isNaN(p[0]) || isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  m.hs = parseInt(p[0]);
+  m.as = parseInt(p[1]);
+  if(typeof autoAdvance==='function') autoAdvance(round, idx);
+  saveData();
+  showToast('✅ Playoff natijasi saqlandi');
+  document.getElementById('po-score').value='';
+  loadPoMatches();
+  if(typeof renderBracket==='function') renderBracket();
+  if(typeof renderRating==='function') renderRating();
 }
 
 // Tur holatlari: {grp: {1: 'open'/'closed', 2: ..., 3: ...}}
