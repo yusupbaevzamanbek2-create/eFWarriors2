@@ -679,7 +679,7 @@ function loadShared(cb){
 
   fetch(`${JSONBIN_URL}/latest`, { headers:{'X-Master-Key':JSONBIN_API_KEY} })
     .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(data=>{
+   .then(data=>{
       clearTimeout(failsafe);
       finish(()=>{
         const rec = data.record || {};
@@ -1121,7 +1121,7 @@ function renderPlayers(){
         const canChat = !!oppUserClean;
         // Natija kiritish (faqat yakunlanmagan o'yinlar + tur ochiq bo'lsa)
         const turOpen = getTurStatus(m.grp, m.turNum) === 'open';
-        const inputBlock = !m.done ? (turOpen ? `
+        const inputBlock = !m.done ? (turOpen ? (turOpen ? `
           <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
             <input id="sc-${m.matchNum}" placeholder="2-1" maxlength="5"
               style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
@@ -1565,6 +1565,114 @@ function approvePendingReg(i){
   window.pendingRegs.splice(i,1);
   saveShared();
   showToast(`✅ ${r.username} → ${r.teamName} — ro'yxatdan o'tdingiz!`);
+  initRegGroupBtns();
+}
+
+// ============================================================================
+// RO'YXATDAN O'TISH OYNASI (Bosh menyu) — bu 3 funksiya avval tasodifan
+// tushib qolgan edi, shu sabab ilova "yuklanmoqda" holatida qotib qolardi.
+// ============================================================================
+function initRegGroupBtns(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@' + tgUser.username : null;
+  const statusBtn = document.getElementById('reg-status-btn');
+  const form = document.getElementById('reg-form');
+  const grpBtnsWrap = document.getElementById('reg-grp-btns');
+
+  if(grpBtnsWrap){
+    grpBtnsWrap.innerHTML = Object.keys(GROUPS).map(g=>
+      `<div class="gbtn" onclick="openWCGroup('${g}')" style="cursor:pointer;">${g}</div>`
+    ).join('');
+  }
+
+  if(!statusBtn) return;
+
+  if(!myUsername){
+    statusBtn.textContent = "Username aniqlanmadi";
+    if(form) form.style.display='none';
+    return;
+  }
+
+  // Foydalanuvchi allaqachon biror jamoaga ro'yxatdan o'tganmi?
+  let myTeam=null;
+  for(const g of Object.keys(GROUPS)){
+    const t = GROUPS[g].find(x=>x.user===myUsername);
+    if(t){ myTeam=t; break; }
+  }
+  if(myTeam){
+    statusBtn.textContent = `✅ ${myTeam.flag} ${myTeam.name} — ro'yxatdasiz`;
+    statusBtn.style.color = 'var(--green)';
+    if(form) form.style.display='none';
+    return;
+  }
+
+  // Admin tasdiqlashini kutayotgan so'rov bormi?
+  const pending = (window.pendingRegs||[]).find(r=>r.username===myUsername);
+  if(pending){
+    statusBtn.textContent = `⏳ ${pending.teamName} — admin tasdiqlashini kutmoqda`;
+    statusBtn.style.color = 'var(--gold)';
+    if(form) form.style.display='none';
+    return;
+  }
+
+  statusBtn.textContent = "Ro'yxatdan o'tilmagan";
+  statusBtn.style.color = 'var(--muted)';
+
+  // Barcha guruhlardagi barcha o'rinlar to'lganmi? — bo'lsa ro'yxatdan o'tish avtomatik yopiladi
+  const allTaken = Object.keys(GROUPS).every(g => GROUPS[g].every(t => t.user && t.user!=='—'));
+  if(allTaken){
+    statusBtn.textContent = "🔒 Barcha o'rinlar to'ldi — ro'yxat yopiq";
+    statusBtn.style.color = 'var(--red)';
+    if(form) form.style.display='none';
+    return;
+  }
+
+  if(form) form.style.display='block';
+
+  const grpSel = document.getElementById('rf-grp');
+  if(grpSel){
+    grpSel.innerHTML = Object.keys(GROUPS).map(g=>`<option value="${g}">${g} Guruh</option>`).join('');
+    loadRegTeams();
+  }
+}
+
+function loadRegTeams(){
+  const grpSel = document.getElementById('rf-grp');
+  const teamSel = document.getElementById('rf-team');
+  if(!grpSel || !teamSel) return;
+  const g = grpSel.value;
+  const teams = GROUPS[g] || [];
+  teamSel.innerHTML = teams.map(t=>{
+    const taken = t.user && t.user!=='—';
+    return `<option value="${t.name}" ${taken?'disabled':''}>${t.flag} ${t.name}${taken?' (band)':''}</option>`;
+  }).join('');
+}
+
+function registerUser(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if(!tgUser || !tgUser.username){ showToast('❌ Telegram username sozlanmagan'); return; }
+  const myUsername = '@' + tgUser.username;
+
+  const allTaken = Object.keys(GROUPS).every(g => GROUPS[g].every(t => t.user && t.user!=='—'));
+  if(allTaken){ showToast('🔒 Barcha o\'rinlar to\'ldi'); initRegGroupBtns(); return; }
+
+  const grp = document.getElementById('rf-grp').value;
+  const teamName = document.getElementById('rf-team').value;
+  if(!grp || !teamName){ showToast('❌ Guruh va jamoa tanlang'); return; }
+
+  const team = GROUPS[grp] && GROUPS[grp].find(t=>t.name===teamName);
+  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+  if(team.user && team.user!=='—'){ showToast('❌ Bu jamoa allaqachon band!'); return; }
+
+  if(!window.pendingRegs) window.pendingRegs=[];
+  if(window.pendingRegs.find(r=>r.username===myUsername)){
+    showToast('⏳ Sizning so\'rovingiz allaqachon yuborilgan');
+    return;
+  }
+
+  window.pendingRegs.push({ grp, teamName, username: myUsername, name: tgUser.first_name || myUsername, time: Date.now() });
+  saveShared();
+  showToast('✅ So\'rov yuborildi — admin tasdiqlashini kuting');
   initRegGroupBtns();
 }
 
