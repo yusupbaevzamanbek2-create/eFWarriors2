@@ -183,16 +183,76 @@ def webapp_keyboard(lang):
     ))
     return kb
 
-# QADAM 1: /start → til tanlash
+# QADAM 1: /start → til tanlash (yoki Mini App'dan kelgan "bot orqali yozish" so'rovi)
 @bot.message_handler(commands=["start"])
 def start(message):
     remember_user(message)
+
+    parts = (message.text or "").split(maxsplit=1)
+    payload = parts[1].strip() if len(parts) > 1 else None
+
+    if payload and payload.startswith("chat_"):
+        handle_match_chat_intro(message, payload)
+        return
+
     bot.send_message(
         message.chat.id,
         "🌐 *Tilni tanlang / Выберите язык / Choose language:*",
         parse_mode="Markdown",
         reply_markup=lang_keyboard()
     )
+
+
+def handle_match_chat_intro(message, payload):
+    """
+    Mini App'dagi "🤖 Bot orqali yozish" tugmasi bosilganda bot
+    /start chat_<liga>_<raqib_username> payloadi bilan ochiladi.
+    Bu yerda ikkala o'yinchini bir-biriga tanishtiruvchi xabar yuboramiz —
+    agar raqib avval botga /start bosgan bo'lsa (ya'ni chat_id bizga ma'lum bo'lsa).
+    """
+    body = payload[len("chat_"):]  # "<liga>_<raqib_username>"
+    if "_" not in body:
+        bot.send_message(message.chat.id, "❌ Havola noto'g'ri.")
+        return
+
+    league_id, opp_username = body.split("_", 1)
+    opp_key = "@" + opp_username
+
+    initiator = message.from_user
+    initiator_username = "@" + initiator.username if initiator.username else (initiator.first_name or "Foydalanuvchi")
+
+    if opp_key == initiator_username:
+        bot.send_message(message.chat.id, "❌ O'zingizga xabar yubora olmaysiz.")
+        return
+
+    opp_chat_id = known_users.get(opp_key)
+
+    if opp_chat_id:
+        try:
+            bot.send_message(
+                opp_chat_id,
+                f"⚽ *{league_id}* — {initiator_username} siz bilan o'yin natijasi yuzasidan "
+                f"gaplashmoqchi.\n\nJavob berish uchun ustiga bosing: {initiator_username}",
+                parse_mode="Markdown"
+            )
+            bot.send_message(
+                message.chat.id,
+                f"✅ Xabaringiz {opp_key} ga yuborildi — u tez orada siz bilan bog'lanadi."
+            )
+        except Exception as e:
+            print("Bot orqali xabar yuborishda xato:", e)
+            bot.send_message(
+                message.chat.id,
+                f"⚠️ {opp_key} ga bot orqali xabar yuborib bo'lmadi.\n"
+                f"To'g'ridan-to'g'ri yozib ko'ring: {opp_key}"
+            )
+    else:
+        bot.send_message(
+            message.chat.id,
+            f"ℹ️ {opp_key} hali bot bilan bog'lanmagan (/start bosmagan), shuning uchun "
+            f"unga bot orqali xabar yubora olmaymiz.\n\n"
+            f"To'g'ridan-to'g'ri yozib ko'ring: {opp_key}"
+        )
 
 # QADAM 2: Til tanlangandan keyin → obuna tekshirish
 @bot.callback_query_handler(func=lambda c: c.data.startswith("lang_"))
@@ -254,4 +314,5 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+
     
