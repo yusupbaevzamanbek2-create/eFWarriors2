@@ -174,8 +174,24 @@ body{background:
 .btn-reject{background:rgba(255,70,85,.1);border:1.5px solid var(--coral);color:var(--coral);}
 .btn-confirm:active,.btn-reject:active{transform:scale(.96);}
 .rk.t{color:var(--gold);}
-.nm{display:flex;align-items:center;gap:8px;}
-.fl{font-size:20px;line-height:1;}
+.fl,
+.club-logo{
+    width:24px;
+    height:24px;
+    object-fit:contain;
+    flex-shrink:0;
+}
+
+.fl{
+    font-size:20px;
+    line-height:1;
+}
+
+.club-logo{
+    border-radius:50%;
+    background:#fff;
+    padding:2px;
+}
 .cname{font-size:12px;font-weight:600;}
 .uname{font-size:10px;color:var(--accent);}
 .st{font-size:12px;color:var(--muted);text-align:center;}
