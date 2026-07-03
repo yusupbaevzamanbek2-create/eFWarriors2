@@ -6,25 +6,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>eF Warriors — World Cup 2026</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 :root{
-  --bg:#0B0F1A;--bg2:#111827;--bg3:#1A2236;--bg4:#1E2A3A;
-  --accent:#00C8FF;--accent2:#0099CC;--gold:#F5A623;
-  --green:#22C55E;--red:#EF4444;--text:#F1F5F9;--muted:#64748B;--border:#1E293B;
-  --card:#131C2E;--teal:#0D9488;
+  --bg:#06080C;--bg2:#0C0F16;--bg3:#131A26;--bg4:#1A2333;
+  --accent:#C6FF3D;--accent2:#8FCC00;--gold:#FFB627;--coral:#FF4655;
+  --green:#22C55E;--red:#EF4444;--text:#F3F6F2;--muted:#697089;--border:#1C2434;
+  --card:#0F141F;--teal:#17B8A6;
+  --disp:'Bebas Neue',Impact,'Roboto',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+body{background:
+    radial-gradient(ellipse 900px 500px at 50% -10%, rgba(198,255,61,.07), transparent 60%),
+    var(--bg);
+  color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
 
 /* SPLASH */
-#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .6s ease,visibility .6s;}
+#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .6s ease,visibility .6s;overflow:hidden;}
 #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
-.sp-logo{font-size:56px;margin-bottom:16px;}
-.sp-title{font-family:'Roboto',sans-serif;font-size:28px;font-weight:900;letter-spacing:4px;color:#fff;}
+#splash::before{content:'';position:absolute;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,255,61,.16),rgba(198,255,61,0) 65%);
+  animation:floodPulse 2.6s ease-in-out infinite;}
+@keyframes floodPulse{0%,100%{opacity:.55;transform:scale(1);}50%{opacity:1;transform:scale(1.12);}}
+.sp-logo{font-size:56px;margin-bottom:16px;position:relative;filter:drop-shadow(0 0 18px rgba(198,255,61,.45));}
+.sp-title{font-family:var(--disp);font-size:40px;font-weight:400;letter-spacing:5px;color:#fff;position:relative;}
 .sp-title span{color:var(--accent);}
-.sp-sub{font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:6px;}
-.sp-bar{width:160px;height:3px;background:var(--border);border-radius:3px;margin-top:32px;overflow:hidden;}
-.sp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;animation:fillBar 2.2s ease forwards;}
+.sp-sub{font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:6px;position:relative;}
+.sp-bar{width:160px;height:3px;background:var(--border);border-radius:3px;margin-top:32px;overflow:hidden;position:relative;}
+.sp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;animation:fillBar 2.2s ease forwards;box-shadow:0 0 10px rgba(198,255,61,.6);}
 @keyframes fillBar{0%{width:0%;}100%{width:100%;}}
 
 /* APP */
@@ -38,31 +46,32 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 #page-menu.on{display:flex;flex-direction:column;min-height:100vh;}
 
 /* TOP BAR (eFOOTBALL style) */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0B0F1A;border-bottom:1px solid var(--border);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:relative;}
+.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(198,255,61,.5),transparent);}
 .topbar-logo{display:flex;align-items:center;gap:8px;}
 .topbar-ic{font-size:22px;}
-.topbar-name{font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;letter-spacing:2px;color:#fff;}
+.topbar-name{font-family:var(--disp);font-size:20px;font-weight:400;letter-spacing:2px;color:#fff;}
 .topbar-name span{color:var(--accent);}
 .topbar-badge{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--accent);border:1.5px solid var(--accent);padding:2px 8px;border-radius:4px;}
 .topbar-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);cursor:pointer;padding:4px 0;}
 
 /* HERO BANNER (with image placeholder) */
-.hero-banner{position:relative;height:180px;background:linear-gradient(180deg,#0d1f3c 0%,#0B0F1A 100%);overflow:hidden;display:flex;align-items:flex-end;}
+.hero-banner{position:relative;height:180px;background:linear-gradient(180deg,#0c1408 0%,var(--bg) 100%);overflow:hidden;display:flex;align-items:flex-end;}
 .hero-banner::before{content:'🏆⚽🌍';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:80px;opacity:.08;letter-spacing:10px;}
 .hero-img-overlay{position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 0%,transparent 60%);}
 .hero-content{position:relative;z-index:2;padding:16px;}
 .hero-eyebrow{font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
-.hero-title{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:#fff;}
+.hero-title{font-family:var(--disp);font-size:26px;font-weight:400;letter-spacing:1px;color:#fff;}
 .hero-title span{color:var(--gold);}
 .hero-sub{font-size:11px;color:var(--muted);margin-top:3px;}
 
 /* BOTTOM NAV — yangi dizayn: suzuvchi panel, faol tab uchun pill fon */
-.bnav{position:fixed;bottom:10px;left:10px;right:10px;background:rgba(17,24,39,.92);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:20px;display:flex;padding:6px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow-x:auto;}
+.bnav{position:fixed;bottom:10px;left:10px;right:10px;background:rgba(12,15,22,.92);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:20px;display:flex;padding:6px;z-index:100;box-shadow:0 8px 28px rgba(0,0,0,.5);overflow-x:auto;}
 .bnav::-webkit-scrollbar{display:none;}
 .bnav-i{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:7px 2px;border-radius:14px;transition:background .2s,transform .15s;}
 .bnav-ic{font-size:18px;transition:transform .2s;line-height:1;}
 .bnav-lb{font-size:8px;letter-spacing:.3px;color:var(--muted);text-transform:uppercase;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bnav-i.on{background:linear-gradient(180deg,rgba(0,200,255,.16),rgba(0,200,255,.05));}
+.bnav-i.on{background:linear-gradient(180deg,rgba(198,255,61,.2),rgba(198,255,61,.05));box-shadow:0 0 14px -4px rgba(198,255,61,.5) inset;}
 .bnav-i.on .bnav-ic{transform:scale(1.15) translateY(-1px);}
 .bnav-i.on .bnav-lb{color:var(--accent);font-weight:700;}
 
@@ -73,11 +82,11 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .xp-bar-track{height:6px;background:var(--bg3);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
 .xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:6px;transition:width .4s ease;}
 .xp-bar-txt{font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px;}
-.champ-crown{display:inline-block;margin-left:4px;font-size:13px;filter:drop-shadow(0 0 3px rgba(245,166,35,.6));}
-.champ-ribbon{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(90deg,rgba(245,166,35,.18),rgba(245,166,35,.05));border:1px solid rgba(245,166,35,.35);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;margin-top:6px;}
+.champ-crown{display:inline-block;margin-left:4px;font-size:13px;filter:drop-shadow(0 0 3px rgba(255,182,39,.6));}
+.champ-ribbon{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(90deg,rgba(255,182,39,.18),rgba(255,182,39,.05));border:1px solid rgba(255,182,39,.35);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;margin-top:6px;}
 
 /* AWARDS TAB (Sovrinlar) */
-.award-hero{background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(0,200,255,.06));border:1px solid rgba(245,166,35,.25);border-radius:18px;padding:20px 16px;text-align:center;margin:0 16px 16px;}
+.award-hero{background:linear-gradient(135deg,rgba(255,182,39,.12),rgba(198,255,61,.06));border:1px solid rgba(255,182,39,.25);border-radius:18px;padding:20px 16px;text-align:center;margin:0 16px 16px;}
 .award-hero .aw-ic{font-size:38px;margin-bottom:6px;}
 .award-hero .aw-title{font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:#fff;}
 .award-hero .aw-name{font-size:19px;font-weight:900;color:var(--gold);margin-top:4px;}
@@ -85,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .award-list{padding:0 16px;}
 .award-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;}
 .award-row .aw-pos{font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;width:26px;text-align:center;color:var(--muted);}
-.award-row.p1 .aw-pos{color:#F5A623;}
+.award-row.p1 .aw-pos{color:#FFB627;}
 .award-row.p2 .aw-pos{color:#94A3B8;}
 .award-row.p3 .aw-pos{color:#C47A3A;}
 .award-row .aw-info{flex:1;}
@@ -102,17 +111,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .tab.on{display:block;}
 
 /* SECTION LABEL */
-.slb{font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;padding:16px 16px 8px;}
+.slb{font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;padding:16px 16px 8px;position:relative;padding-left:22px;}
+.slb::before{content:'';position:absolute;left:16px;top:50%;transform:translateY(-50%);width:8px;height:2px;background:var(--accent);}
 
 /* GROUP BUTTONS */
 .gbtns{padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
-.gbtn{padding:12px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;}
+.gbtn{padding:12px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:var(--disp);font-size:18px;letter-spacing:1px;font-weight:400;cursor:pointer;text-align:center;transition:all .15s;}
 .gbtn:active{transform:scale(.95);}
-.gbtn.on{background:rgba(0,200,255,.1);border-color:var(--accent);color:var(--accent);}
+.gbtn.on{background:rgba(198,255,61,.1);border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px -4px rgba(198,255,61,.5);}
 
 /* STANDINGS TABLE */
 .grp-tbl{margin:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.grp-hd{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:10px 12px;background:var(--bg3);}
+.grp-hd{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:10px 12px;background:var(--bg3);border-bottom:1px solid rgba(198,255,61,.25);}
 .grp-hd span{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:center;}
 .grp-hd span:nth-child(2){text-align:left;}
 .grp-rw{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:11px 12px;border-top:1px solid var(--border);align-items:center;transition:background .15s;}
@@ -120,6 +130,49 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .grp-rw.q1{border-left:2px solid var(--gold);}
 .grp-rw.q2{border-left:2px solid var(--accent);}
 .rk{font-size:12px;font-weight:700;color:var(--muted);text-align:center;}
+
+/* LIGA YETAKCHISI BANNERI (1-o'rin uchun butunlay alohida daraja) */
+.league-leader-banner{margin:8px 16px;padding:16px;border-radius:16px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#3a2a05,#1a1206);border:1px solid var(--gold);
+  display:flex;align-items:center;gap:12px;box-shadow:0 0 24px -6px rgba(255,182,39,.35);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);}
+.league-leader-banner::before{content:'🏆';position:absolute;right:-6px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.08;}
+.llb-crown{font-size:30px;filter:drop-shadow(0 0 8px rgba(255,182,39,.6));flex-shrink:0;}
+.llb-info{flex:1;min-width:0;}
+.llb-tag{font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;font-weight:700;}
+.llb-name{font-family:var(--disp);font-size:21px;letter-spacing:.5px;color:#fff;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.llb-user{font-size:11px;color:var(--muted);margin-top:1px;}
+.llb-pts{text-align:center;flex-shrink:0;}
+.llb-pts-val{font-family:'Roboto',sans-serif;font-size:24px;font-weight:900;color:var(--gold);line-height:1;}
+.llb-pts-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:2px;}
+
+/* UCL TIPIDAGI "QUALIFIED" BELGISI — 2-6 o'rinlar */
+.grp-rw.ucl{border-left:3px solid var(--accent);background:rgba(198,255,61,.035);}
+.ucl-badge{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#eaffb0,var(--accent) 60%,var(--accent2));color:#0a1300;font-size:8px;
+  margin-left:4px;vertical-align:middle;box-shadow:0 0 6px rgba(198,255,61,.65);}
+.ucl-note{display:flex;align-items:center;gap:6px;padding:0 16px 4px;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+
+/* NATIJA KIRITISH (scoreboard uslubida) */
+.score-entry{display:flex;align-items:flex-end;gap:8px;margin-top:12px;}
+.score-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.score-box{width:50px;text-align:center;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:10px 0;
+  color:var(--accent);font-family:var(--disp);font-size:24px;outline:none;-moz-appearance:textfield;}
+.score-box::-webkit-outer-spin-button,.score-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.score-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(198,255,61,.15);}
+.score-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);}
+.score-sep{font-family:var(--disp);font-size:22px;color:var(--muted);padding-bottom:18px;}
+.score-submit-btn{flex:1;padding:12px 8px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);margin-bottom:0;}
+.score-submit-btn:active{filter:brightness(.92);}
+
+/* TASDIQLASH / RAD ETISH */
+.confirm-actions{display:flex;gap:8px;margin-top:10px;}
+.btn-confirm,.btn-reject{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:12px;letter-spacing:.5px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .1s;}
+.btn-confirm{background:rgba(198,255,61,.12);border:1.5px solid var(--accent);color:var(--accent);}
+.btn-reject{background:rgba(255,70,85,.1);border:1.5px solid var(--coral);color:var(--coral);}
+.btn-confirm:active,.btn-reject:active{transform:scale(.96);}
 .rk.t{color:var(--gold);}
 .nm{display:flex;align-items:center;gap:8px;}
 .fl{font-size:20px;line-height:1;}
@@ -134,7 +187,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .mcard-grp{font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
 .mstatus{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:6px;font-weight:600;}
 .mstatus.done{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
-.mstatus.wait{background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);}
+.mstatus.wait{background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);}
 .mcard-body{display:flex;align-items:center;justify-content:space-between;}
 .mteam{flex:1;}
 .mteam.r{text-align:right;}
@@ -162,7 +215,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .matches-col{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:2px;}
 .pom{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px;margin:3px 0;}
 .pom.third{border-color:var(--teal);}
-.pom.final-match{border-color:var(--gold);background:rgba(245,166,35,.04);}
+.pom.final-match{border-color:var(--gold);background:rgba(255,182,39,.04);}
 .pom-team{display:flex;align-items:center;justify-content:space-between;padding:5px 0;}
 .pom-team:first-child{border-bottom:1px solid var(--border);}
 .pom-left{display:flex;align-items:center;gap:6px;}
@@ -182,27 +235,30 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .rating-detail{font-size:10px;color:var(--muted);margin-top:2px;}
 .rating-pts{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:right;}
 .rating-ptslb{font-size:9px;color:var(--muted);letter-spacing:2px;text-align:right;}
-.rating-card.gold{border-color:var(--gold);background:rgba(245,166,35,.05);}
+.rating-card.gold{border-color:var(--gold);background:rgba(255,182,39,.05);}
 .rating-card.silver{border-color:#94A3B8;background:rgba(148,163,184,.04);}
 .rating-card.bronze{border-color:#C47A3A;background:rgba(196,122,58,.04);}
 
 /* MENU PAGE */
 .menu-hero{padding:36px 20px 24px;text-align:center;}
-.menu-icon{font-size:54px;margin-bottom:12px;display:block;}
-.menu-title{font-family:'Roboto',sans-serif;font-size:28px;font-weight:900;letter-spacing:2px;color:#fff;}
+.menu-icon{font-size:54px;margin-bottom:12px;display:block;filter:drop-shadow(0 0 14px rgba(198,255,61,.35));}
+.menu-title{font-family:var(--disp);font-size:34px;font-weight:400;letter-spacing:3px;color:#fff;}
 .menu-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:6px;}
 .menu-cards{padding:0 16px;display:flex;flex-direction:column;gap:12px;}
-.mnu-card{border-radius:16px;padding:20px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;}
+.mnu-card{border-radius:16px;padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%);}
 .mnu-card:active{transform:scale(.98);}
-.mnu-card.wc{background:linear-gradient(135deg,#0d1f3c,#1a3050);border:1px solid var(--accent);}
+.mnu-card.wc{background:linear-gradient(135deg,#0c1408,#182508);border:1px solid var(--accent);box-shadow:0 0 24px -6px rgba(198,255,61,.25);}
 .mnu-card.wc::before{content:'🌍';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:54px;opacity:.12;}
 .mnu-card.liga{background:var(--card);border:1px solid var(--border);opacity:.55;}
 .mnu-card.liga::before{content:'🏆';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:54px;opacity:.08;}
 .mc-eye{font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
 .mc-eye.locked{color:var(--muted);}
-.mc-title{font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;}
+.mc-eye.champ{color:var(--gold);}
+.mc-title{font-family:var(--disp);font-size:26px;font-weight:400;letter-spacing:.5px;}
 .mc-sub{font-size:12px;color:var(--muted);margin-top:4px;}
-.mc-badge{display:inline-block;font-size:9px;letter-spacing:2px;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.3);color:var(--accent);padding:4px 10px;border-radius:6px;margin-top:10px;text-transform:uppercase;font-weight:600;}
+.mc-badge{display:inline-block;font-size:9px;letter-spacing:2px;background:rgba(198,255,61,.12);border:1px solid rgba(198,255,61,.35);color:var(--accent);padding:5px 12px;border-radius:4px;margin-top:10px;text-transform:uppercase;font-weight:700;
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);}
 .mc-badge.locked{background:var(--bg4);border-color:var(--border);color:var(--muted);}
 .menu-footer{padding:20px;text-align:center;}
 .menu-footer-txt{font-size:11px;color:var(--muted);letter-spacing:2px;}
@@ -228,7 +284,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 /* PROFILE */
 .prof-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
-.prof-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,200,255,.08),transparent 70%);border-radius:50%;}
+.prof-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(198,255,61,.08),transparent 70%);border-radius:50%;}
 .prof-avatar{width:52px;height:52px;border-radius:50%;background:var(--bg3);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
 .prof-info{flex:1;}
 .prof-name{font-size:16px;font-weight:700;}
@@ -246,12 +302,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .my-match-score{font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:var(--text);letter-spacing:1px;}
 .my-match-score.pend{color:var(--muted);font-size:13px;}
 .my-match-status{font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 9px;border-radius:6px;}
-.my-match-status.wait{background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);}
+.my-match-status.wait{background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);}
 .my-match-status.win{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);}
 .my-match-status.draw{background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);}
 .my-match-status.loss{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
 
-.pcard.my-row{border-color:var(--accent);background:rgba(0,200,255,.06);}
+.pcard.my-row{border-color:var(--accent);background:rgba(198,255,61,.06);}
 
 /* EMPTY */
 .empty{text-align:center;padding:48px 20px;color:var(--muted);}
@@ -275,7 +331,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 <div id="splash">
   <div class="sp-logo">⚽</div>
   <div class="sp-title">eF <span>WARRIORS</span></div>
-  <div class="sp-sub">World Cup 2026</div>
   <div class="sp-bar"><div class="sp-fill"></div></div>
 </div>
 
@@ -295,78 +350,130 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     <div class="menu-title">REJIMNI TANLANG</div>
     <div class="menu-sub">Virtual Football League</div>
   </div>
-  <div class="info-strip">
-    <div class="info-num"><div class="info-val">12</div><div class="info-lbl">Guruh</div></div>
-    <div class="info-div"></div>
-    <div class="info-num"><div class="info-val">48</div><div class="info-lbl">Jamoa</div></div>
-    <div class="info-div"></div>
-    <div class="info-num"><div class="info-val">1</div><div class="info-lbl">Mavsum</div></div>
-  </div>
   <div class="menu-cards" style="margin-top:16px;">
-    <div class="mnu-card wc" onclick="openWC()">
-      <div class="mc-eye">Ochiq — Ro'yxat davom etmoqda</div>
-      <div class="mc-title">🌍 Jahon Chempionati</div>
-      <div class="mc-sub">12 guruh · 48 jamoa · Playoff setkasi</div>
-      <div class="mc-badge">World Cup 2026 →</div>
+    <div class="mnu-card wc" onclick="openIntl()">
+      <div class="mc-eye" id="mc-eye-intl">Ochiq — Ro'yxat davom etmoqda</div>
+      <div class="mc-title">🌍 International Tournaments</div>
+      <div class="mc-sub">Jahon Chempionati va boshqalar</div>
+      <div class="mc-badge">Turnirlarni ko'rish →</div>
     </div>
-    <div class="mnu-card liga">
-      <div class="mc-eye locked">Tez kunda</div>
-      <div class="mc-title" style="color:var(--muted);">🏟 Ligalar</div>
+    <div class="mnu-card liga" onclick="openClubs()" style="opacity:1;">
+      <div class="mc-eye" id="mc-eye-clubs">Ochiq — Ro'yxat davom etmoqda</div>
+      <div class="mc-title">🏟 Club Tournaments</div>
       <div class="mc-sub">Premier League, La Liga va boshqalar</div>
-      <div class="mc-badge locked">🔒 Yopiq</div>
-    </div>
-  </div>
-  <!-- RO'YXATDAN O'TISH BLOKI -->
-  <div style="padding:0 16px;margin-top:16px;">
-    <div style="background:var(--card);border:1px solid var(--accent);border-radius:16px;padding:18px;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;">🌍</div>
-      <div style="font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:6px;">Ochiq — Ro'yxat davom etmoqda</div>
-      <div style="font-family:'Roboto',sans-serif;font-size:20px;font-weight:900;margin-bottom:4px;">Jahon Chempionati</div>
-      <div style="display:flex;gap:24px;margin:14px 0 16px;">
-        <div style="text-align:center;">
-          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">48</div>
-          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Jamoalar</div>
-        </div>
-        <div style="width:1px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">48</div>
-          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Jamoalar</div>
-        </div>
-        <div style="width:1px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">4</div>
-          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Maksimal</div>
-        </div>
-        <div style="width:1px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-family:'Roboto',sans-serif;font-size:22px;font-weight:900;color:var(--accent);">1</div>
-          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Mavsum</div>
-        </div>
-      </div>
-      <div id="reg-status-btn" style="width:100%;padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;text-align:center;letter-spacing:1px;">
-        Tekshirilmoqda...
-      </div>
-
-      <!-- RO'YXATDAN O'TISH FORMASI (ro'yxatda yo'q bo'lsa ko'rinadi) -->
-      <div id="reg-form" style="display:none;margin-top:14px;">
-        <div style="font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Guruh va Jamoa tanlang</div>
-        <select id="rf-grp" onchange="loadRegTeams()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
-        </select>
-        <select id="rf-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px;-webkit-appearance:none;">
-        </select>
-        <button onclick="registerUser()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">
-          Ro'yxatdan o'tish →
-        </button>
-      </div>
-
-      <div style="margin-top:14px;">
-        <div style="font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Guruh tanlash</div>
-        <div id="reg-grp-btns" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
-      </div>
+      <div class="mc-badge">Ligalarni ko'rish →</div>
     </div>
   </div>
 
   <div class="menu-footer"><div class="menu-footer-txt">⚡ eF Warriors · Season 1</div></div>
+</div>
+
+<!-- PAGE: INTERNATIONAL TOURNAMENTS (ro'yxat) -->
+<div class="page" id="page-intl">
+  <div class="topbar">
+    <div class="topbar-back" onclick="backToMenuFromIntl()">← Orqaga</div>
+    <div class="topbar-badge">🌍 Xalqaro</div>
+  </div>
+  <div class="menu-hero" style="padding-top:6px;">
+    <span class="menu-icon">🌍</span>
+    <div class="menu-title">INTERNATIONAL TOURNAMENTS</div>
+    <div class="menu-sub">Xalqaro turnirlar ro'yxati</div>
+  </div>
+  <div class="menu-cards" id="intl-tourn-list" style="margin-top:16px;"></div>
+  <div class="menu-footer"><div class="menu-footer-txt">⚡ eF Warriors</div></div>
+</div>
+
+<!-- PAGE: CLUB TOURNAMENTS (5 ta liga ro'yxati) -->
+<div class="page" id="page-clubs">
+  <div class="topbar">
+    <div class="topbar-back" onclick="backToMenuFromClubs()">← Orqaga</div>
+    <div class="topbar-badge">🏟 Ligalar</div>
+  </div>
+  <div class="menu-hero" style="padding-top:6px;">
+    <span class="menu-icon">🏟</span>
+    <div class="menu-title">CLUB TOURNAMENTS</div>
+    <div class="menu-sub">5 ta yetakchi liga — ketma-ket ochiladi</div>
+  </div>
+  <div style="padding:0 16px;margin-top:6px;">
+    <div style="background:var(--card);border:1px solid var(--accent);border-radius:16px;padding:16px;" id="club-reg-box"></div>
+  </div>
+  <div class="menu-cards" id="clubs-list" style="margin-top:16px;"></div>
+  <div class="menu-footer"><div class="menu-footer-txt">⚡ eF Warriors · Club Tournaments</div></div>
+</div>
+
+<!-- PAGE: BITTA LIGA (turlar / jadval / profil / sovrinlar) -->
+<div class="page" id="page-league">
+  <div class="topbar">
+    <div class="topbar-back" onclick="backToClubsFromLeague()">← Orqaga</div>
+    <div class="topbar-badge" id="lg-topbar-badge">Liga</div>
+  </div>
+
+  <div class="bnav" id="lg-bnav">
+    <div class="bnav-i on" id="lgt-matches" onclick="leagueTab('matches')">
+      <div class="bnav-ic">📰</div><div class="bnav-lb">Yangiliklar</div>
+    </div>
+    <div class="bnav-i" id="lgt-table" onclick="leagueTab('table')">
+      <div class="bnav-ic">📊</div><div class="bnav-lb">Jadval</div>
+    </div>
+    <div class="bnav-i" id="lgt-profile" onclick="leagueTab('profile')">
+      <div class="bnav-ic">👤</div><div class="bnav-lb">Profil</div>
+    </div>
+    <div class="bnav-i" id="lgt-awards" onclick="leagueTab('awards')">
+      <div class="bnav-ic">🎖️</div><div class="bnav-lb">Sovrinlar</div>
+    </div>
+    <div class="bnav-i" id="lgt-admin" onclick="leagueTab('admin')" style="display:none;">
+      <div class="bnav-ic">🔧</div><div class="bnav-lb">Admin</div>
+    </div>
+  </div>
+
+  <div id="lg-matches" class="tab on" style="padding-bottom:100px;">
+    <div class="hero" style="padding:16px;">
+      <div class="hero-title">📰 <span id="lg-round-title">Liga Yangiliklari</span></div>
+    </div>
+    <div id="lg-matches-list"></div>
+  </div>
+
+  <div id="lg-table" class="tab" style="padding-bottom:100px;">
+    <div class="hero" style="padding:16px;">
+      <div class="hero-title">📊 <span>Turnir jadvali</span></div>
+    </div>
+    <div id="lg-table-wrap"></div>
+  </div>
+
+  <div id="lg-profile" class="tab" style="padding-bottom:100px;">
+    <div id="lg-profile-wrap"></div>
+  </div>
+
+  <div id="lg-awards" class="tab" style="padding-bottom:100px;">
+    <div class="hero" style="padding:16px;">
+      <div class="hero-title">🎖️ <span>Sovrinlar</span></div>
+    </div>
+    <div id="lg-awards-wrap"></div>
+  </div>
+
+  <div id="lg-admin" class="tab" style="padding-bottom:100px;">
+    <div class="hero" style="padding:16px;">
+      <div class="hero-title">🔧 <span>Admin panel</span></div>
+    </div>
+    <div id="lg-admin-wrap"></div>
+  </div>
+</div>
+
+<!-- PAGE: QURA (fikstura tasodifiy tuzish, animatsiya) -->
+<div class="page" id="page-draw">
+  <div class="topbar">
+    <div class="topbar-back" onclick="closeDrawPage(false)">← Orqaga</div>
+    <div class="topbar-badge" id="draw-topbar-badge">🎲 Qura</div>
+  </div>
+  <div class="menu-hero" style="padding-top:24px;">
+    <span class="menu-icon">🎲</span>
+    <div class="menu-title" id="draw-title" style="font-size:26px;">QURA TASHLANMOQDA</div>
+    <div class="menu-sub" id="draw-sub">Jamoalar aralashtirilmoqda...</div>
+  </div>
+  <div style="text-align:center;padding:10px 20px 6px;">
+    <div id="draw-reel-name" style="font-family:var(--disp);font-size:34px;color:var(--accent);letter-spacing:1px;min-height:48px;text-shadow:0 0 18px rgba(198,255,61,.5);">🎲</div>
+  </div>
+  <div id="draw-result-list" style="padding:16px 16px 100px;"></div>
 </div>
 
 <!-- PAGE: WORLD CUP -->
@@ -631,7 +738,12 @@ function buildSharedPayload(){
     regs[g] = {};
     GROUPS[g].forEach(t=>{ if(t.user && t.user !== '—') regs[g][t.name] = t.user; });
   });
-  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, pending: window.pendingRegs||[], champ: window.champions||[] };
+  const clubRegs = {};
+  Object.keys(CLUB_GROUPS).forEach(g=>{
+    clubRegs[g] = {};
+    CLUB_GROUPS[g].forEach(t=>{ if(t.user && t.user !== '—') clubRegs[g][t.name] = t.user; });
+  });
+  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, clubGroups: clubRegs, draws: window.leagueDraws||{}, pending: window.pendingRegs||[], champ: window.champions||[] };
 }
 
 function applyGroupRegs(regs){
@@ -640,6 +752,16 @@ function applyGroupRegs(regs){
     if(!GROUPS[g]) return;
     Object.keys(regs[g]).forEach(teamName=>{
       const team = GROUPS[g].find(t=>t.name===teamName);
+      if(team) team.user = regs[g][teamName];
+    });
+  });
+}
+function applyClubGroupRegs(regs){
+  if(!regs) return;
+  Object.keys(regs).forEach(g=>{
+    if(!CLUB_GROUPS[g]) return;
+    Object.keys(regs[g]).forEach(teamName=>{
+      const team = CLUB_GROUPS[g].find(t=>t.name===teamName);
       if(team) team.user = regs[g][teamName];
     });
   });
@@ -671,6 +793,9 @@ function loadShared(cb){
       playoff = ensurePlayoff((backup&&backup.po) || null);
       window.turStatus = (backup&&backup.tur) || {};
       applyGroupRegs((backup&&backup.groups) || null);
+      applyClubGroupRegs((backup&&backup.clubGroups) || null);
+      window.leagueDraws = (backup&&backup.draws) || {};
+      rebuildDrawnSchedules();
       window.pendingRegs = (backup&&backup.pending) || [];
       window.champions = (backup&&backup.champ) || [];
     }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; }
@@ -687,6 +812,9 @@ function loadShared(cb){
         playoff = ensurePlayoff(rec.po || null);
         window.turStatus = rec.tur || {};
         applyGroupRegs(rec.groups || null);
+        applyClubGroupRegs(rec.clubGroups || null);
+        window.leagueDraws = rec.draws || {};
+        rebuildDrawnSchedules();
         window.pendingRegs = rec.pending || [];
         window.champions = rec.champ || [];
       });
@@ -753,6 +881,10 @@ function matchHTML(grp,r){
 }
 
 const ADMIN_USER = 'yusupbaevvvv';
+// Bot orqali yozishish uchun bot username (@ belgisisiz). Buni haqiqiy bot
+// username'ingizga almashtiring — bot esa /start chat_<liga>_<user> paramini
+// qabul qilib, ikkala o'yinchini bir-biriga tanishtiruvchi xabar yuborishi kerak.
+const BOT_USERNAME = 'eFWarriorsbot';
 
 function isAdmin(){
   const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
@@ -761,6 +893,7 @@ function isAdmin(){
 
 function openWC(){
   document.getElementById('page-menu').classList.remove('on');
+  document.getElementById('page-intl').classList.remove('on');
   document.getElementById('page-wc').classList.add('on');
   const adminBtn = document.getElementById('wt-admin');
   const adminPage = document.getElementById('wc-admin');
@@ -775,7 +908,574 @@ function openWC(){
 }
 function backToMenu(){
   document.getElementById('page-wc').classList.remove('on');
+  document.getElementById('page-intl').classList.add('on');
+  renderIntlList();
+}
+
+// ============================================================================
+// INTERNATIONAL TOURNAMENTS — ro'yxat sahifasi. Har bir turnir shu massivga
+// bitta marta qo'shiladi (league kaliti window.champions bilan bir xil bo'lishi
+// kerak), qolgani (ochiq/yopiq holat va g'olib ko'rsatish) avtomatik ishlaydi.
+// ============================================================================
+const INTL_TOURNAMENTS = [
+  { league:'WC2026', icon:'🌍', name:'Jahon Chempionati', sub:"12 guruh · 48 jamoa · Playoff setkasi", badge:'World Cup 2026 →', open:'openWC' }
+];
+
+function openIntl(){
+  document.getElementById('page-menu').classList.remove('on');
+  document.getElementById('page-intl').classList.add('on');
+  renderIntlList();
+}
+function backToMenuFromIntl(){
+  document.getElementById('page-intl').classList.remove('on');
   document.getElementById('page-menu').classList.add('on');
+}
+
+function renderIntlList(){
+  const wrap = document.getElementById('intl-tourn-list');
+  if(!wrap) return;
+  wrap.innerHTML = INTL_TOURNAMENTS.map(t=>{
+    const champs = (window.champions||[]).filter(c=>c.league===t.league);
+    const latest = champs.length ? champs.reduce((a,b)=> a.season>b.season?a:b) : null;
+
+    let eyeCls = '', eyeTxt;
+    if(latest){
+      eyeCls = 'champ';
+      eyeTxt = `🏆 Chempion: ${latest.username} — ${latest.flag||''} ${latest.team}`;
+    } else if(t.league===CURRENT_LEAGUE){
+      const allTaken = Object.keys(GROUPS).every(g => GROUPS[g].every(x=>x.user && x.user!=='—'));
+      eyeCls = allTaken ? 'locked' : '';
+      eyeTxt = allTaken ? "Yopiq — barcha o'rinlar to'ldi" : "Ochiq — Ro'yxat davom etmoqda";
+    } else {
+      eyeCls = 'locked';
+      eyeTxt = "Ma'lumot yo'q";
+    }
+
+    const subTxt = latest ? `Mavsum ${latest.season} yakunlandi` : t.sub;
+
+    return `<div class="mnu-card wc" onclick="${t.open}()">
+      <div class="mc-eye ${eyeCls}">${eyeTxt}</div>
+      <div class="mc-title">${t.icon} ${t.name}</div>
+      <div class="mc-sub">${subTxt}</div>
+      <div class="mc-badge">${t.badge}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================================
+// CLUB TOURNAMENTS — sahifalar va renderlash
+// ============================================================================
+function openClubs(){
+  document.getElementById('page-menu').classList.remove('on');
+  document.getElementById('page-clubs').classList.add('on');
+  initClubRegUI();
+  renderClubsList();
+}
+function backToMenuFromClubs(){
+  document.getElementById('page-clubs').classList.remove('on');
+  document.getElementById('page-menu').classList.add('on');
+}
+function updateClubsMenuBadge(){
+  const badge = document.getElementById('mc-eye-clubs');
+  if(!badge) return;
+  const activeIdx = getActiveLeagueIndex();
+  if(activeIdx >= CLUB_LEAGUES.length){ badge.textContent = "🔒 Barcha ligalar to'ldi"; badge.classList.add('locked'); return; }
+  const active = CLUB_LEAGUES[activeIdx];
+  const allTaken = CLUB_GROUPS[active.id].every(t=>t.user && t.user!=='—');
+  badge.textContent = allTaken ? `Yopiq — ${active.short} to'ldi` : `Ochiq — ${active.short} ro'yxati davom etmoqda`;
+  badge.classList.toggle('locked', allTaken);
+}
+
+function renderClubsList(){
+  updateClubsMenuBadge();
+  const wrap = document.getElementById('clubs-list');
+  if(!wrap) return;
+  const activeIdx = getActiveLeagueIndex();
+  wrap.innerHTML = CLUB_LEAGUES.map((lg,idx)=>{
+    const champ = (window.champions||[]).find(c=>c.league===lg.id && c.season===LEAGUE_SEASON);
+    const unlocked = idx <= activeIdx;
+    const drawn = isLeagueDrawn(lg.id);
+    let eyeCls='', eyeTxt, subTxt, action;
+    if(champ){
+      eyeCls='champ'; eyeTxt = `🏆 Chempion: ${champ.username} — ${champ.team}`;
+      subTxt = `${lg.teams.length} jamoa · Mavsum yakunlandi`;
+      action = `openLeague('${lg.id}')`;
+    } else if(idx===activeIdx){
+      const allTaken = CLUB_GROUPS[lg.id].every(t=>t.user && t.user!=='—');
+      if(allTaken && !drawn){
+        eyeCls='champ'; eyeTxt = "🎲 To'ldi — qura kutilmoqda";
+        subTxt = `${lg.teams.length} jamoa · Qura o'tkazish kerak`;
+        action = isAdmin() ? `startLeagueDraw('${lg.id}')` : `showToast('⏳ Admin qura tashlashini kutmoqda')`;
+      } else if(allTaken && drawn){
+        eyeCls=''; eyeTxt='Faol — o\'yinlar davom etmoqda';
+        const rd = getActiveLeagueRound(lg.id), totalRd = (window.leagueSchedule[lg.id]||[]).length;
+        subTxt = `${lg.teams.length} jamoa · ${Math.min(rd+1,totalRd)}-tur / ${totalRd}`;
+        action = `openLeague('${lg.id}')`;
+      } else {
+        eyeCls=''; eyeTxt = "Faol — Ro'yxat davom etmoqda";
+        subTxt = `${lg.teams.length} jamoa`;
+        action = `openLeague('${lg.id}')`;
+      }
+    } else if(unlocked){
+      if(!drawn){
+        eyeCls='champ'; eyeTxt = "🎲 To'ldi — qura kutilmoqda";
+        subTxt = `${lg.teams.length} jamoa · Qura o'tkazish kerak`;
+        action = isAdmin() ? `startLeagueDraw('${lg.id}')` : `showToast('⏳ Admin qura tashlashini kutmoqda')`;
+      } else {
+        eyeCls=''; eyeTxt='Faol — o\'yinlar davom etmoqda';
+        const rd = getActiveLeagueRound(lg.id), totalRd = (window.leagueSchedule[lg.id]||[]).length;
+        subTxt = `${lg.teams.length} jamoa · ${Math.min(rd+1,totalRd)}-tur / ${totalRd}`;
+        action = `openLeague('${lg.id}')`;
+      }
+    } else {
+      eyeCls='locked'; eyeTxt = 'Qulflangan — oldingi liga tugashi kerak';
+      subTxt = `${lg.teams.length} jamoa`;
+      action = `showToast('🔒 Avval oldingi liga yakunlanishi kerak')`;
+    }
+    return `<div class="mnu-card wc" style="${unlocked?'':'opacity:.5;'}" onclick="${action}">
+      <div class="mc-eye ${eyeCls}">${eyeTxt}</div>
+      <div class="mc-title">${lg.icon} ${lg.name}</div>
+      <div class="mc-sub">${subTxt}</div>
+      <div class="mc-badge ${unlocked?'':'locked'}">${unlocked?(lg.short+' →'):'🔒 Yopiq'}</div>
+    </div>`;
+  }).join('');
+}
+
+function openLeague(leagueId){
+  const idx = CLUB_LEAGUES.findIndex(l=>l.id===leagueId);
+  if(idx===-1 || !isLeagueUnlocked(idx)){ showToast('🔒 Bu liga hali ochilmagan'); return; }
+  window.curLeagueId = leagueId;
+  document.getElementById('page-clubs').classList.remove('on');
+  document.getElementById('page-league').classList.add('on');
+  const cfg = getLeagueCfg(leagueId);
+  document.getElementById('lg-topbar-badge').textContent = `${cfg.icon} ${cfg.short}`;
+  document.getElementById('lgt-admin').style.display = isAdmin() ? '' : 'none';
+  leagueTab('matches');
+}
+function backToClubsFromLeague(){
+  document.getElementById('page-league').classList.remove('on');
+  document.getElementById('page-clubs').classList.add('on');
+  renderClubsList();
+}
+
+function leagueTab(name){
+  if(name==='admin' && !isAdmin()){ showToast('🔒 Faqat admin uchun'); return; }
+  ['matches','table','profile','awards','admin'].forEach(t=>{
+    document.getElementById('lg-'+t).classList.toggle('on', t===name);
+    document.getElementById('lgt-'+t).classList.toggle('on', t===name);
+  });
+  const leagueId = window.curLeagueId;
+  if(!leagueId) return;
+  if(name==='matches') renderLeagueMatches(leagueId);
+  else if(name==='table') renderLeagueTable(leagueId);
+  else if(name==='profile') renderLeagueProfile(leagueId);
+  else if(name==='awards') renderLeagueAwards(leagueId);
+  else if(name==='admin') renderLeagueAdmin(leagueId);
+}
+
+function teamInLeague(leagueId, name){ return (CLUB_GROUPS[leagueId]||[]).find(t=>t.name===name); }
+
+function renderLeagueMatches(leagueId){
+  const titleEl = document.getElementById('lg-round-title');
+  const listEl = document.getElementById('lg-matches-list');
+  if(!isLeagueDrawn(leagueId)){
+    titleEl.textContent = 'Liga Yangiliklari';
+    listEl.innerHTML = noDrawHTML(leagueId);
+    return;
+  }
+  const rounds = window.leagueSchedule[leagueId]||[];
+  const activeRound = getActiveLeagueRound(leagueId);
+  const cfg = getLeagueCfg(leagueId);
+  titleEl.textContent = 'Liga Yangiliklari';
+
+  const res = (results[leagueId]||[]);
+  const confirmed = res.filter(r=>!r.pending);
+  const table = getClubStats(leagueId);
+
+  // ---- G'alabalar seriyasi (streak): har bir jamoaning xronologik natijalari bo'yicha ----
+  const byTeam = {};
+  confirmed.slice().sort((a,b)=>(a.time||0)-(b.time||0)).forEach(r=>{
+    [{name:r.h, gf:r.hs, ga:r.as},{name:r.a, gf:r.as, ga:r.hs}].forEach(side=>{
+      if(!byTeam[side.name]) byTeam[side.name]=[];
+      byTeam[side.name].push(side.gf>side.ga?'W':side.gf===side.ga?'D':'L');
+    });
+  });
+  let bestStreak = {name:null, n:0};
+  Object.keys(byTeam).forEach(name=>{
+    const hist = byTeam[name]; let n=0;
+    for(let i=hist.length-1;i>=0;i--){ if(hist[i]==='W') n++; else break; }
+    if(n>bestStreak.n) bestStreak = {name, n};
+  });
+
+  // ---- Eng zo'r hujum / mustahkam himoya (kamida 1 o'yin o'ynagan jamoalar orasida) ----
+  const played = table.filter(t=>t.p>0);
+  const bestAttack = played.length ? played.slice().sort((a,b)=>b.gf-a.gf)[0] : null;
+  const bestDefense = played.length ? played.slice().sort((a,b)=>a.ga-b.ga)[0] : null;
+
+  // ---- So'nggi 5 ta tasdiqlangan natija ----
+  const latest = confirmed.slice().sort((a,b)=>(b.time||0)-(a.time||0)).slice(0,5);
+
+  // ---- Navbatdagi (hali natija kiritilmagan) o'yinlar ----
+  let upcoming = [];
+  if(activeRound < rounds.length){
+    upcoming = rounds[activeRound].filter(pair=>!res.find(x=>x.h===pair.h && x.a===pair.a));
+  }
+
+  const seasonDone = activeRound >= rounds.length;
+
+  listEl.innerHTML = `<div style="padding:0 16px 16px;">
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;text-align:center;">
+      <div><div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;color:var(--accent);">${confirmed.length}</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;">O'YNALGAN</div></div>
+      <div><div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;">${seasonDone?'—':(activeRound+1)+'/'+rounds.length}</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;">${seasonDone?'YAKUNLANDI':'JORIY TUR'}</div></div>
+      <div><div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;color:var(--gold);">${cfg.short}</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;">LIGA</div></div>
+    </div>
+
+    ${bestStreak.n>=2 ? `<div style="background:linear-gradient(135deg,rgba(255,182,39,.14),rgba(255,182,39,.03));border:1px solid rgba(255,182,39,.3);border-radius:14px;padding:14px;margin-bottom:10px;">
+      <div style="font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;">🔥 Shior seriyasi</div>
+      <div style="font-weight:800;font-size:14px;">${bestStreak.name} — ketma-ket ${bestStreak.n} g'alaba!</div>
+    </div>` : ''}
+
+    ${bestAttack||bestDefense ? `<div style="display:flex;gap:10px;margin-bottom:10px;">
+      ${bestAttack?`<div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;">
+        <div style="font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">⚔️ Eng zo'r hujum</div>
+        <div style="font-weight:800;font-size:13px;margin-top:4px;">${bestAttack.name}</div>
+        <div style="font-size:11px;color:var(--green);margin-top:2px;">${bestAttack.gf} gol urgan</div>
+      </div>`:''}
+      ${bestDefense?`<div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;">
+        <div style="font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">🛡️ Eng mustahkam himoya</div>
+        <div style="font-weight:800;font-size:13px;margin-top:4px;">${bestDefense.name}</div>
+        <div style="font-size:11px;color:var(--accent);margin-top:2px;">Bor-yo'g'i ${bestDefense.ga} gol yegan</div>
+      </div>`:''}
+    </div>` : ''}
+
+    <div style="font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin:14px 0 8px;">📰 So'nggi natijalar</div>
+    ${latest.length ? latest.map(r=>`
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;font-size:13px;font-weight:600;">${r.h}</div>
+        <div style="font-family:'Roboto',sans-serif;font-weight:900;font-size:15px;min-width:44px;text-align:center;">${r.hs}:${r.as}</div>
+        <div style="flex:1;font-size:13px;font-weight:600;text-align:right;">${r.a}</div>
+      </div>`).join('') : `<div class="empty" style="padding:24px 20px;"><div class="empty-ic">📭</div><div>Hali natija yo'q</div></div>`}
+
+    ${upcoming.length ? `
+    <div style="font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin:14px 0 8px;">⏳ Navbatdagi o'yinlar (${activeRound+1}-tur)</div>
+    ${upcoming.map(pair=>`
+      <div style="background:var(--card);border:1px dashed var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;opacity:.85;">
+        <div style="flex:1;font-size:13px;">${pair.h}</div>
+        <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:center;">vs</div>
+        <div style="flex:1;font-size:13px;text-align:right;">${pair.a}</div>
+      </div>`).join('')}` : ''}
+
+  </div>`;
+}
+
+function tblHTMLClub(leagueId){
+  const cfg = getLeagueCfg(leagueId);
+  const t = getClubStats(leagueId);
+  if(!t.length) return `<div class="empty"><div class="empty-ic">📊</div><div>Ma'lumot yo'q</div></div>`;
+  const leader = t[0];
+  const rest = t.slice(1);
+  const leaderBanner = `
+    <div class="league-leader-banner">
+      <div class="llb-crown">👑</div>
+      <div class="llb-info">
+        <div class="llb-tag">Liga yetakchisi</div>
+        <div class="llb-name">${leader.name}</div>
+        <div class="llb-user">${leader.user}</div>
+      </div>
+      <div class="llb-pts"><div class="llb-pts-val">${leader.pts}</div><div class="llb-pts-lbl">PTS</div></div>
+    </div>`;
+  return `${leaderBanner}
+    <div class="ucl-note"><span class="ucl-badge">★</span> 2–6 o'rinlar — qualified zona</div>
+    <div class="grp-tbl" style="margin:0 16px 16px;">
+    <div class="grp-hd"><span>#</span><span>${cfg.short}</span><span>B</span><span>G</span><span>D</span><span>M</span><span>PTS</span></div>
+    ${rest.map((p,i)=>{
+      const rank = i+2;
+      const qualified = rank<=6;
+      return `<div class="grp-rw ${qualified?'ucl':''}">
+      <div class="rk">${rank}${qualified?'<span class="ucl-badge">★</span>':''}</div>
+      <div class="nm"><div><div class="cname">${p.name}</div><div class="uname">${p.user}</div></div></div>
+      <div class="st">${p.p}</div><div class="st">${p.w}</div><div class="st">${p.d}</div><div class="st">${p.l}</div>
+      <div class="pts">${p.pts}</div>
+    </div>`;
+    }).join('')}
+  </div>`;
+}
+function renderLeagueTable(leagueId){
+  document.getElementById('lg-table-wrap').innerHTML = tblHTMLClub(leagueId);
+}
+
+function renderLeagueAwards(leagueId){
+  const cfg = getLeagueCfg(leagueId);
+  const champ = (window.champions||[]).find(c=>c.league===leagueId && c.season===LEAGUE_SEASON);
+  const wrap = document.getElementById('lg-awards-wrap');
+  const table = getClubStats(leagueId);
+  const played = table.filter(t=>t.p>0);
+
+  const champHTML = champ ? `
+    <div class="award-hero">
+      <div class="aw-ic">🏆</div>
+      <div class="aw-title">${cfg.short.toUpperCase()} CHEMPIONI</div>
+      <div class="aw-name">${champ.team}</div>
+      <div class="aw-sub">${champ.username}</div>
+    </div>` : `
+    <div class="award-hero" style="opacity:.6;">
+      <div class="aw-ic">🏆</div>
+      <div class="aw-title">${cfg.short.toUpperCase()} CHEMPIONI</div>
+      <div class="aw-sub" style="margin-top:8px;">Hali aniqlanmagan — mavsum davom etmoqda</div>
+    </div>`;
+
+  const scorers = [...played].sort((a,b)=>b.gf-a.gf).slice(0,3);
+  const scorersHTML = scorers.length ? scorers.map((t,i)=>`
+    <div class="award-row p${i+1}">
+      <div class="aw-pos">${i+1}</div>
+      <div class="aw-info"><div class="aw-team">${t.name}</div><div class="aw-user">${t.user}</div></div>
+      <div class="aw-stat">${t.gf}⚽</div>
+    </div>`).join('') : `<div class="empty"><div class="empty-ic">⚽</div><div>Hali o'yin yo'q</div></div>`;
+
+  const defenders = [...played].sort((a,b)=>a.ga-b.ga).slice(0,3);
+  const defendersHTML = defenders.length ? defenders.map((t,i)=>`
+    <div class="award-row p${i+1}">
+      <div class="aw-pos">${i+1}</div>
+      <div class="aw-info"><div class="aw-team">${t.name}</div><div class="aw-user">${t.user}</div></div>
+      <div class="aw-stat">${t.ga}🛡️</div>
+    </div>`).join('') : `<div class="empty"><div class="empty-ic">🛡️</div><div>Hali o'yin yo'q</div></div>`;
+
+  wrap.innerHTML = `
+    ${champHTML}
+    <div class="slb">⚽ Eng ko'p gol urgan</div>
+    <div class="award-list">${scorersHTML}</div>
+    <div class="slb" style="margin-top:10px;">🛡️ Eng yaxshi himoya</div>
+    <div class="award-list" style="padding-bottom:20px;">${defendersHTML}</div>
+  `;
+}
+
+function renderLeagueProfile(leagueId){
+  const wrap = document.getElementById('lg-profile-wrap');
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
+  const found = (CLUB_GROUPS[leagueId]||[]).find(t=>t.user===myUsername);
+  if(!found){
+    wrap.innerHTML = `<div class="empty" style="padding-top:40px;"><div class="empty-ic">👤</div><div>Siz bu ligada ro'yxatdan o'tmagansiz</div></div>`;
+    return;
+  }
+  const rounds = window.leagueSchedule[leagueId]||[];
+  if(!rounds.length){
+    wrap.innerHTML = `<div style="padding:16px;">
+      <div class="prof-card"><div class="prof-avatar">👤</div><div class="prof-info"><div class="prof-name">${found.user}</div><div class="prof-team">${found.flag} ${found.name}</div></div></div>
+    </div>${noDrawHTML(leagueId)}`;
+    return;
+  }
+  const activeRound = getActiveLeagueRound(leagueId);
+  const res = results[leagueId]||[];
+  const myMatches = [];
+  rounds.forEach((round,ri)=>{
+    round.forEach(pair=>{
+      if(pair.h!==found.name && pair.a!==found.name) return;
+      const isHome = pair.h===found.name;
+      const oppName = isHome ? pair.a : pair.h;
+      const opp = teamInLeague(leagueId, oppName);
+      const r = res.find(x=>x.h===pair.h && x.a===pair.a);
+      let myScore=null, oppScore=null, done=false, pending=false, win=false, draw=false;
+      if(r){
+        done = !r.pending; pending = !!r.pending;
+        myScore = isHome? r.hs : r.as; oppScore = isHome? r.as : r.hs;
+        win = myScore>oppScore; draw = myScore===oppScore;
+      }
+      myMatches.push({ri, h:pair.h, a:pair.a, isHome, opp, myScore, oppScore, done, pending, win, draw});
+    });
+  });
+
+  const wdl = myMatches.reduce((acc,m)=>{ if(m.done){ if(m.win)acc.w++; else if(m.draw)acc.d++; else acc.l++; } return acc; },{w:0,d:0,l:0});
+  const table = getClubStats(leagueId);
+  const myRank = table.findIndex(t=>t.name===found.name)+1;
+
+  wrap.innerHTML = `
+    <div style="padding:16px 16px 8px;">
+      <div class="prof-card">
+        <div class="prof-avatar">👤</div>
+        <div class="prof-info">
+          <div class="prof-name">${found.user}</div>
+          <div class="prof-team">${found.flag} ${found.name}</div>
+        </div>
+      </div>
+    </div>
+    <div class="slb">Statistika</div>
+    <div style="padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div class="stat-box"><div class="stat-val">#${myRank||'-'}</div><div class="stat-lbl">O'rin</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--green);">${wdl.w}</div><div class="stat-lbl">G'alaba</div></div>
+      <div class="stat-box"><div class="stat-val">${wdl.d}</div><div class="stat-lbl">Durang</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--red);">${wdl.l}</div><div class="stat-lbl">Mag'lubiyat</div></div>
+    </div>
+    <div class="slb" style="margin-top:12px;">Mening O'yinlarim</div>
+    <div style="padding:0 16px 80px;">
+      ${myMatches.map((m,i)=>{
+        const scoreStr = m.done ? `${m.myScore}:${m.oppScore}` : (m.pending? '⏳':'—:—');
+        const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
+        const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):(m.pending?'TASDIQ KUTILMOQDA':'KUTILMOQDA');
+        const oppUserClean = m.opp && m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
+        const canChat = !!oppUserClean;
+        const isCurrentRound = m.ri===activeRound;
+        const inputBlock = (!m.done && !m.pending) ? (isCurrentRound ? `
+        <div class="score-entry">
+            <div class="score-col"><input type="number" id="lsc-h-${leagueId}-${i}" class="score-box" placeholder="0" min="0" max="20" inputmode="numeric"><div class="score-lbl">MEN</div></div>
+            <span class="score-sep">:</span>
+            <div class="score-col"><input type="number" id="lsc-a-${leagueId}-${i}" class="score-box" placeholder="0" min="0" max="20" inputmode="numeric"><div class="score-lbl">RAQIB</div></div>
+            <button onclick="submitLeagueScore('${leagueId}',${i})" class="score-submit-btn">Yuborish ✓</button>
+          </div>` : `
+          <div style="margin-top:10px;padding:9px 12px;background:rgba(100,116,139,.08);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
+            🔒 ${m.ri+1}-tur hali ochilmagan
+          </div>`) : '';
+        const confirmBlock = m.pending ? `
+          <div class="confirm-actions">
+            <button onclick="confirmLeagueScore('${leagueId}',${i},true)" class="btn-confirm">✅ Tasdiqlash</button>
+            <button onclick="confirmLeagueScore('${leagueId}',${i},false)" class="btn-reject">✕ Rad etish</button>
+          </div>` : '';
+        return `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="font-size:11px;color:var(--muted);font-weight:600;min-width:44px;"><span style="font-size:9px;color:var(--accent);">${m.ri+1}-TUR</span></div>
+            <div style="display:flex;align-items:center;gap:6px;flex:1;font-size:13px;font-weight:700;justify-content:center;">
+              <span>${m.isHome?found.name:m.opp?m.opp.name:m.a}</span>
+              <span style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:${m.done?'var(--text)':'var(--muted)'};">${scoreStr}</span>
+              <span>${m.isHome?(m.opp?m.opp.name:m.a):found.name}</span>
+            </div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 8px;border-radius:8px;
+              ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
+                statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
+                statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
+                'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
+            <div style="display:flex;gap:5px;flex-shrink:0;">
+            ${canChat?`<button onclick="openChat('${oppUserClean}')" title="Raqibga to'g'ridan-to'g'ri yozish"
+              style="width:32px;height:32px;background:rgba(23,184,166,.15);border:1px solid rgba(23,184,166,.35);border-radius:10px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
+              <button onclick="openBotChat('${oppUserClean}','${leagueId}')" title="Bot orqali yozish"
+              style="width:32px;height:32px;background:rgba(198,255,61,.12);border:1px solid rgba(198,255,61,.35);border-radius:10px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🤖</button>`
+              :`<div style="width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.4;">🔒</div>`}
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:52px;">${m.opp? (m.opp.user+ (m.isHome? ' (mehmon)':' (uy egasi)')) : ''}</div>
+          ${inputBlock}
+          ${confirmBlock}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function submitLeagueScore(leagueId, idx){
+  const hInp = document.getElementById(`lsc-h-${leagueId}-${idx}`);
+  const aInp = document.getElementById(`lsc-a-${leagueId}-${idx}`);
+  if(!hInp || !aInp) return;
+  const myScore = hInp.value.trim(), oppScore = aInp.value.trim();
+  if(myScore===''||oppScore===''||isNaN(myScore)||isNaN(oppScore)){ showToast('❌ Ikkala hisobni ham kiriting'); return; }
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
+  const found = (CLUB_GROUPS[leagueId]||[]).find(t=>t.user===myUsername);
+  if(!found) return;
+  const rounds = window.leagueSchedule[leagueId]||[];
+  let target=null;
+  const myMatches = [];
+  rounds.forEach((round,ri)=>{ round.forEach(pair=>{ if(pair.h===found.name || pair.a===found.name) myMatches.push({ri, h:pair.h, a:pair.a}); }); });
+  target = myMatches[idx];
+  if(!target){ showToast('❌ O\'yin topilmadi'); return; }
+  const isHome = target.h===found.name;
+  const hs = isHome ? parseInt(myScore) : parseInt(oppScore);
+  const as = isHome ? parseInt(oppScore) : parseInt(myScore);
+  if(!results[leagueId]) results[leagueId]=[];
+  results[leagueId] = results[leagueId].filter(r=>!((r.h===target.h&&r.a===target.a)));
+  results[leagueId].push({h:target.h, a:target.a, hs, as, pending:true, time:Date.now()});
+  saveData();
+  showToast('📨 Natija yuborildi! Raqib tasdiqlashi kerak');
+  renderLeagueProfile(leagueId);
+}
+
+function confirmLeagueScore(leagueId, idx, approve){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
+  const found = (CLUB_GROUPS[leagueId]||[]).find(t=>t.user===myUsername);
+  if(!found) return;
+  const rounds = window.leagueSchedule[leagueId]||[];
+  const myMatches = [];
+  rounds.forEach((round,ri)=>{ round.forEach(pair=>{ if(pair.h===found.name || pair.a===found.name) myMatches.push({ri, h:pair.h, a:pair.a}); }); });
+  const target = myMatches[idx];
+  if(!target) return;
+  if(approve){
+    const r = (results[leagueId]||[]).find(x=>x.h===target.h && x.a===target.a);
+    if(r) delete r.pending;
+    showToast('✅ Natija tasdiqlandi!');
+  } else {
+    results[leagueId] = (results[leagueId]||[]).filter(r=>!(r.h===target.h && r.a===target.a));
+    showToast('❌ Natija rad etildi');
+  }
+  saveData();
+  checkLeagueCompletion(leagueId);
+  renderLeagueProfile(leagueId);
+}
+
+// ============================================================================
+// LIGA ADMIN PANELI — natijalarni to'g'ridan-to'g'ri sozlash (faqat admin)
+// ============================================================================
+function renderLeagueAdmin(leagueId){
+  if(!isAdmin()) return;
+  const wrap = document.getElementById('lg-admin-wrap');
+  const rounds = window.leagueSchedule[leagueId]||[];
+  if(!rounds.length){
+    wrap.innerHTML = noDrawHTML(leagueId);
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="slb">Natijani kiritish / o'zgartirish</div>
+    <div style="padding:0 16px;">
+      <select id="la-round" onchange="loadAdminLeagueMatches('${leagueId}')" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
+        ${rounds.map((r,i)=>`<option value="${i}">${i+1}-tur</option>`).join('')}
+      </select>
+      <select id="la-match" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;"></select>
+      <input id="la-score" placeholder="2-1" maxlength="5" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;">
+      <div style="display:flex;gap:8px;">
+        <button onclick="adminSaveLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;">✅ Saqlash</button>
+        <button onclick="adminDeleteLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;">🗑 O'chirish</button>
+      </div>
+    </div>
+    <div class="slb" style="margin-top:16px;">Qura</div>
+    <div style="padding:0 16px;">
+      <button onclick="startLeagueDraw('${leagueId}')" style="width:100%;padding:13px;background:var(--card);border:1px solid var(--gold);border-radius:10px;color:var(--gold);font-weight:700;font-size:13px;cursor:pointer;">🎲 Qayta qura tashlash (ehtiyot bo'ling — mavjud natijalar saqlanadi, lekin jadval o'zgaradi)</button>
+    </div>
+  `;
+  loadAdminLeagueMatches(leagueId);
+}
+function loadAdminLeagueMatches(leagueId){
+  const ri = parseInt(document.getElementById('la-round').value);
+  const round = (window.leagueSchedule[leagueId]||[])[ri] || [];
+  const res = results[leagueId]||[];
+  document.getElementById('la-match').innerHTML = round.map(pair=>{
+    const r = res.find(x=>x.h===pair.h && x.a===pair.a);
+    const tag = r ? ` (${r.hs}-${r.as}${r.pending?' ⏳':''})` : '';
+    return `<option value="${pair.h}|||${pair.a}">${pair.h} vs ${pair.a}${tag}</option>`;
+  }).join('');
+}
+function adminSaveLeagueResult(leagueId){
+  const sel = document.getElementById('la-match').value;
+  if(!sel){ showToast('❌ O\'yin tanlanmagan'); return; }
+  const [h,a] = sel.split('|||');
+  const raw = document.getElementById('la-score').value.trim();
+  const p = raw.split('-');
+  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  if(!results[leagueId]) results[leagueId]=[];
+  results[leagueId] = results[leagueId].filter(r=>!(r.h===h&&r.a===a));
+  results[leagueId].push({h, a, hs:parseInt(p[0]), as:parseInt(p[1]), time:Date.now()});
+  saveData();
+  checkLeagueCompletion(leagueId);
+  showToast(`✅ ${h} ${p[0]}-${p[1]} ${a} saqlandi`);
+  document.getElementById('la-score').value='';
+  loadAdminLeagueMatches(leagueId);
+}
+function adminDeleteLeagueResult(leagueId){
+  const sel = document.getElementById('la-match').value;
+  if(!sel){ showToast('❌ O\'yin tanlanmagan'); return; }
+  const [h,a] = sel.split('|||');
+  results[leagueId] = (results[leagueId]||[]).filter(r=>!(r.h===h&&r.a===a));
+  saveData();
+  showToast('🗑 Natija o\'chirildi');
+  loadAdminLeagueMatches(leagueId);
 }
 
 let curWcTab='home';
@@ -890,6 +1590,261 @@ function getRoundNumber(grp, teamA, teamB){
 // chempion" nishoni shu asosda ishlaydi.
 const CURRENT_LEAGUE = 'WC2026';
 const CURRENT_SEASON = 1;
+
+// ============================================================================
+// CLUB TURNIRLARI (LIGALAR) — 5 ta yetakchi liga. Ketma-ket ochiladi: oldingi
+// liga (barcha turlar yakunlanib, chempion aniqlangan) tugamaguncha keyingisi
+// qulflangan turadi. Jamoa nomlari 2025/26 mavsumiga yaqin (taxminiy) ro'yxat —
+// GitHub'da shu massivni tahrirlab, istalgan vaqt to'g'irlash mumkin.
+// ============================================================================
+const LEAGUE_SEASON = 1;
+const CLUB_LEAGUES = [
+  { id:'APL', name:"Angliya Premer-Ligasi", short:'APL', icon:'🏴',
+    teams:['Arsenal','Aston Villa','Bournemouth','Brentford','Brighton','Burnley','Chelsea','Crystal Palace','Everton','Fulham','Leeds United','Liverpool','Manchester City','Manchester United','Newcastle United','Nottingham Forest','Sunderland','Tottenham','West Ham','Wolves'] },
+  { id:'LALIGA', name:'Ispaniya La Liga', short:'La Liga', icon:'🇪🇸',
+    teams:['Alaves','Athletic Bilbao','Atletico Madrid','Barcelona','Celta Vigo','Elche','Espanyol','Getafe','Girona','Levante','Mallorca','Osasuna','Rayo Vallecano','Real Betis','Real Madrid','Real Oviedo','Real Sociedad','Sevilla','Valencia','Villarreal'] },
+  { id:'SERIEA', name:'Italiya Seriya A', short:'Serie A', icon:'🇮🇹',
+    teams:['Atalanta','Bologna','Cagliari','Como','Cremonese','Fiorentina','Genoa','Verona','Inter','Juventus','Lazio','Lecce','Milan','Napoli','Parma','Pisa','Roma','Sassuolo','Torino','Udinese'] },
+  { id:'BUNDESLIGA', name:'Germaniya Bundesligasi', short:'Bundesliga', icon:'🇩🇪',
+    teams:['Bayern Munich','Bayer Leverkusen','RB Leipzig','Borussia Dortmund','Eintracht Frankfurt','Freiburg','Mainz 05','Borussia Monchengladbach','Werder Bremen','VfB Stuttgart','Wolfsburg','Union Berlin','Augsburg','Heidenheim','St. Pauli','Hamburger SV','FC Koln','Hoffenheim'] },
+  { id:'LIGUE1', name:'Fransiya Ligue 1', short:'Ligue 1', icon:'🇫🇷',
+    teams:['PSG','Marseille','Monaco','Lille','Lyon','Nice','Lens','Rennes','Strasbourg','Toulouse','Nantes','Brest','Auxerre','Angers','Le Havre','Metz','Paris FC','Lorient'] }
+];
+function getLeagueCfg(id){ return CLUB_LEAGUES.find(l=>l.id===id); }
+
+// Aylanma jadval (circle method), 2 doiralik (uy + mehmon)
+function buildLeagueSchedule(teamNames){
+  const arr = teamNames.slice();
+  const n = arr.length;
+  const legOne = [];
+  for(let r=0;r<n-1;r++){
+    const roundPairs=[];
+    for(let i=0;i<n/2;i++){
+      const a = arr[i], b = arr[n-1-i];
+      roundPairs.push(r%2===0 ? {h:a,a:b} : {h:b,a:a});
+    }
+    legOne.push(roundPairs);
+    const last = arr.pop();
+    arr.splice(1,0,last);
+  }
+  const legTwo = legOne.map(rd=>rd.map(p=>({h:p.a,a:p.h})));
+  return legOne.concat(legTwo);
+}
+
+const CLUB_GROUPS = {};
+function initClubLeagues(){
+  if(!window.leagueSchedule) window.leagueSchedule = {};
+  if(!window.leagueDraws) window.leagueDraws = {};
+  CLUB_LEAGUES.forEach(lg=>{
+    if(!CLUB_GROUPS[lg.id]) CLUB_GROUPS[lg.id] = lg.teams.map(n=>({name:n, flag:lg.icon, user:'—'}));
+    if(!results[lg.id]) results[lg.id] = [];
+  });
+  rebuildDrawnSchedules();
+}
+// Faqat qura o'tkazilgan ligalar uchun jadval quriladi — buni har safar ulashilgan
+// ma'lumot (JSONBin) yuklangandan keyin ham qayta chaqirish kerak.
+function rebuildDrawnSchedules(){
+  Object.keys(window.leagueDraws||{}).forEach(leagueId=>{
+    const order = window.leagueDraws[leagueId];
+    if(order && order.length) window.leagueSchedule[leagueId] = buildLeagueSchedule(order);
+  });
+}
+function isLeagueDrawn(leagueId){ return !!(window.leagueDraws && window.leagueDraws[leagueId] && window.leagueDraws[leagueId].length); }
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+// Klub liga jamoalari statistikasi (getStats bilan bir xil mantiq, lekin CLUB_GROUPS'dan o'qiydi)
+function getClubStats(leagueId){
+  const teams = (CLUB_GROUPS[leagueId]||[]).map(t=>({...t,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
+  (results[leagueId]||[]).forEach(r=>{
+    if(r.pending) return;
+    const ht=teams.find(t=>t.name===r.h), at=teams.find(t=>t.name===r.a);
+    if(!ht||!at) return;
+    ht.p++;at.p++;ht.gf+=r.hs;ht.ga+=r.as;at.gf+=r.as;at.ga+=r.hs;
+    if(r.hs>r.as){ht.w++;ht.pts+=3;at.l++;}
+    else if(r.hs===r.as){ht.d++;ht.pts++;at.d++;at.pts++;}
+    else{at.w++;at.pts+=3;ht.l++;}
+  });
+  return teams.sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+}
+
+function isLeagueFinished(leagueId){
+  return (window.champions||[]).some(c=>c.league===leagueId && c.season===LEAGUE_SEASON);
+}
+function isLeagueRegFull(leagueId){
+  const teams = CLUB_GROUPS[leagueId]||[];
+  return teams.length>0 && teams.every(t=>t.user && t.user!=='—');
+}
+// Ro'yxatdan o'tish tartibi: joriy liga to'lgach (barcha jamoalar band bo'lgach)
+// keyingi liga ochiladi — chempion aniqlanishini kutish shart emas.
+function getActiveLeagueIndex(){
+  for(let i=0;i<CLUB_LEAGUES.length;i++){ if(!isLeagueRegFull(CLUB_LEAGUES[i].id)) return i; }
+  return CLUB_LEAGUES.length; // barcha ligalar to'lgan
+}
+function isLeagueUnlocked(idx){ return idx <= getActiveLeagueIndex(); }
+
+function isLeagueRoundComplete(leagueId, roundIdx){
+  const round = (window.leagueSchedule[leagueId]||[])[roundIdx];
+  if(!round) return true;
+  const res = results[leagueId]||[];
+  return round.every(pair=>{
+    const r = res.find(x=>x.h===pair.h && x.a===pair.a);
+    return r && !r.pending;
+  });
+}
+function getActiveLeagueRound(leagueId){
+  const rounds = window.leagueSchedule[leagueId]||[];
+  for(let i=0;i<rounds.length;i++){ if(!isLeagueRoundComplete(leagueId,i)) return i; }
+  return rounds.length; // barcha turlar tugagan
+}
+
+// Har bir natija tasdiqlangandan so'ng chaqiriladi: liga tugaganmi tekshirib,
+// tugagan bo'lsa chempionni window.champions ga avtomatik yozadi (keyingi liga ochiladi).
+function checkLeagueCompletion(leagueId){
+  if(!isLeagueDrawn(leagueId)) return; // qura o'tkazilmagan liga hech qachon "tugagan" hisoblanmaydi
+  const rounds = window.leagueSchedule[leagueId]||[];
+  if(!rounds.length) return;
+  if(getActiveLeagueRound(leagueId) < rounds.length) return;
+  if(isLeagueFinished(leagueId)) return;
+  const table = getClubStats(leagueId);
+  if(!table.length) return;
+  const champ = table[0];
+  if(!champ.user || champ.user==='—') return; // egasiz jamoa chempion bo'lolmaydi
+  if(!window.champions) window.champions=[];
+  window.champions.push({league:leagueId, season:LEAGUE_SEASON, username:champ.user, team:champ.name, flag:champ.flag||'', date:Date.now()});
+  saveData();
+  const cfg = getLeagueCfg(leagueId);
+  showToast(`🏆 ${champ.name} — ${cfg?cfg.short:leagueId} chempioni!`);
+}
+
+// -------- QURA (fikstura tasodifiy tuziladi, animatsiya bilan) --------
+function startLeagueDraw(leagueId){
+  if(!isAdmin()){ showToast('🔒 Faqat admin qura tashlay oladi'); return; }
+  window._drawingLeagueId = leagueId;
+  document.getElementById('page-clubs').classList.remove('on');
+  document.getElementById('page-league').classList.remove('on');
+  document.getElementById('page-draw').classList.add('on');
+  const cfg = getLeagueCfg(leagueId);
+  document.getElementById('draw-topbar-badge').textContent = `${cfg.icon} ${cfg.short}`;
+  document.getElementById('draw-title').textContent = 'QURA TASHLANMOQDA';
+  document.getElementById('draw-sub').textContent = "Jamoalar aralashtirilmoqda...";
+  document.getElementById('draw-result-list').innerHTML = '';
+  const teams = cfg.teams;
+  const reelEl = document.getElementById('draw-reel-name');
+  let tick = 0;
+  const totalTicks = 22;
+  clearInterval(window._drawInterval);
+  window._drawInterval = setInterval(()=>{
+    reelEl.textContent = teams[Math.floor(Math.random()*teams.length)];
+    tick++;
+    if(tick>=totalTicks){
+      clearInterval(window._drawInterval);
+      finishLeagueDraw(leagueId);
+    }
+  }, 90);
+}
+function finishLeagueDraw(leagueId){
+  const cfg = getLeagueCfg(leagueId);
+  const shuffled = shuffleArray(cfg.teams);
+  if(!window.leagueDraws) window.leagueDraws = {};
+  window.leagueDraws[leagueId] = shuffled;
+  window.leagueSchedule[leagueId] = buildLeagueSchedule(shuffled);
+  saveShared();
+  document.getElementById('draw-title').textContent = 'QURA YAKUNLANDI!';
+  document.getElementById('draw-sub').textContent = `${cfg.short} — 1-tur jadvali tayyor`;
+  document.getElementById('draw-reel-name').textContent = '🎉';
+  const firstRound = window.leagueSchedule[leagueId][0];
+  document.getElementById('draw-result-list').innerHTML = `
+    <div class="slb">1-tur (birinchi o'yinlar)</div>
+    ${firstRound.map(p=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;font-size:13px;font-weight:600;">${p.h}</div>
+      <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:center;">vs</div>
+      <div style="flex:1;font-size:13px;font-weight:600;text-align:right;">${p.a}</div>
+    </div>`).join('')}
+    <button onclick="closeDrawPage(true)" style="width:100%;margin-top:14px;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:1px;">Ligaga o'tish →</button>
+  `;
+  showToast('🎲 Qura tashlandi!');
+}
+function closeDrawPage(goLeague){
+  const leagueId = window._drawingLeagueId;
+  document.getElementById('page-draw').classList.remove('on');
+  if(goLeague && leagueId){ openLeague(leagueId); }
+  else { document.getElementById('page-clubs').classList.add('on'); renderClubsList(); }
+}
+function noDrawHTML(leagueId){
+  const full = isLeagueRegFull(leagueId);
+  const admin = isAdmin();
+  return `<div class="empty" style="padding-top:40px;">
+    <div class="empty-ic">🎲</div>
+    <div>${!full ? "Ro'yxat hali yakunlanmagan — barcha jamoalar band bo'lgach qura o'tkaziladi" : (admin ? "Qura hali o'tkazilmagan" : "Qura hali o'tkazilmagan — admin kutilmoqda")}</div>
+    ${full && admin ? `<button onclick="startLeagueDraw('${leagueId}')" style="margin-top:14px;padding:12px 22px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;">🎲 Qura tashlash</button>` : ''}
+  </div>`;
+}
+
+// -------- RO'YXATDAN O'TISH (avtomatik, admin tasdig'isiz) --------
+function myClubTeamAnywhere(username){
+  for(const lg of CLUB_LEAGUES){
+    const t = (CLUB_GROUPS[lg.id]||[]).find(x=>x.user===username);
+    if(t) return {league:lg, team:t};
+  }
+  return null;
+}
+function initClubRegUI(){
+  const box = document.getElementById('club-reg-box');
+  if(!box) return;
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
+  const activeIdx = getActiveLeagueIndex();
+  if(activeIdx >= CLUB_LEAGUES.length){
+    box.innerHTML = `<div class="empty"><div class="empty-ic">🔒</div><div>Barcha ligalarda joylar to'ldi</div></div>`;
+    return;
+  }
+  const active = CLUB_LEAGUES[activeIdx];
+  if(!myUsername){
+    box.innerHTML = `<div style="padding:14px;color:var(--muted);font-size:13px;text-align:center;">Username aniqlanmadi</div>`;
+    return;
+  }
+  const mine = myClubTeamAnywhere(myUsername);
+  if(mine){
+    box.innerHTML = `<div style="padding:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:12px;color:var(--green);font-size:13px;font-weight:600;text-align:center;">
+      ✅ ${mine.league.icon} ${mine.team.name} — ${mine.league.short}da ro'yxatdasiz</div>`;
+    return;
+  }
+  const teams = CLUB_GROUPS[active.id];
+  const allTaken = teams.every(t=>t.user && t.user!=='—');
+  if(allTaken){
+    box.innerHTML = `<div style="padding:14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:12px;color:var(--red);font-size:13px;font-weight:600;text-align:center;">🔒 ${active.short} — barcha jamoalar band, ro'yxat yopiq</div>`;
+    return;
+  }
+  box.innerHTML = `
+    <div style="font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;">${active.icon} ${active.short} — ro'yxatdan o'tish</div>
+    <select id="club-rf-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
+      ${teams.map(t=>{ const taken = t.user && t.user!=='—'; return `<option value="${t.name}" ${taken?'disabled':''}>${t.name}${taken?' (band)':''}</option>`; }).join('')}
+    </select>
+    <button onclick="registerClubTeam()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">Ro'yxatdan o'tish →</button>`;
+}
+function registerClubTeam(){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if(!tgUser || !tgUser.username){ showToast('❌ Telegram username sozlanmagan'); return; }
+  const myUsername = '@'+tgUser.username;
+  if(myClubTeamAnywhere(myUsername)){ showToast('❌ Siz allaqachon boshqa ligada ro\'yxatdansiz'); initClubRegUI(); return; }
+  const activeIdx = getActiveLeagueIndex();
+  if(activeIdx >= CLUB_LEAGUES.length){ showToast("🔒 Barcha ligalarda joylar to'ldi"); return; }
+  const active = CLUB_LEAGUES[activeIdx];
+  const sel = document.getElementById('club-rf-team');
+  if(!sel || !sel.value){ showToast('❌ Jamoa tanlang'); return; }
+  const team = CLUB_GROUPS[active.id].find(t=>t.name===sel.value);
+  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+  if(team.user && team.user!=='—'){ showToast('❌ Bu jamoa allaqachon band!'); initClubRegUI(); return; }
+  team.user = myUsername;
+  saveShared();
+  showToast(`✅ ${team.name} — ro'yxatdan o'tdingiz!`);
+  initClubRegUI();
+  renderClubsList();
+}
 
 const XP_BASE = 100; // 1-> 2 darajaga o'tish uchun kerakli XP, har darajada 1.25x oshadi
 function levelInfo(xp){
@@ -1068,7 +2023,7 @@ function renderPlayers(){
       myName:myTeam.name, oppName:opp.name, grp:myTeam.grp});
   }
 
-  const rankColor = myRank===1?'#F5A623':myRank===2?'#94A3B8':myRank===3?'#C47A3A':'var(--accent)';
+  const rankColor = myRank===1?'#FFB627':myRank===2?'#94A3B8':myRank===3?'#C47A3A':'var(--accent)';
   const displayName = myFirstName || myTeam.user;
   const avatarHTML = myPhoto
     ? `<img src="${myPhoto}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);">`
@@ -1158,9 +2113,9 @@ function renderPlayers(){
               ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
                 statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
                 statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
-                'background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);'}">${statusTxt}</div>
+                'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
             ${canChat?`<button onclick="openChat('${oppUserClean}')"
-              style="width:36px;height:36px;background:rgba(13,148,136,.15);border:1px solid rgba(13,148,136,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
+              style="width:36px;height:36px;background:rgba(23,184,166,.15);border:1px solid rgba(23,184,166,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
               :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${m.opp.flag} ${m.opp.name} · ${m.opp.user}</div>
@@ -1210,6 +2165,19 @@ function openChat(username){
     tg.openTelegramLink('https://t.me/'+username);
   } else {
     window.open('https://t.me/'+username,'_blank');
+  }
+}
+
+// Bot orqali yozishish: botni /start chat_<liga>_<raqib_username> parametri bilan ochadi.
+// Bot backend (Python) shu paramni ushlab, ikkala o'yinchiga bir-birini tanishtiruvchi
+// xabar yuborishi kerak (hozircha faqat bot ochiladi — server tomoni alohida yoziladi).
+function openBotChat(oppUsername, leagueId){
+  const payload = `chat_${leagueId}_${oppUsername}`.replace(/[^a-zA-Z0-9_]/g,'');
+  const url = `https://t.me/${BOT_USERNAME}?start=${payload}`;
+  if(tg && tg.openTelegramLink){
+    tg.openTelegramLink(url);
+  } else {
+    window.open(url,'_blank');
   }
 }
 
@@ -1446,18 +2414,18 @@ function renderRating(){
   }
 
   html+=`<div class="slb">1-O'rinlar (12 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
-  firstPlaces.forEach(t=>{ html+=qualCard(t,'#1 🥇','background:rgba(245,166,35,.15);color:#F5A623;border:1px solid rgba(245,166,35,.3);'); });
+  firstPlaces.forEach(t=>{ html+=qualCard(t,'#1 🥇','background:rgba(255,182,39,.15);color:#FFB627;border:1px solid rgba(255,182,39,.3);'); });
   html+=`</div>`;
 
   html+=`<div class="slb">2-O'rinlar (12 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
-  secondPlaces.forEach(t=>{ html+=qualCard(t,'#2','background:rgba(0,200,255,.1);color:var(--accent);border:1px solid rgba(0,200,255,.2);'); });
+  secondPlaces.forEach(t=>{ html+=qualCard(t,'#2','background:rgba(198,255,61,.1);color:var(--accent);border:1px solid rgba(198,255,61,.2);'); });
   html+=`</div>`;
 
   html+=`<div class="slb">Eng yaxshi 3-O'rinlar (8 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
   if(best3rds.length===0){
     html+=`<div class="empty" style="padding:20px;"><div class="empty-ic">📊</div><div>O'yinlar tugagach aniqlanadi</div></div>`;
   } else {
-    best3rds.forEach((t,i)=>{ html+=qualCard(t,`#3 (${i+1})`, 'background:rgba(13,148,136,.15);color:#0D9488;border:1px solid rgba(13,148,136,.3);'); });
+    best3rds.forEach((t,i)=>{ html+=qualCard(t,`#3 (${i+1})`, 'background:rgba(23,184,166,.15);color:#17B8A6;border:1px solid rgba(23,184,166,.3);'); });
   }
   html+=`</div>`;
 
@@ -1674,6 +2642,14 @@ function initRegGroupBtns(){
     ).join('');
   }
 
+  // Bosh menyudagi "International Tournaments" kartochkasidagi holat yorlig'ini yangilash
+  const eyeBadge = document.getElementById('mc-eye-intl');
+  if(eyeBadge){
+    const allTaken = Object.keys(GROUPS).every(g => GROUPS[g].every(t => t.user && t.user!=='—'));
+    eyeBadge.textContent = allTaken ? "Yopiq — barcha o'rinlar to'ldi" : "Ochiq — Ro'yxat davom etmoqda";
+    eyeBadge.classList.toggle('locked', allTaken);
+  }
+
   if(!statusBtn) return;
 
   if(!myUsername){
@@ -1772,9 +2748,11 @@ function openWCGroup(grp){
 
 window.addEventListener('load',()=>{
   if(tg) tg.ready();
+  initClubLeagues();
   loadData(()=>{
     initData();
     initRegGroupBtns();
+    updateClubsMenuBadge();
     setTimeout(()=>{
       document.getElementById('splash').classList.add('hide');
       document.getElementById('app').classList.add('show');
@@ -1782,6 +2760,7 @@ window.addEventListener('load',()=>{
     },2400);
   });
 });
+
 </script>
 </body>
 </html>
