@@ -2172,6 +2172,15 @@ function getAllTeamsFlat(){
 }
 function renderAwards(){
   const wrap = document.getElementById('awards-content');
+  try{
+    renderAwardsInner();
+  }catch(err){
+    console.error('renderAwards xato:', err);
+    if(wrap) wrap.innerHTML = `<div style="margin:16px;padding:14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:#fca5a5;font-size:12px;white-space:pre-wrap;">⚠️ Sovrinlarni ko'rsatishda xato:\n${err.message}\n\n${(err.stack||'').split('\n').slice(0,4).join('\n')}</div>`;
+  }
+}
+function renderAwardsInner(){
+  const wrap = document.getElementById('awards-content');
   const teams = getAllTeamsFlat().filter(t=>t.user && t.user!=='—');
 
   // 1) Liga chempioni
@@ -2217,6 +2226,17 @@ function renderAwards(){
 }
 
 function renderPlayers(){
+  const wrap = document.getElementById('profile-content');
+  try{
+    renderPlayersInner();
+  }catch(err){
+    console.error('renderPlayers xato:', err);
+    if(wrap){
+      wrap.innerHTML = `<div style="margin:16px;padding:14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:#fca5a5;font-size:12px;white-space:pre-wrap;">⚠️ Profilni ko'rsatishda xato:\n${err.message}\n\n${(err.stack||'').split('\n').slice(0,4).join('\n')}</div>`;
+    }
+  }
+}
+function renderPlayersInner(){
   const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   const myUsername = tgUser ? '@' + tgUser.username : null;
   const myFirstName = tgUser ? tgUser.first_name : null;
@@ -2793,6 +2813,15 @@ function renderBracket(){
 
 // ─── REYTING: Playoff Top-8 va Podium ──────────────────────────────────────
 function renderRating(){
+  const wrap=document.getElementById('rating-content');
+  try{
+    renderRatingInner();
+  }catch(err){
+    console.error('renderRating xato:', err);
+    if(wrap) wrap.innerHTML = `<div style="margin:16px;padding:14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:#fca5a5;font-size:12px;white-space:pre-wrap;">⚠️ Reytingni ko'rsatishda xato:\n${err.message}\n\n${(err.stack||'').split('\n').slice(0,4).join('\n')}</div>`;
+  }
+}
+function renderRatingInner(){
   const wrap=document.getElementById('rating-content');
   const fin=playoff.final[0];
   const trd=playoff.third[0];
