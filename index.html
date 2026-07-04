@@ -826,6 +826,68 @@ function deepMerge(remote, local, base){
   return local;
 }
 
+function mergeArrayByKey(remote, local, base, keyFn){
+  remote = Array.isArray(remote)?remote:[];
+  local = Array.isArray(local)?local:[];
+  base = Array.isArray(base)?base:[];
+  const toMap=(arr)=>{ const m={}; arr.forEach(x=>{ if(x) m[keyFn(x)]=x; }); return m; };
+  const remoteMap=toMap(remote), localMap=toMap(local), baseMap=toMap(base);
+  const keys = new Set([...Object.keys(remoteMap), ...Object.keys(localMap), ...Object.keys(baseMap)]);
+  const out=[];
+  keys.forEach(k=>{
+    const r=remoteMap[k], l=localMap[k], b=baseMap[k];
+    if(l===undefined){
+      if(b===undefined){
+        if(r!==undefined) out.push(r);
+      } else if(JSON.stringify(r)===JSON.stringify(b)){
+      } else {
+        out.push(r);
+      }
+      return;
+    }
+    if(JSON.stringify(l)===JSON.stringify(b)){
+      out.push(r!==undefined?r:l);
+    } else {
+      out.push(l);
+    }
+  });
+  return out;
+}
+
+function sanitizeResults(resObj){
+  const out={};
+  Object.keys(resObj||{}).forEach(g=>{
+    out[g] = (resObj[g]||[]).filter(r=>r && r.h && r.a);
+  });
+  return out;
+}
+
+function mergeSharedPayload(remote, local, base){
+  remote = remote||{}; local = local||{}; base = base||{};
+  const merged = {};
+
+  merged.res = {};
+  const grpKeys = new Set([...Object.keys(remote.res||{}), ...Object.keys(local.res||{}), ...Object.keys(base.res||{})]);
+  grpKeys.forEach(g=>{
+    merged.res[g] = mergeArrayByKey(
+      (remote.res||{})[g], (local.res||{})[g], (base.res||{})[g],
+      x=>x.h+'|||'+x.a
+    );
+  });
+
+  merged.po = deepMerge(remote.po, local.po, base.po);
+  merged.tur = deepMerge(remote.tur, local.tur, base.tur);
+  merged.groups = deepMerge(remote.groups, local.groups, base.groups);
+  merged.clubGroups = deepMerge(remote.clubGroups, local.clubGroups, base.clubGroups);
+  merged.draws = deepMerge(remote.draws, local.draws, base.draws);
+  merged.dsch = deepMerge(remote.dsch, local.dsch, base.dsch);
+
+  merged.pending = mergeArrayByKey(remote.pending, local.pending, base.pending, x=>x.username);
+  merged.champ = mergeArrayByKey(remote.champ, local.champ, base.champ, x=>x.league+'|||'+x.season);
+
+  return merged;
+}
+
 let _saveTimer = null;
 function saveShared(){
   try{ localStorage.setItem('wc26_backup', JSON.stringify(buildSharedPayload())); }catch(e){}
@@ -837,7 +899,8 @@ function saveShared(){
       .then(data=>{
         const remote = (data && data.record) || {};
         const base = _baseline || remote;
-        const merged = deepMerge(remote, localPayload, base);
+        const merged = mergeSharedPayload(remote, localPayload, base);
+        merged.res = sanitizeResults(merged.res);
         _baseline = merged;
         return fetch(JSONBIN_URL, {
           method:'PUT',
@@ -847,10 +910,11 @@ function saveShared(){
       })
       .catch(e=>{
         console.error('JSONBin merge/saqlashda xato, oddiy saqlashga o\'tildi:', e);
+        const safePayload = {...localPayload, res: sanitizeResults(localPayload.res)};
         fetch(JSONBIN_URL, {
           method:'PUT',
           headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY,'X-Bin-Meta':'false'},
-          body: JSON.stringify(localPayload)
+          body: JSON.stringify(safePayload)
         }).catch(e2=>console.error('JSONBin saqlashda xato:', e2));
       });
   }, 400);
@@ -863,7 +927,7 @@ function loadShared(cb){
     console.error('JSONBin yuklashda xato, lokal zaxiradan foydalanildi:', reason);
     try{
       const backup = JSON.parse(localStorage.getItem('wc26_backup')||'null');
-      results = (backup&&backup.res) || {};
+      results = sanitizeResults((backup&&backup.res) || {});
       playoff = ensurePlayoff((backup&&backup.po) || null);
       window.turStatus = (backup&&backup.tur) || {};
       applyGroupRegs((backup&&backup.groups) || null);
@@ -884,7 +948,7 @@ function loadShared(cb){
       clearTimeout(failsafe);
       finish(()=>{
         const rec = data.record || {};
-        results = rec.res || {};
+        results = sanitizeResults(rec.res || {});
         playoff = ensurePlayoff(rec.po || null);
         window.turStatus = rec.tur || {};
         applyGroupRegs(rec.groups || null);
@@ -901,6 +965,7 @@ function loadShared(cb){
       clearTimeout(failsafe);
       finish(()=>useBackup(e));
     });
+  }
               }
 
 // Eski nomlar — kodning qolgan qismi shu funksiyalarni chaqiradi, ichida endi
@@ -1033,6 +1098,7 @@ function initData(){
 function getStats(grp){
   const teams=GROUPS[grp].map(t=>({...t,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
   (results[grp]||[]).forEach(r=>{
+    if(!r || !r.h || !r.a) return;
     const ht=teams.find(t=>t.name===r.h), at=teams.find(t=>t.name===r.a);
     if(!ht||!at) return;
     ht.p++;at.p++;ht.gf+=r.hs;ht.ga+=r.as;at.gf+=r.as;at.ga+=r.hs;
