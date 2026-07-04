@@ -796,18 +796,63 @@ function applyClubGroupRegs(regs){
   });
 }
 
+// Ma'lumot yuklangan payt "boshlang'ich holat" (baseline) sifatida saqlanadi.
+// Saqlashda mahalliy holatni shu baseline bilan solishtirib, FAQAT o'zgargan
+// qismlarni serverdagi eng so'nggi holatga qo'shib yozamiz — shu orqali
+// boshqa foydalanuvchi kiritgan natijalar tasodifan o'chib ketmaydi.
+let _baseline = null;
+
+function deepMerge(remote, local, base){
+  const lIsObj = local && typeof local==='object';
+  if(lIsObj){
+    if(Array.isArray(local)){
+      const rem = Array.isArray(remote)?remote:[];
+      const bas = Array.isArray(base)?base:[];
+      const len = Math.max(rem.length, local.length, bas.length);
+      const out=[];
+      for(let i=0;i<len;i++) out[i]=deepMerge(rem[i], local[i], bas[i]);
+      return out;
+    }
+    const rem = remote && typeof remote==='object' && !Array.isArray(remote) ? remote : {};
+    const bas = base && typeof base==='object' && !Array.isArray(base) ? base : {};
+    const keys = new Set([...Object.keys(rem), ...Object.keys(local), ...Object.keys(bas)]);
+    const out={};
+    keys.forEach(k=>{ out[k]=deepMerge(rem[k], local[k], bas[k]); });
+    return out;
+  }
+  if(JSON.stringify(local)===JSON.stringify(base)){
+    return remote!==undefined ? remote : local;
+  }
+  return local;
+}
+
 let _saveTimer = null;
 function saveShared(){
-  // Internet uzilib qolsa ham ma'lumot yo'qolmasligi uchun darhol lokal zaxira
   try{ localStorage.setItem('wc26_backup', JSON.stringify(buildSharedPayload())); }catch(e){}
   clearTimeout(_saveTimer);
-  // Bir necha o'zgarish ketma-ket bo'lsa, bitta so'rovga birlashtirib yuborish (debounce)
   _saveTimer = setTimeout(()=>{
-    fetch(JSONBIN_URL, {
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY,'X-Bin-Meta':'false'},
-      body: JSON.stringify(buildSharedPayload())
-    }).catch(e=>console.error('JSONBin saqlashda xato:', e));
+    const localPayload = buildSharedPayload();
+    fetch(`${JSONBIN_URL}/latest`, { headers:{'X-Master-Key':JSONBIN_API_KEY} })
+      .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(data=>{
+        const remote = (data && data.record) || {};
+        const base = _baseline || remote;
+        const merged = deepMerge(remote, localPayload, base);
+        _baseline = merged;
+        return fetch(JSONBIN_URL, {
+          method:'PUT',
+          headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY,'X-Bin-Meta':'false'},
+          body: JSON.stringify(merged)
+        });
+      })
+      .catch(e=>{
+        console.error('JSONBin merge/saqlashda xato, oddiy saqlashga o\'tildi:', e);
+        fetch(JSONBIN_URL, {
+          method:'PUT',
+          headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY,'X-Bin-Meta':'false'},
+          body: JSON.stringify(localPayload)
+        }).catch(e2=>console.error('JSONBin saqlashda xato:', e2));
+      });
   }, 400);
 }
 
@@ -828,6 +873,7 @@ function loadShared(cb){
       window.pendingRegs = (backup&&backup.pending) || [];
       window.champions = (backup&&backup.champ) || [];
       window.dailySchedules = (backup&&backup.dsch) || {};
+      _baseline = JSON.parse(JSON.stringify(backup||buildSharedPayload()));
     }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; window.dailySchedules={}; }
   };
   const failsafe = setTimeout(()=>{ finish(()=>useBackup('timeout (6s)')); }, 6000);
@@ -848,13 +894,14 @@ function loadShared(cb){
         window.pendingRegs = rec.pending || [];
         window.champions = rec.champ || [];
         window.dailySchedules = rec.dsch || {};
+        _baseline = JSON.parse(JSON.stringify(rec));
       });
     })
     .catch(e=>{
       clearTimeout(failsafe);
       finish(()=>useBackup(e));
     });
-}
+              }
 
 // Eski nomlar — kodning qolgan qismi shu funksiyalarni chaqiradi, ichida endi
 // JSONBin orqali umumiy saqlash ishlaydi:
