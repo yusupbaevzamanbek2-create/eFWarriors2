@@ -2523,6 +2523,29 @@ function getBest3rds(){
 // 12 guruh: A-L. 1-o'rinlar: A1-L1 (12ta), 2-o'rinlar: A2-L2 (12ta), 8 eng yaxshi 3-o'rin
 // Rasmiy juftlashish sxemasi bo'yicha
 function generatePlayoff(){
+  // Eski r32'da allaqachon kiritilgan natijalarni (hs/as/pending) jamoa nomlari
+  // bo'yicha saqlab qolamiz — qayta generatsiya qilinganda ular yo'qolmasin
+  const oldResults={};
+  if(playoff && Array.isArray(playoff.r32)){
+    playoff.r32.forEach(m=>{
+      if(m && m.h && m.a && (m.hs!=null || m.as!=null)){
+        const key=[m.h.name,m.a.name].sort().join('|');
+        oldResults[key]={hs:m.hs, as:m.as, pending:m.pending, hOrder:m.h.name};
+      }
+    });
+  }
+  function applyOld(m){
+    const key=[m.h.name,m.a.name].sort().join('|');
+    const old=oldResults[key];
+    if(old){
+      const sameOrder = old.hOrder===m.h.name;
+      m.hs = sameOrder ? old.hs : old.as;
+      m.as = sameOrder ? old.as : old.hs;
+      if(old.pending) m.pending=true;
+    }
+    return m;
+  }
+
   const tops={}, seconds={};
   Object.keys(GROUPS).forEach(g=>{
     const s=getStats(g);
@@ -2531,28 +2554,26 @@ function generatePlayoff(){
   });
   const best3=getBest3rds();
 
-  // 32 jamoa — WC2026 sxemasi bo'yicha juftlashish
-  // Har 2 qo'shni guruh 1-o'rinlari o'rtasida + 2-o'rinlari chalkashtiriladi
-  // Soddalashtirilgan sxema: A1vB2, B1vA2, C1vD2, D1vC2, ... + 8 best3rd
+  // 32 jamoa — takrorsiz taqsimlash sxemasi
+  // 1) 4 juft guruh (AB, CD, EF, GH): top1 vs top2 — 8 ta o'yin, 16 jamoa (8 g'olib + 8 ikkinchi o'rin)
+  // 2) Qolgan 4 guruh (I,J,K,L) g'oliblari + shu 4 guruhning 2-o'rinlari (8 jamoa) 8 ta eng yaxshi
+  //    3-o'rin bilan juftlashadi — 8 ta o'yin, 16 jamoa
+  // Jami: 16 o'yin, 32 jamoa, hech biri takrorlanmaydi va tushib qolmaydi
   const r32=[];
-  // 12 guruh top1 vs top2 (qo'shni guruhlar bilan)
-  const grpKeys=Object.keys(GROUPS); // A-L
-  // 6 juft guruh: AB, CD, EF, GH, IJ, KL
-  const grpPairs=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L']];
+  const grpPairs=[['A','B'],['C','D'],['E','F'],['G','H']];
   grpPairs.forEach(([g1,g2])=>{
-    r32.push({h:tops[g1],a:seconds[g2],hs:null,as:null});
-    r32.push({h:tops[g2],a:seconds[g1],hs:null,as:null});
+    r32.push(applyOld({h:tops[g1],a:seconds[g2],hs:null,as:null}));
+    r32.push(applyOld({h:tops[g2],a:seconds[g1],hs:null,as:null}));
   });
-  // 12 ta o'yin (top1+top2 juftlar) + 4 ta o'yin qoldi = 16 ta o'yin kerak
-  // Eng yaxshi 3-o'rinlar qo'shiladi: 8 ta 3-o'rin vs top1 lardan 4 ta qolgan
-  // Oddiy: best3rd[0..3] vs grpKeys[6..9] tops
-  const remaining3rdOpponents=['A','C','E','G','I','K','B','D'].map((g,i)=>tops[g]);
+  const remainingTops=['I','J','K','L'].map(g=>tops[g]);
+  const remainingSeconds=['I','J','K','L'].map(g=>seconds[g]);
+  const thirdOpponents=[...remainingTops,...remainingSeconds]; // 8 ta jamoa
   best3.forEach((t,i)=>{
-    r32.push({h:remaining3rdOpponents[i]||{flag:'?',name:'TBD',user:'—',grp:'?'},a:t,hs:null,as:null});
+    r32.push(applyOld({h:thirdOpponents[i]||{flag:'?',name:'TBD',user:'—',grp:'?'},a:t,hs:null,as:null}));
   });
 
   playoff={
-    r32: r32.slice(0,16),
+    r32: r32,
     r16: Array(8).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
     qf:  Array(4).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
     sf:  Array(2).fill(null).map(()=>({h:null,a:null,hs:null,as:null})),
