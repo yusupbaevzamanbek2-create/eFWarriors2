@@ -674,6 +674,7 @@ body{background:
           <div class="adm-ct">🔄 WC 2026: Guruh bosqichi tugadi</div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">24 ta 1-o'rin + 8 ta eng yaxshi 3-o'rin = 32 jamoa playoff ga chiqadi</div>
           <button class="fbtn-g" onclick="generatePlayoff()">Playoff setkasini yaratish ✓</button>
+          <button class="fbtn-g" style="margin-top:8px;background:var(--bg3);" onclick="fixPlayoffDuplicates()">🩹 Faqat takrorlanishni tuzatish (bracketni buzmasdan)</button>
         </div>
 
         <div class="adm-c">
@@ -2584,7 +2585,71 @@ function generatePlayoff(){
   renderBracket();
   showToast('✅ WC2026 playoff setkasi yaratildi! 32 jamoa →');
 }
+function fixPlayoffDuplicates(){
+  if(!playoff || !Array.isArray(playoff.r32)){ showToast('❌ Playoff hali yaratilmagan'); return; }
 
+  // 1) Bo'lishi kerak bo'lgan 32 jamoa nomi (12 top1 + 12 top2 + 8 eng yaxshi 3-o'rin)
+  const expected=[];
+  Object.keys(GROUPS).forEach(g=>{
+    const s=getStats(g);
+    if(s[0]) expected.push(s[0].name);
+    if(s[1]) expected.push(s[1].name);
+  });
+  getBest3rds().forEach(t=>expected.push(t.name));
+
+  // 2) Hozirgi bracketda har bir nom nechta marta uchrashini sanaymiz
+  const present={};
+  playoff.r32.forEach(m=>{
+    if(m.h && m.h.name) present[m.h.name]=(present[m.h.name]||0)+1;
+    if(m.a && m.a.name) present[m.a.name]=(present[m.a.name]||0)+1;
+  });
+
+  // 3) Yetishmayotgan jamoalar (bo'lishi kerak, lekin bracketda yo'q)
+  const missing=expected.filter(name=>!present[name]);
+
+  // 4) Takrorlangan slotlar (2-marta va undan ko'p uchragan joylar)
+  const seen={};
+  const dupSlots=[];
+  playoff.r32.forEach((m,idx)=>{
+    ['h','a'].forEach(side=>{
+      const t=m[side];
+      if(t && t.name && present[t.name]>1){
+        seen[t.name]=(seen[t.name]||0)+1;
+        if(seen[t.name]>1) dupSlots.push({idx,side,name:t.name});
+      }
+    });
+  });
+
+  if(dupSlots.length===0 && missing.length===0){
+    showToast('✅ Takrorlanish yoki yetishmovchilik topilmadi');
+    return;
+  }
+
+  // 5) Har bir takrorlangan slotni navbat bilan yetishmayotgan jamoaga almashtiramiz
+  let fixedCount=0;
+  dupSlots.forEach((slot,i)=>{
+    const missingName=missing[i];
+    if(!missingName) return;
+    let teamObj=null;
+    Object.keys(GROUPS).forEach(g=>{
+      const s=getStats(g);
+      if(s[0] && s[0].name===missingName) teamObj={...s[0],grp:g};
+      if(s[1] && s[1].name===missingName) teamObj={...s[1],grp:g};
+    });
+    if(!teamObj){
+      const b3=getBest3rds().find(t=>t.name===missingName);
+      if(b3) teamObj={...b3};
+    }
+    if(teamObj){
+      playoff.r32[slot.idx][slot.side]=teamObj;
+      fixedCount++;
+    }
+  });
+
+  saveData();
+  renderBracket();
+  showToast(`✅ ${fixedCount} ta takror tuzatildi, boshqa juftliklar/natijalar o'zgarmadi`);
+      }
 function getWinner(m){
   if(!m||m.pending||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
   if(m.hs>m.as) return m.h;
