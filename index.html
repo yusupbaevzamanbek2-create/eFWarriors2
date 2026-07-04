@@ -702,6 +702,18 @@ body{background:
 
           <div id="tur-status-list" style="margin-top:14px;"></div>
         </div>
+
+        <div class="adm-c">
+          <div class="adm-ct">📅 Kunlik avto-jadval (1 o'yin/kun)</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Yoqilgach, shu guruhda kuniga faqat 1 ta o'yin ochiq bo'ladi. Kun o'tib, natija kiritilmasa — avtomatik 0:0 bilan yakunlanadi va navbat keyingi o'yinga o'tadi. Klub ligalarida bu qura tashlangach avtomatik yoqiladi.</div>
+
+          <label class="flb">Guruhni tanlang</label>
+          <select class="fsel" id="ds-grp" onchange="renderDailyScheduleStatus()"></select>
+
+          <div id="ds-status-wrap" style="margin:10px 0;font-size:12px;color:var(--muted);"></div>
+
+          <button class="fbtn-g" onclick="adminStartWcDailySchedule()">🗓 Kunlik jadvalni yoqish</button>
+        </div>
       </div>
     </div>
   </div>
@@ -759,7 +771,7 @@ function buildSharedPayload(){
     clubRegs[g] = {};
     CLUB_GROUPS[g].forEach(t=>{ if(t.user && t.user !== '—') clubRegs[g][t.name] = t.user; });
   });
-  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, clubGroups: clubRegs, draws: window.leagueDraws||{}, pending: window.pendingRegs||[], champ: window.champions||[] };
+  return { res: results, po: playoff, tur: window.turStatus||{}, groups: regs, clubGroups: clubRegs, draws: window.leagueDraws||{}, pending: window.pendingRegs||[], champ: window.champions||[], dsch: window.dailySchedules||{} };
 }
 
 function applyGroupRegs(regs){
@@ -814,7 +826,8 @@ function loadShared(cb){
       rebuildDrawnSchedules();
       window.pendingRegs = (backup&&backup.pending) || [];
       window.champions = (backup&&backup.champ) || [];
-    }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; }
+      window.dailySchedules = (backup&&backup.dsch) || {};
+    }catch(e2){ results={}; playoff=ensurePlayoff(null); window.turStatus={}; window.pendingRegs=[]; window.champions=[]; window.dailySchedules={}; }
   };
   const failsafe = setTimeout(()=>{ finish(()=>useBackup('timeout (6s)')); }, 6000);
 
@@ -833,6 +846,7 @@ function loadShared(cb){
         rebuildDrawnSchedules();
         window.pendingRegs = rec.pending || [];
         window.champions = rec.champ || [];
+        window.dailySchedules = rec.dsch || {};
       });
     })
     .catch(e=>{
@@ -846,6 +860,117 @@ function loadShared(cb){
 function saveData(){ saveShared(); }
 function saveGroupRegs(){ saveShared(); }
 function loadData(cb){ loadShared(cb); }
+
+// ============================================================================
+// KUNLIK JADVAL (DAILY SCHEDULE) — UNIVERSAL MOTOR
+// ----------------------------------------------------------------------------
+// Har qanday turnir formati (guruh round-robin, liga, va hokazo) uchun ishlaydi.
+// Har bir "konteyner" (masalan bitta WC guruhi yoki bitta klub ligasi) o'z
+// o'yinlari ro'yxatini ketma-ket, KUNIGA BITTADAN ochadi. Kun o'tib ketsa va
+// natija hali kiritilmagan/tasdiqlanmagan bo'lsa — o'yin avtomatik 0:0 hisobida
+// yakunlanadi (forfeyt) va navbat keyingi o'yinga o'tadi. Bir nechta kun birdan
+// o'tkazib yuborilgan bo'lsa (masalan admin ilovani bir necha kun ochmasa),
+// barcha o'tgan kunlar ketma-ket "quvib yetiladi".
+// ============================================================================
+if(!window.dailySchedules) window.dailySchedules = {};
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function daysBetween(dateStrA, dateStrB){
+  const a = new Date(dateStrA+'T00:00:00');
+  const b = new Date(dateStrB+'T00:00:00');
+  return Math.round((b-a)/86400000);
+}
+// Berilgan juftlik (h,a — istalgan tartibda) uchun TASDIQLANGAN (pending emas) natijani topadi.
+function findConfirmedResult(resultsArr, h, a){
+  return (resultsArr||[]).find(r=>((r.h===h&&r.a===a)||(r.h===a&&r.a===h)) && !r.pending) || null;
+}
+
+// Konteyner uchun jadval obyektini yaratadi/qaytaradi (hali boshlanmagan bo'lishi mumkin).
+function ensureDailySchedule(containerId, order){
+  let sch = window.dailySchedules[containerId];
+  if(!sch){
+    sch = { startDate:null, order:order||[], currentIndex:0, lastCheckedDate:null };
+    window.dailySchedules[containerId] = sch;
+  } else if(order && order.length && (!sch.order || sch.order.length!==order.length)){
+    sch.order = order; // fikstura yangilangan bo'lsa (masalan qura), yangilab qo'yamiz
+  }
+  return sch;
+}
+function isDailyScheduleActive(containerId){
+  const sch = window.dailySchedules[containerId];
+  return !!(sch && sch.startDate);
+}
+// Kunlik jadvalni ishga tushiradi (bugundan boshlab, 1-o'yin ochiladi).
+function startDailySchedule(containerId, order){
+  const sch = ensureDailySchedule(containerId, order);
+  if(!sch.startDate){
+    sch.startDate = todayStr();
+    sch.currentIndex = 0;
+    sch.lastCheckedDate = todayStr();
+    saveData();
+    showToast('📅 Kunlik jadval ishga tushdi — kuniga 1 ta o\'yin ochiladi');
+  }
+  return sch;
+}
+// Ilova ochilganda (yoki istalgan vaqt) chaqiriladi: kun o'tgan bo'lsa navbatdagi
+// o'yin(lar)ni yopadi (natija bo'lmasa 0:0 bilan avto-yakunlaydi) va yangi kun uchun ochadi.
+function advanceDailySchedule(containerId, resultsArr){
+  const sch = window.dailySchedules[containerId];
+  if(!sch || !sch.startDate || !sch.order || !sch.order.length) return false;
+  const today = todayStr();
+  if(sch.lastCheckedDate === today) return false;
+  const targetIndex = Math.min(daysBetween(sch.startDate, today), sch.order.length);
+  let changed = false;
+  while(sch.currentIndex < targetIndex && sch.currentIndex < sch.order.length){
+    const pair = sch.order[sch.currentIndex];
+    if(pair && pair.h && pair.a){
+      const existing = findConfirmedResult(resultsArr, pair.h, pair.a);
+      if(!existing){
+        for(let i=resultsArr.length-1;i>=0;i--){
+          const r=resultsArr[i];
+          if((r.h===pair.h&&r.a===pair.a)||(r.h===pair.a&&r.a===pair.h)) resultsArr.splice(i,1);
+        }
+        resultsArr.push({h:pair.h, a:pair.a, hs:0, as:0, auto:true});
+      }
+    }
+    sch.currentIndex++;
+    changed = true;
+  }
+  sch.lastCheckedDate = today;
+  if(changed) saveData();
+  return changed;
+}
+// matchIndex — shu konteynerdagi o'yinning ketma-ket (0 dan boshlab) tartib raqami.
+// Qaytaradi: 'not_started' (jadval hali yoqilmagan — eski tizim ishlatilsin),
+// 'open' (bugun ochiq), 'closed' (allaqachon o'tgan — natija bor), 'locked' (navbati kelmagan).
+function getDailyMatchStatus(containerId, matchIndex){
+  const sch = window.dailySchedules[containerId];
+  if(!sch || !sch.startDate) return 'not_started';
+  if(matchIndex < sch.currentIndex) return 'closed';
+  if(matchIndex === sch.currentIndex) return 'open';
+  return 'locked';
+}
+// Barcha faol (boshlangan) kunlik jadvallarni bir martada oldinga suradi.
+// App yuklanganda bir marta chaqiriladi.
+function advanceAllDailySchedules(){
+  Object.keys(GROUPS||{}).forEach(grp=>{
+    const cid = 'wc_'+grp;
+    if(isDailyScheduleActive(cid)){
+      if(!results[grp]) results[grp]=[];
+      advanceDailySchedule(cid, results[grp]);
+    }
+  });
+  (CLUB_LEAGUES||[]).forEach(lg=>{
+    const cid = 'league_'+lg.id;
+    if(isDailyScheduleActive(cid)){
+      if(!results[lg.id]) results[lg.id]=[];
+      advanceDailySchedule(cid, results[lg.id]);
+    }
+  });
+}
 
 function initData(){
   if(!results.H) results.H=[];
@@ -1331,7 +1456,12 @@ function renderLeagueProfile(leagueId){
         const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):(m.pending?'TASDIQ KUTILMOQDA':'KUTILMOQDA');
         const oppUserClean = m.opp && m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
         const canChat = !!oppUserClean;
-        const isCurrentRound = m.ri===activeRound;
+        const dayIdx = getLeagueOrderIndex(leagueId, m.h, m.a);
+        const dailyStatus = getDailyMatchStatus('league_'+leagueId, dayIdx);
+        const isCurrentRound = dailyStatus==='not_started' ? (m.ri===activeRound) : (dailyStatus==='open');
+        const lockMsg = dailyStatus==='locked'
+          ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 ta o'yin ochiladi`
+          : `🔒 ${m.ri+1}-tur hali ochilmagan`;
         const inputBlock = (!m.done && !m.pending) ? (isCurrentRound ? `
         <div class="score-entry">
             <div class="score-col"><input type="number" id="lsc-h-${leagueId}-${i}" class="score-box" placeholder="0" min="0" max="20" inputmode="numeric"><div class="score-lbl">MEN</div></div>
@@ -1340,7 +1470,7 @@ function renderLeagueProfile(leagueId){
             <button onclick="submitLeagueScore('${leagueId}',${i})" class="score-submit-btn">Yuborish ✓</button>
           </div>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(100,116,139,.08);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
-            🔒 ${m.ri+1}-tur hali ochilmagan
+            ${lockMsg}
           </div>`) : '';
         const confirmBlock = m.pending ? `
           <div class="confirm-actions">
@@ -1598,6 +1728,22 @@ function getRoundNumber(grp, teamA, teamB){
   return 1;
 }
 
+// Bitta WC guruhining 6 ta o'yinini FIKS ketma-ketlikda (kunlik jadval uchun) beradi.
+function getWcGroupOrder(grp){
+  const teams = GROUPS[grp];
+  if(!teams) return [];
+  const order=[];
+  ROUND_SCHEDULE.forEach(round=>{
+    round.forEach(([i,j])=>{ order.push({h:teams[i].name, a:teams[j].name}); });
+  });
+  return order;
+}
+// Berilgan juftlikning shu guruh ichidagi ketma-ket (0-based) tartib raqami.
+function getWcGroupOrderIndex(grp, teamA, teamB){
+  const order = getWcGroupOrder(grp);
+  return order.findIndex(p=>(p.h===teamA&&p.a===teamB)||(p.h===teamB&&p.a===teamA));
+}
+
 // ============================================================================
 // LEVEL / RANK / XP TIZIMI
 // ============================================================================
@@ -1666,6 +1812,18 @@ function rebuildDrawnSchedules(){
   });
 }
 function isLeagueDrawn(leagueId){ return !!(window.leagueDraws && window.leagueDraws[leagueId] && window.leagueDraws[leagueId].length); }
+
+// Liganing BARCHA turlarini yagona ketma-ket ro'yxatga tekislaydi (kunlik jadval uchun).
+function getLeagueOrder(leagueId){
+  const rounds = window.leagueSchedule[leagueId]||[];
+  const order=[];
+  rounds.forEach(rd=>rd.forEach(p=>order.push({h:p.h,a:p.a})));
+  return order;
+}
+function getLeagueOrderIndex(leagueId, teamA, teamB){
+  const order = getLeagueOrder(leagueId);
+  return order.findIndex(p=>(p.h===teamA&&p.a===teamB)||(p.h===teamB&&p.a===teamA));
+}
 function shuffleArray(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -1768,6 +1926,7 @@ function finishLeagueDraw(leagueId){
   if(!window.leagueDraws) window.leagueDraws = {};
   window.leagueDraws[leagueId] = shuffled;
   window.leagueSchedule[leagueId] = buildLeagueSchedule(shuffled);
+  startDailySchedule('league_'+leagueId, getLeagueOrder(leagueId));
   saveShared();
   document.getElementById('draw-title').textContent = 'QURA YAKUNLANDI!';
   document.getElementById('draw-sub').textContent = `${cfg.short} — 1-tur jadvali tayyor`;
@@ -1886,7 +2045,7 @@ function getPlayoffRecordForTeam(teamName){
   let w=0,d=0,l=0,gf=0,ga=0,bigWins=0;
   ['r32','r16','qf','sf','third','final'].forEach(rnd=>{
     (playoff[rnd]||[]).forEach(m=>{
-      if(!m || m.hs===null || m.hs===undefined || m.as===null || m.as===undefined) return;
+      if(!m || m.pending || m.hs===null || m.hs===undefined || m.as===null || m.as===undefined) return;
       let ms=null, os=null;
       if(m.h && m.h.name===teamName){ ms=m.hs; os=m.as; }
       else if(m.a && m.a.name===teamName){ ms=m.as; os=m.hs; }
@@ -1898,6 +2057,34 @@ function getPlayoffRecordForTeam(teamName){
     });
   });
   return {w,d,l,gf,ga,bigWins};
+}
+
+// O'yinchi profilida "Playoff O'yinlarim" bo'limi uchun: bitta jamoaning
+// barcha bosqichlardagi (r32..final) playoff o'yinlarini yig'ib beradi.
+const PLAYOFF_ROUND_LABELS = {r32:"1/16 FINAL", r16:"1/8 FINAL", qf:"CHORAK FINAL", sf:"YARIM FINAL", third:"3-O'RIN", final:"FINAL"};
+function getMyPlayoffMatches(teamName){
+  const out=[];
+  ['r32','r16','qf','sf','third','final'].forEach(rnd=>{
+    (playoff[rnd]||[]).forEach((m,idx)=>{
+      if(!m) return;
+      const isHome = m.h && m.h.name===teamName;
+      const isAway = m.a && m.a.name===teamName;
+      if(!isHome && !isAway) return;
+      const opp = isHome ? m.a : m.h;
+      const hasScore = m.hs!==null && m.hs!==undefined && m.as!==null && m.as!==undefined;
+      const pending = hasScore && !!m.pending;
+      const done = hasScore && !m.pending;
+      let myScore=null, oppScore=null, win=false, draw=false;
+      if(hasScore){
+        myScore = isHome ? m.hs : m.as;
+        oppScore = isHome ? m.as : m.hs;
+        win = myScore>oppScore; draw = myScore===oppScore;
+      }
+      out.push({round:rnd, idx, roundLabel:PLAYOFF_ROUND_LABELS[rnd]||rnd, opp, isHome,
+        myName:teamName, oppName: opp?opp.name:null, hasScore, pending, done, myScore, oppScore, win, draw});
+    });
+  });
+  return out;
 }
 
 // ============================================================================
@@ -2029,13 +2216,15 @@ function renderPlayers(){
     const opp = ht.name===myTeam.name ? at : ht;
     const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
     const turNum = getRoundNumber(myTeam.grp, ht.name, at.name); // barqaror, ikki tomon uchun bir xil
+    const dayIdx = getWcGroupOrderIndex(myTeam.grp, ht.name, at.name);
+    const dailyStatus = getDailyMatchStatus('wc_'+myTeam.grp, dayIdx);
     let myScore=null, oppScore=null, done=!!r, win=false, draw=false;
     if(r){
       myScore = r.h===myTeam.name?r.hs:r.as;
       oppScore = r.h===myTeam.name?r.as:r.hs;
       win=myScore>oppScore; draw=myScore===oppScore;
     }
-    grpMatches.push({opp, myScore, oppScore, done, win, draw, matchNum, turNum,
+    grpMatches.push({opp, myScore, oppScore, done, win, draw, matchNum, turNum, dailyStatus,
       myName:myTeam.name, oppName:opp.name, grp:myTeam.grp});
   }
 
@@ -2050,6 +2239,7 @@ function renderPlayers(){
   grpMatches.forEach(m=>{ if(m.win && (m.myScore-m.oppScore)>=3) bigWins++; });
   const grpWDL = grpMatches.reduce((a,m)=>{ if(m.win)a.w++; else if(m.draw)a.d++; else if(m.done)a.l++; return a; },{w:0,d:0,l:0});
   const poRec = getPlayoffRecordForTeam(myTeam.name);
+  const myPoMatches = getMyPlayoffMatches(myTeam.name);
   const totalW = grpWDL.w+poRec.w, totalD = grpWDL.d+poRec.d, totalL = grpWDL.l+poRec.l, totalBig = bigWins+poRec.bigWins;
   const xp = computeXP(totalW, totalD, totalL, totalBig);
   const lvl = levelInfo(xp);
@@ -2083,15 +2273,20 @@ function renderPlayers(){
       <div class="stat-box"><div class="stat-val" style="color:var(--red);">${myTeam.l}</div><div class="stat-lbl">Mag'lubiyat</div></div>
     </div>
     <div class="slb" style="margin-top:12px;">Mening O'yinlarim</div>
-    <div style="padding:0 16px 80px;">
+    <div style="padding:0 16px ${myPoMatches.length?'12px':'80px'};">
       ${grpMatches.map(m=>{
         const scoreStr = m.done ? `${m.myScore}:${m.oppScore}` : '—:—';
         const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
         const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):'KUTILMOQDA';
         const oppUserClean = m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
         const canChat = !!oppUserClean;
-        // Natija kiritish (faqat yakunlanmagan o'yinlar + tur ochiq bo'lsa)
-        const turOpen = getTurStatus(m.grp, m.turNum) === 'open';
+        // Natija kiritish: agar kunlik jadval faol bo'lsa — shu bo'yicha, aks holda eski tur tizimi bo'yicha
+        const turOpen = m.dailyStatus==='not_started'
+          ? getTurStatus(m.grp, m.turNum) === 'open'
+          : m.dailyStatus === 'open';
+        const lockMsg = m.dailyStatus==='locked'
+          ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 ta o'yin ochiladi`
+          : `🔒 ${m.turNum}-tur yopiq — admin tomonidan bloklangan`;
         const inputBlock = !m.done ? (turOpen ? `
         <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
             <input id="sc-${m.matchNum}" placeholder="2-1" maxlength="5"
@@ -2102,7 +2297,7 @@ function renderPlayers(){
             </button>
           </div>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;font-size:12px;color:var(--red);text-align:center;">
-            🔒 ${m.turNum}-tur yopiq — admin tomonidan bloklangan
+            ${lockMsg}
           </div>`) : '';
         // Tasdiq/rad tugmalari (admin emas, natija kiritilgan bo'lsa)
         const confirmBlock = m.done ? `
@@ -2139,7 +2334,113 @@ function renderPlayers(){
           ${confirmBlock}
         </div>`;
       }).join('')}
-    </div>`;
+    </div>
+    ${myPoMatches.length ? `
+    <div class="slb" style="margin-top:4px;">🏆 Playoff O'yinlarim</div>
+    <div style="padding:0 16px 80px;">
+      ${myPoMatches.map(m=>{
+        const scoreStr = m.hasScore ? `${m.myScore}:${m.oppScore}` : '—:—';
+        const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
+        const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):(m.pending?'TASDIQ KUTILMOQDA':'KUTILMOQDA');
+        const oppKnown = !!(m.opp && m.opp.user && m.opp.user!=='—');
+        const oppUserClean = oppKnown ? m.opp.user.replace('@','') : null;
+        const canChat = !!oppUserClean;
+        const oppFlag = m.opp ? (m.opp.flag||'?') : '?';
+        const oppNameTxt = m.opp ? (m.opp.name||'TBD') : 'TBD';
+        const oppUserTxt = m.opp ? (m.opp.user||'—') : '—';
+        // Natija kiritish (faqat hali natija kiritilmagan + raqib aniq bo'lsa)
+        const inputBlock = !m.hasScore ? (oppKnown ? `
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+            <input id="po-sc-${m.round}-${m.idx}" placeholder="2-1" maxlength="5"
+              style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
+            <button onclick="submitPlayoffScore('${m.round}',${m.idx})"
+              style="padding:9px 16px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+              Kiritish ✓
+            </button>
+          </div>` : `
+          <div style="margin-top:10px;padding:9px 12px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.2);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
+            ⏳ Raqib hali aniqlanmagan
+          </div>`) : '';
+        // Tasdiq/rad tugmalari (natija kiritilgan, lekin hali tasdiqlanmagan bo'lsa)
+        const confirmBlock = m.pending ? `
+          <div style="margin-top:8px;display:flex;gap:6px;">
+            <button onclick="confirmPlayoffScore('${m.round}',${m.idx},true)"
+              style="flex:1;padding:8px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;">
+              ✅ Tasdiq
+            </button>
+            <button onclick="confirmPlayoffScore('${m.round}',${m.idx},false)"
+              style="flex:1;padding:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;">
+              ❌ Rad
+            </button>
+          </div>` : '';
+        return `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="font-size:9px;color:var(--gold);font-weight:700;letter-spacing:1px;min-width:56px;">${m.roundLabel}</div>
+            <div style="display:flex;align-items:center;gap:6px;flex:1;font-size:22px;">
+              <span>${myTeam.flag}</span>
+              <span style="font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;color:${m.hasScore?'var(--text)':'var(--muted)'};">${scoreStr}</span>
+              <span>${oppFlag}</span>
+            </div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 10px;border-radius:8px;
+              ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
+                statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
+                statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
+                'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
+            ${canChat?`<button onclick="openChat('${oppUserClean}')"
+              style="width:36px;height:36px;background:rgba(23,184,166,.15);border:1px solid rgba(23,184,166,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
+              :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${oppFlag} ${oppNameTxt} · ${oppUserTxt}</div>
+          ${inputBlock}
+          ${confirmBlock}
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  `;
+}
+
+function submitPlayoffScore(round, idx){
+  const inp = document.getElementById('po-sc-'+round+'-'+idx);
+  if(!inp) return;
+  const raw = inp.value.trim();
+  const p = raw.split('-');
+  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  const m = playoff[round] && playoff[round][idx];
+  if(!m || !m.h || !m.a){ showToast('❌ O\'yin topilmadi'); return; }
+  // Kiritayotgan o'yinchi h yoki a ekanini profil orqali aniqlaymiz (myTeamni topamiz)
+  const myUsername = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? '@'+tg.initDataUnsafe.user.username : null;
+  const isHome = m.h && myUsername && m.h.user===myUsername;
+  const isAway = m.a && myUsername && m.a.user===myUsername;
+  if(!isHome && !isAway){ showToast('❌ Siz bu o\'yin ishtirokchisi emassiz'); return; }
+  const myScore = parseInt(p[0]), oppScore = parseInt(p[1]);
+  m.hs = isHome ? myScore : oppScore;
+  m.as = isHome ? oppScore : myScore;
+  m.pending = true;
+  saveData();
+  showToast('📨 Natija yuborildi! Raqib tasdiqlaydi');
+  if(typeof renderPlayers==='function') renderPlayers();
+  if(typeof renderBracket==='function') renderBracket();
+}
+
+function confirmPlayoffScore(round, idx, approve){
+  const m = playoff[round] && playoff[round][idx];
+  if(!m){ return; }
+  if(approve){
+    delete m.pending;
+    if(typeof autoAdvance==='function') autoAdvance(round, idx);
+    if(typeof recordChampionIfFinal==='function') recordChampionIfFinal(round, m);
+    saveData();
+    showToast('✅ Natija tasdiqlandi!');
+  } else {
+    m.hs = null; m.as = null;
+    delete m.pending;
+    saveData();
+    showToast('❌ Natija rad etildi');
+  }
+  if(typeof renderPlayers==='function') renderPlayers();
+  if(typeof renderBracket==='function') renderBracket();
+  if(typeof renderRating==='function') renderRating();
 }
 
 function submitMyScore(matchNum, myName, oppName, grp){
@@ -2264,13 +2565,13 @@ function generatePlayoff(){
 }
 
 function getWinner(m){
-  if(!m||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
+  if(!m||m.pending||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
   if(m.hs>m.as) return m.h;
   if(m.as>m.hs) return m.a;
   return null;
 }
 function getLoser(m){
-  if(!m||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
+  if(!m||m.pending||m.hs===null||m.hs===undefined||m.as===null||m.as===undefined) return null;
   if(m.hs>m.as) return m.a;
   if(m.as>m.hs) return m.h;
   return null;
@@ -2331,6 +2632,7 @@ function renderBracket(){
       html+=`<div class="pom">
         ${teamBox(m.h,m.hs,w&&m.h&&w.name===m.h.name,false)}
         ${teamBox(m.a,m.as,w&&m.a&&w.name===m.a.name,false)}
+        ${m.pending?'<div style="font-size:8px;color:var(--gold);text-align:center;padding:3px 0;">⏳ Tasdiq kutilmoqda</div>':''}
       </div>`;
     });
     html+=`</div></div>`;
@@ -2342,6 +2644,7 @@ function renderBracket(){
   html+=`<div class="pom final-match">
     ${teamBox(fin.h,fin.hs,finW&&fin.h&&finW.name===fin.h.name,false)}
     ${teamBox(fin.a,fin.as,finW&&fin.a&&finW.name===fin.a.name,false)}
+    ${fin.pending?'<div style="font-size:8px;color:var(--gold);text-align:center;padding:3px 0;">⏳ Tasdiq kutilmoqda</div>':''}
   </div>`;
   const trd=playoff.third[0]||{h:null,a:null,hs:null,as:null};
   const trdW=getWinner(trd);
@@ -2349,6 +2652,7 @@ function renderBracket(){
   html+=`<div class="pom third">
     ${teamBox(trd.h,trd.hs,trdW&&trd.h&&trdW.name===trd.h.name,true)}
     ${teamBox(trd.a,trd.as,trdW&&trd.a&&trdW.name===trd.a.name,true)}
+    ${trd.pending?'<div style="font-size:8px;color:var(--gold);text-align:center;padding:3px 0;">⏳ Tasdiq kutilmoqda</div>':''}
   </div>`;
   html+=`</div></div>`;
   wrap.innerHTML=html;
@@ -2448,6 +2752,33 @@ function renderRating(){
   wrap.innerHTML=html;
 }
 
+function renderDailyScheduleStatus(){
+  const grp = document.getElementById('ds-grp').value;
+  const wrap = document.getElementById('ds-status-wrap');
+  if(!grp || !wrap) return;
+  const cid = 'wc_'+grp;
+  const sch = window.dailySchedules[cid];
+  if(!sch || !sch.startDate){
+    wrap.innerHTML = `⚪ Bu guruh uchun kunlik jadval hali yoqilmagan (eski qo'lda tur boshqaruvi ishlaydi)`;
+    return;
+  }
+  const order = getWcGroupOrder(grp);
+  const idx = Math.min(sch.currentIndex, order.length-1);
+  const cur = order[idx];
+  const finished = sch.currentIndex >= order.length;
+  wrap.innerHTML = finished
+    ? `🟢 Kunlik jadval yakunlandi — barcha ${order.length} o'yin o'tkazildi (boshlangan: ${sch.startDate})`
+    : `🟢 Faol — boshlangan: <b>${sch.startDate}</b><br>Bugungi o'yin (#${sch.currentIndex+1}/${order.length}): <b>${cur.h} vs ${cur.a}</b>`;
+}
+function adminStartWcDailySchedule(){
+  const grp = document.getElementById('ds-grp').value;
+  if(!grp){ showToast('❌ Guruh tanlanmagan'); return; }
+  const cid = 'wc_'+grp;
+  if(isDailyScheduleActive(cid)){ showToast('⚠️ Bu guruhda kunlik jadval allaqachon yoqilgan'); return; }
+  startDailySchedule(cid, getWcGroupOrder(grp));
+  renderDailyScheduleStatus();
+}
+
 function checkPin(){
   if(document.getElementById('pin-val').value===ADMIN_PIN){
     document.getElementById('adm-lock-screen').style.display='none';
@@ -2464,11 +2795,12 @@ function initAdmin(){
   gs.innerHTML=Object.keys(GROUPS).map(g=>`<option value="${g}">${g} Guruh</option>`).join('');
   document.getElementById('d-grp').innerHTML=gs.innerHTML;
   document.getElementById('t-grp').innerHTML=gs.innerHTML;
+  document.getElementById('ds-grp').innerHTML=gs.innerHTML;
   gs.addEventListener('change',loadATeams);
   document.getElementById('d-grp').addEventListener('change',loadDelMatches);
   document.getElementById('po-round').addEventListener('change',loadPoMatches);
   loadATeams();loadDelMatches();loadPoMatches();
-  loadTurTeams();renderTurStatusList();
+  loadTurTeams();renderTurStatusList();renderDailyScheduleStatus();
   if(!window.pendingRegs) window.pendingRegs = [];
   renderPendingRegs();
 }
@@ -2766,6 +3098,7 @@ window.addEventListener('load',()=>{
   if(tg) tg.ready();
   initClubLeagues();
   loadData(()=>{
+    advanceAllDailySchedules();
     initData();
     initRegGroupBtns();
     updateClubsMenuBadge();
