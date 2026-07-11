@@ -6,33 +6,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>eF Warriors — World Cup 2026</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 :root{
-  --bg:#06080C;--bg2:#0C0F16;--bg3:#131A26;--bg4:#1A2333;
-  --accent:#C6FF3D;--accent2:#8FCC00;--gold:#FFB627;--coral:#FF4655;
-  --green:#22C55E;--red:#EF4444;--text:#F3F6F2;--muted:#697089;--border:#1C2434;
-  --card:#0F141F;--teal:#17B8A6;
+  --bg:#050510;--bg2:#0A0A1E;--bg3:rgba(255,255,255,.045);--bg4:rgba(255,255,255,.075);
+  --accent:#8B5CF6;--accent2:#22D3EE;--gold:#FFC947;--coral:#FF4D8D;
+  --green:#22C55E;--red:#EF4444;--text:#F6F4FF;--muted:#8B8FBA;--border:rgba(139,92,246,.2);
+  --card:rgba(255,255,255,.04);--teal:#22D3EE;
   --disp:'Bebas Neue',Impact,'Roboto',sans-serif;
+  --grad:linear-gradient(135deg,#8B5CF6 0%,#22D3EE 100%);
+  --grad2:linear-gradient(135deg,#FF4D8D 0%,#8B5CF6 100%);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:
-    radial-gradient(ellipse 900px 500px at 50% -10%, rgba(198,255,61,.07), transparent 60%),
+html{scroll-behavior:smooth;}
+body{
+  background:
+    radial-gradient(ellipse 700px 500px at 8% -6%, rgba(139,92,246,.20), transparent 60%),
+    radial-gradient(ellipse 600px 460px at 100% 12%, rgba(34,211,238,.14), transparent 55%),
+    radial-gradient(ellipse 800px 600px at 50% 115%, rgba(255,77,141,.10), transparent 60%),
     var(--bg);
-  color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  background-attachment:fixed;
+  color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Universal glass effect: any element whose inline style references the shared
+   surface tokens automatically gets a frosted-glass look — this upgrades every
+   card, input and panel across the whole app from one place. */
+[style*="var(--card)"]{backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);}
+[style*="var(--bg3)"]{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+[style*="linear-gradient(135deg,var(--accent),var(--accent2))"]{
+  box-shadow:0 6px 22px -6px rgba(139,92,246,.65);transition:transform .15s ease,box-shadow .15s ease;
+}
+[style*="linear-gradient(135deg,var(--accent),var(--accent2))"]:active{transform:scale(.96);box-shadow:0 3px 12px -4px rgba(139,92,246,.5);}
 
 /* SPLASH */
 #splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .6s ease,visibility .6s;overflow:hidden;}
 #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
-#splash::before{content:'';position:absolute;width:520px;height:520px;border-radius:50%;
-  background:radial-gradient(circle,rgba(198,255,61,.16),rgba(198,255,61,0) 65%);
-  animation:floodPulse 2.6s ease-in-out infinite;}
-@keyframes floodPulse{0%,100%{opacity:.55;transform:scale(1);}50%{opacity:1;transform:scale(1.12);}}
-.sp-logo{font-size:56px;margin-bottom:16px;position:relative;filter:drop-shadow(0 0 18px rgba(198,255,61,.45));}
-.sp-title{font-family:var(--disp);font-size:40px;font-weight:400;letter-spacing:5px;color:#fff;position:relative;}
-.sp-title span{color:var(--accent);}
+#splash::before{content:'';position:absolute;width:620px;height:620px;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(139,92,246,.28),rgba(34,211,238,.2),rgba(255,77,141,.2),rgba(139,92,246,.28));
+  filter:blur(60px);animation:auroraSpin 8s linear infinite;}
+@keyframes auroraSpin{0%{transform:rotate(0deg) scale(1);}50%{transform:rotate(180deg) scale(1.15);}100%{transform:rotate(360deg) scale(1);}}
+.sp-logo{font-size:58px;margin-bottom:16px;position:relative;filter:drop-shadow(0 0 22px rgba(139,92,246,.55));animation:floatY 2.4s ease-in-out infinite;}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.sp-title{font-family:var(--disp);font-size:42px;font-weight:400;letter-spacing:5px;color:#fff;position:relative;
+  background:linear-gradient(90deg,#fff,#C9BAFF,#fff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shine 2.6s linear infinite;}
+@keyframes shine{to{background-position:200% center;}}
+.sp-title span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
 .sp-sub{font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:6px;position:relative;}
-.sp-bar{width:160px;height:3px;background:var(--border);border-radius:3px;margin-top:32px;overflow:hidden;position:relative;}
-.sp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;animation:fillBar 2.2s ease forwards;box-shadow:0 0 10px rgba(198,255,61,.6);}
+.sp-bar{width:170px;height:4px;background:var(--bg3);border-radius:4px;margin-top:34px;overflow:hidden;position:relative;border:1px solid var(--border);}
+.sp-fill{height:100%;background:var(--grad);border-radius:4px;animation:fillBar 2.2s ease forwards;box-shadow:0 0 14px rgba(139,92,246,.7);}
 @keyframes fillBar{0%{width:0%;}100%{width:100%;}}
 
 /* APP */
@@ -45,63 +68,68 @@ body{background:
 #page-menu{display:none;padding-bottom:0;}
 #page-menu.on{display:flex;flex-direction:column;min-height:100vh;}
 
-/* TOP BAR (eFOOTBALL style) */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:relative;}
-.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(198,255,61,.5),transparent);}
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:rgba(10,10,30,.65);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,.7),rgba(34,211,238,.5),transparent);}
 .topbar-logo{display:flex;align-items:center;gap:8px;}
-.topbar-ic{font-size:22px;}
+.topbar-ic{font-size:22px;filter:drop-shadow(0 0 6px rgba(139,92,246,.5));}
 .topbar-name{font-family:var(--disp);font-size:20px;font-weight:400;letter-spacing:2px;color:#fff;}
-.topbar-name span{color:var(--accent);}
-.topbar-badge{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--accent);border:1.5px solid var(--accent);padding:2px 8px;border-radius:4px;}
-.topbar-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);cursor:pointer;padding:4px 0;}
+.topbar-name span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.topbar-badge{font-size:10px;font-weight:700;letter-spacing:2px;color:#fff;background:var(--grad);padding:3px 10px;border-radius:20px;box-shadow:0 2px 10px -2px rgba(139,92,246,.6);}
+.topbar-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);cursor:pointer;padding:4px 0;font-weight:600;}
 
-/* HERO BANNER (with image placeholder) */
-.hero-banner{position:relative;height:180px;background:linear-gradient(180deg,#0c1408 0%,var(--bg) 100%);overflow:hidden;display:flex;align-items:flex-end;}
-.hero-banner::before{content:'🏆⚽🌍';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:80px;opacity:.08;letter-spacing:10px;}
-.hero-img-overlay{position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 0%,transparent 60%);}
+/* HERO BANNER */
+.hero-banner{position:relative;height:190px;background:
+    radial-gradient(circle at 15% 20%, rgba(139,92,246,.35), transparent 55%),
+    radial-gradient(circle at 90% 15%, rgba(34,211,238,.25), transparent 50%),
+    radial-gradient(circle at 60% 100%, rgba(255,77,141,.2), transparent 55%),
+    var(--bg2);
+  overflow:hidden;display:flex;align-items:flex-end;border-radius:0 0 28px 28px;}
+.hero-banner::before{content:'🏆⚽🌍';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:80px;opacity:.09;letter-spacing:10px;}
+.hero-img-overlay{position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 5%,transparent 65%);}
 .hero-content{position:relative;z-index:2;padding:16px;}
-.hero-eyebrow{font-size:9px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
-.hero-title{font-family:var(--disp);font-size:26px;font-weight:400;letter-spacing:1px;color:#fff;}
-.hero-title span{color:var(--gold);}
+.hero-eyebrow{font-size:9px;letter-spacing:4px;color:var(--accent2);text-transform:uppercase;margin-bottom:4px;font-weight:700;}
+.hero-title{font-family:var(--disp);font-size:27px;font-weight:400;letter-spacing:1px;color:#fff;}
+.hero-title span{background:linear-gradient(90deg,var(--gold),#FFE08A);-webkit-background-clip:text;background-clip:text;color:transparent;}
 .hero-sub{font-size:11px;color:var(--muted);margin-top:3px;}
 
-/* BOTTOM NAV — yangi dizayn: suzuvchi panel, faol tab uchun pill fon */
-.bnav{position:fixed;bottom:10px;left:10px;right:10px;background:rgba(12,15,22,.92);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:20px;display:flex;padding:6px;z-index:100;box-shadow:0 8px 28px rgba(0,0,0,.5);overflow-x:auto;}
+/* BOTTOM NAV — floating glass pill */
+.bnav{position:fixed;bottom:12px;left:12px;right:12px;background:rgba(10,10,26,.75);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--border);border-radius:22px;display:flex;padding:6px;z-index:100;box-shadow:0 10px 34px -6px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03) inset;overflow-x:auto;}
 .bnav::-webkit-scrollbar{display:none;}
-.bnav-i{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:7px 2px;border-radius:14px;transition:background .2s,transform .15s;}
+.bnav-i{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:8px 2px;border-radius:16px;transition:background .2s,transform .15s;}
 .bnav-ic{font-size:18px;transition:transform .2s;line-height:1;}
 .bnav-lb{font-size:8px;letter-spacing:.3px;color:var(--muted);text-transform:uppercase;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bnav-i.on{background:linear-gradient(180deg,rgba(198,255,61,.2),rgba(198,255,61,.05));box-shadow:0 0 14px -4px rgba(198,255,61,.5) inset;}
-.bnav-i.on .bnav-ic{transform:scale(1.15) translateY(-1px);}
-.bnav-i.on .bnav-lb{color:var(--accent);font-weight:700;}
+.bnav-i.on{background:var(--grad);box-shadow:0 6px 18px -4px rgba(139,92,246,.7);}
+.bnav-i.on .bnav-ic{transform:scale(1.15) translateY(-2px);}
+.bnav-i.on .bnav-lb{color:#fff;font-weight:700;}
 
 /* LEVEL / RANK badge + XP bar */
 .lvl-badge{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px 3px 6px;font-size:11px;font-weight:700;color:var(--text);}
 .lvl-badge .lvl-ic{font-size:14px;}
 .xp-bar-wrap{margin-top:8px;}
-.xp-bar-track{height:6px;background:var(--bg3);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
-.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:6px;transition:width .4s ease;}
+.xp-bar-track{height:7px;background:var(--bg3);border-radius:7px;overflow:hidden;border:1px solid var(--border);}
+.xp-bar-fill{height:100%;background:var(--grad);border-radius:7px;transition:width .4s ease;box-shadow:0 0 10px rgba(139,92,246,.6);}
 .xp-bar-txt{font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px;}
-.champ-crown{display:inline-block;margin-left:4px;font-size:13px;filter:drop-shadow(0 0 3px rgba(255,182,39,.6));}
-.champ-ribbon{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(90deg,rgba(255,182,39,.18),rgba(255,182,39,.05));border:1px solid rgba(255,182,39,.35);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;margin-top:6px;}
+.champ-crown{display:inline-block;margin-left:4px;font-size:13px;filter:drop-shadow(0 0 4px rgba(255,201,71,.7));}
+.champ-ribbon{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(90deg,rgba(255,201,71,.2),rgba(255,201,71,.05));border:1px solid rgba(255,201,71,.4);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;margin-top:6px;}
 
 /* AWARDS TAB (Sovrinlar) */
-.award-hero{background:linear-gradient(135deg,rgba(255,182,39,.12),rgba(198,255,61,.06));border:1px solid rgba(255,182,39,.25);border-radius:18px;padding:20px 16px;text-align:center;margin:0 16px 16px;}
-.award-hero .aw-ic{font-size:38px;margin-bottom:6px;}
-.award-hero .aw-title{font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:#fff;}
-.award-hero .aw-name{font-size:19px;font-weight:900;color:var(--gold);margin-top:4px;}
-.award-hero .aw-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.award-hero{position:relative;background:linear-gradient(135deg,rgba(255,201,71,.16),rgba(139,92,246,.1) 50%,rgba(34,211,238,.08));border:1px solid rgba(255,201,71,.3);border-radius:22px;padding:22px 16px;text-align:center;margin:0 16px 16px;overflow:hidden;}
+.award-hero::before{content:'';position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,.08),transparent 30%);animation:auroraSpin 6s linear infinite;}
+.award-hero .aw-ic{font-size:40px;margin-bottom:6px;position:relative;filter:drop-shadow(0 0 10px rgba(255,201,71,.5));}
+.award-hero .aw-title{font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:#fff;position:relative;}
+.award-hero .aw-name{font-size:19px;font-weight:900;color:var(--gold);margin-top:4px;position:relative;}
+.award-hero .aw-sub{font-size:11px;color:var(--muted);margin-top:4px;position:relative;}
 .award-list{padding:0 16px;}
-.award-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;}
+.award-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:8px;}
 .award-row .aw-pos{font-family:'Roboto',sans-serif;font-size:16px;font-weight:900;width:26px;text-align:center;color:var(--muted);}
-.award-row.p1 .aw-pos{color:#FFB627;}
+.award-row.p1 .aw-pos{color:#FFC947;}
 .award-row.p2 .aw-pos{color:#94A3B8;}
 .award-row.p3 .aw-pos{color:#C47A3A;}
 .award-row .aw-info{flex:1;}
 .award-row .aw-team{font-size:13px;font-weight:700;}
 .award-row .aw-user{font-size:11px;color:var(--accent);}
 .award-row .aw-stat{font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;color:var(--text);}
-
 /* TABS (WC page) */
 .wc-tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;}
 .wc-tabs::-webkit-scrollbar{display:none;}
@@ -118,11 +146,11 @@ body{background:
 .gbtns{padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
 .gbtn{padding:12px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:var(--disp);font-size:18px;letter-spacing:1px;font-weight:400;cursor:pointer;text-align:center;transition:all .15s;}
 .gbtn:active{transform:scale(.95);}
-.gbtn.on{background:rgba(198,255,61,.1);border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px -4px rgba(198,255,61,.5);}
+.gbtn.on{background:rgba(139,92,246,.1);border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px -4px rgba(139,92,246,.5);}
 
 /* STANDINGS TABLE */
 .grp-tbl{margin:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.grp-hd{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:10px 12px;background:var(--bg3);border-bottom:1px solid rgba(198,255,61,.25);}
+.grp-hd{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:10px 12px;background:var(--bg3);border-bottom:1px solid rgba(139,92,246,.25);}
 .grp-hd span{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:center;}
 .grp-hd span:nth-child(2){text-align:left;}
 .grp-rw{display:grid;grid-template-columns:28px 1fr 28px 28px 28px 28px 36px;padding:11px 12px;border-top:1px solid var(--border);align-items:center;transition:background .15s;}
@@ -147,10 +175,10 @@ body{background:
 .llb-pts-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:2px;}
 
 /* UCL TIPIDAGI "QUALIFIED" BELGISI — 2-6 o'rinlar */
-.grp-rw.ucl{border-left:3px solid var(--accent);background:rgba(198,255,61,.035);}
+.grp-rw.ucl{border-left:3px solid var(--accent);background:rgba(139,92,246,.035);}
 .ucl-badge{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#eaffb0,var(--accent) 60%,var(--accent2));color:#0a1300;font-size:8px;
-  margin-left:4px;vertical-align:middle;box-shadow:0 0 6px rgba(198,255,61,.65);}
+  background:radial-gradient(circle at 35% 30%,#eaffb0,var(--accent) 60%,var(--accent2));color:#fff;font-size:8px;
+  margin-left:4px;vertical-align:middle;box-shadow:0 0 6px rgba(139,92,246,.65);}
 .ucl-note{display:flex;align-items:center;gap:6px;padding:0 16px 4px;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
 
 /* NATIJA KIRITISH (scoreboard uslubida) */
@@ -159,10 +187,10 @@ body{background:
 .score-box{width:50px;text-align:center;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:10px 0;
   color:var(--accent);font-family:var(--disp);font-size:24px;outline:none;-moz-appearance:textfield;}
 .score-box::-webkit-outer-spin-button,.score-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-.score-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(198,255,61,.15);}
+.score-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.15);}
 .score-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);}
 .score-sep{font-family:var(--disp);font-size:22px;color:var(--muted);padding-bottom:18px;}
-.score-submit-btn{flex:1;padding:12px 8px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;
+.score-submit-btn{flex:1;padding:12px 8px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;
   clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);margin-bottom:0;}
 .score-submit-btn:active{filter:brightness(.92);}
 
@@ -170,7 +198,7 @@ body{background:
 .confirm-actions{display:flex;gap:8px;margin-top:10px;}
 .btn-confirm,.btn-reject{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:12px;letter-spacing:.5px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .1s;}
-.btn-confirm{background:rgba(198,255,61,.12);border:1.5px solid var(--accent);color:var(--accent);}
+.btn-confirm{background:rgba(139,92,246,.12);border:1.5px solid var(--accent);color:var(--accent);}
 .btn-reject{background:rgba(255,70,85,.1);border:1.5px solid var(--coral);color:var(--coral);}
 .btn-confirm:active,.btn-reject:active{transform:scale(.96);}
 .rk.t{color:var(--gold);}
@@ -257,14 +285,14 @@ body{background:
 
 /* MENU PAGE */
 .menu-hero{padding:36px 20px 24px;text-align:center;}
-.menu-icon{font-size:54px;margin-bottom:12px;display:block;filter:drop-shadow(0 0 14px rgba(198,255,61,.35));}
+.menu-icon{font-size:54px;margin-bottom:12px;display:block;filter:drop-shadow(0 0 14px rgba(139,92,246,.35));}
 .menu-title{font-family:var(--disp);font-size:34px;font-weight:400;letter-spacing:3px;color:#fff;}
 .menu-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:6px;}
 .menu-cards{padding:0 16px;display:flex;flex-direction:column;gap:12px;}
 .mnu-card{border-radius:16px;padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden;
   clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%);}
 .mnu-card:active{transform:scale(.98);}
-.mnu-card.wc{background:linear-gradient(135deg,#0c1408,#182508);border:1px solid var(--accent);box-shadow:0 0 24px -6px rgba(198,255,61,.25);}
+.mnu-card.wc{background:linear-gradient(135deg,#0c1408,#182508);border:1px solid var(--accent);box-shadow:0 0 24px -6px rgba(139,92,246,.25);}
 .mnu-card.wc::before{content:'🌍';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:54px;opacity:.12;}
 .mnu-card.liga{background:var(--card);border:1px solid var(--border);opacity:.55;}
 .mnu-card.liga::before{content:'🏆';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:54px;opacity:.08;}
@@ -273,7 +301,7 @@ body{background:
 .mc-eye.champ{color:var(--gold);}
 .mc-title{font-family:var(--disp);font-size:26px;font-weight:400;letter-spacing:.5px;}
 .mc-sub{font-size:12px;color:var(--muted);margin-top:4px;}
-.mc-badge{display:inline-block;font-size:9px;letter-spacing:2px;background:rgba(198,255,61,.12);border:1px solid rgba(198,255,61,.35);color:var(--accent);padding:5px 12px;border-radius:4px;margin-top:10px;text-transform:uppercase;font-weight:700;
+.mc-badge{display:inline-block;font-size:9px;letter-spacing:2px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.35);color:var(--accent);padding:5px 12px;border-radius:4px;margin-top:10px;text-transform:uppercase;font-weight:700;
   clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);}
 .mc-badge.locked{background:var(--bg4);border-color:var(--border);color:var(--muted);}
 .menu-footer{padding:20px;text-align:center;}
@@ -286,7 +314,7 @@ body{background:
 .al-sb{font-size:12px;color:var(--muted);margin-bottom:24px;}
 .pin-in{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-size:20px;letter-spacing:8px;text-align:center;outline:none;margin-bottom:12px;transition:border-color .15s;}
 .pin-in:focus{border-color:var(--accent);}
-.pin-btn{width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;color:#000;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.pin-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;}
 .adm-sec{padding:0 16px;}
 .adm-c{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
 .adm-ct{font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:14px;}
@@ -294,13 +322,13 @@ body{background:
 .fin{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;transition:border-color .15s;}
 .fin:focus{border-color:var(--accent);}
 .fsel{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;}
-.fbtn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.fbtn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;}
 .fbtn-r{width:100%;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
 .fbtn-g{width:100%;padding:12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:10px;color:var(--green);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
 
 /* PROFILE */
 .prof-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
-.prof-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(198,255,61,.08),transparent 70%);border-radius:50%;}
+.prof-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(139,92,246,.08),transparent 70%);border-radius:50%;}
 .prof-avatar{width:52px;height:52px;border-radius:50%;background:var(--bg3);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
 .prof-info{flex:1;}
 .prof-name{font-size:16px;font-weight:700;}
@@ -323,7 +351,7 @@ body{background:
 .my-match-status.draw{background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);}
 .my-match-status.loss{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
 
-.pcard.my-row{border-color:var(--accent);background:rgba(198,255,61,.06);}
+.pcard.my-row{border-color:var(--accent);background:rgba(139,92,246,.06);}
 
 /* EMPTY */
 .empty{text-align:center;padding:48px 20px;color:var(--muted);}
@@ -333,7 +361,102 @@ body{background:
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) scale(.9);background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:10px 20px;border-radius:10px;font-size:13px;white-space:nowrap;z-index:999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) scale(1);}
 
-/* INFO CARD (menu page) */
+/* TOURNAMENT LIST — hero card + compact rows (yangi joylashuv) */
+.tourn-hero{position:relative;margin:0 16px 14px;border-radius:22px;padding:22px 18px;overflow:hidden;
+  background:linear-gradient(145deg,rgba(139,92,246,.22),rgba(34,211,238,.1) 60%,rgba(255,77,141,.08));
+  border:1px solid rgba(139,92,246,.35);box-shadow:0 14px 40px -12px rgba(139,92,246,.4);}
+.tourn-hero::before{content:'';position:absolute;inset:-50%;background:conic-gradient(from 90deg,transparent,rgba(255,255,255,.06),transparent 25%);animation:auroraSpin 9s linear infinite;pointer-events:none;}
+.th-tag{position:relative;display:inline-flex;align-items:center;gap:5px;font-size:9px;letter-spacing:3px;font-weight:800;text-transform:uppercase;color:#fff;background:var(--grad);padding:4px 10px;border-radius:20px;}
+.th-icrow{position:relative;display:flex;align-items:center;gap:12px;margin-top:14px;}
+.th-ic{font-size:36px;filter:drop-shadow(0 0 12px rgba(139,92,246,.6));}
+.th-title{font-family:var(--disp);font-size:30px;letter-spacing:1px;color:#fff;line-height:1;}
+.th-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.th-stats{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;}
+.th-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 4px;text-align:center;}
+.th-stat b{display:block;font-family:'Roboto',sans-serif;font-size:19px;font-weight:900;color:#fff;}
+.th-stat span{font-size:8px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;}
+.th-cta{position:relative;display:block;width:100%;margin-top:14px;padding:14px;text-align:center;border:none;border-radius:14px;
+  background:var(--grad);color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;cursor:pointer;box-shadow:0 8px 24px -6px rgba(139,92,246,.6);}
+.th-cta.locked{background:var(--bg4);color:var(--muted);box-shadow:none;}
+
+.tourn-list-lbl{padding:4px 16px 8px;font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+.tourn-rows{padding:0 16px;display:flex;flex-direction:column;gap:8px;}
+.trow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 14px;cursor:pointer;transition:transform .12s,border-color .15s;position:relative;overflow:hidden;}
+.trow:active{transform:scale(.98);}
+.trow.active-now{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 8px 20px -8px rgba(139,92,246,.5);}
+.trow-ic{width:40px;height:40px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.trow-info{flex:1;min-width:0;}
+.trow-name{font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trow-sub{font-size:10.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trow-pill{flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:1px;padding:5px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap;}
+.trow-pill.champ{background:linear-gradient(90deg,rgba(255,201,71,.25),rgba(255,201,71,.08));color:var(--gold);border:1px solid rgba(255,201,71,.4);}
+.trow-pill.open{background:rgba(34,197,94,.14);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.trow-pill.wait{background:rgba(139,92,246,.14);color:var(--accent);border:1px solid rgba(139,92,246,.3);}
+.trow-pill.locked{background:var(--bg4);color:var(--muted);border:1px solid var(--border);}
+
+/* TROPHY MINI CARDS (Sovrinlar sahifasi — 3 ta yonma-yon/ustma-ust hero) */
+.trophy-grid{padding:0 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:6px;}
+.trophy-mini{display:flex;align-items:center;gap:14px;border-radius:18px;padding:14px 16px;position:relative;overflow:hidden;border:1px solid var(--border);background:var(--card);}
+.trophy-mini.t-gold{border-color:rgba(255,201,71,.4);background:linear-gradient(120deg,rgba(255,201,71,.14),rgba(255,201,71,.02));}
+.trophy-mini.t-violet{border-color:rgba(139,92,246,.4);background:linear-gradient(120deg,rgba(139,92,246,.16),rgba(139,92,246,.02));}
+.trophy-mini.t-cyan{border-color:rgba(34,211,238,.4);background:linear-gradient(120deg,rgba(34,211,238,.14),rgba(34,211,238,.02));}
+.tm-ic{font-size:32px;filter:drop-shadow(0 0 8px rgba(255,255,255,.25));flex-shrink:0;}
+.tm-info{flex:1;min-width:0;}
+.tm-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:700;}
+.tm-name{font-size:16px;font-weight:900;color:#fff;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-sub{font-size:11px;color:var(--accent);margin-top:1px;}
+.tm-stat{font-family:'Roboto',sans-serif;font-size:20px;font-weight:900;color:var(--gold);text-align:right;flex-shrink:0;}
+
+/* Reyting/pcard kartalarni jadvalga yaqinlashtiruvchi kichik yangilanishlar */
+.pcard{position:relative;}
+.pcard::before{content:attr(data-rk);position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border);}
+.rating-card.gold::before,.pcard.rk1::before{background:var(--gold);}
+.rating-card.silver::before,.pcard.rk2::before{background:#94A3B8;}
+.rating-card.bronze::before,.pcard.rk3::before{background:#C47A3A;}
+
+/* BOTTOM SHEET (natija kiritish, raqib bilan bog'lanish va h.k. uchun umumiy komponent) */
+.sheet-overlay{position:fixed;inset:0;background:rgba(3,3,10,.6);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+.sheet-overlay.show{opacity:1;pointer-events:auto;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:201;
+  background:linear-gradient(165deg,rgba(20,18,46,.98),rgba(10,10,26,.98));
+  border:1px solid var(--border);border-top:1px solid rgba(139,92,246,.4);
+  border-radius:26px 26px 0 0;padding:10px 20px 26px;
+  box-shadow:0 -20px 50px -10px rgba(0,0,0,.6);
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);}
+.sheet-overlay.show .sheet{transform:translateY(0);}
+.sheet-handle{width:38px;height:4px;border-radius:4px;background:var(--border);margin:2px auto 16px;}
+.sheet-title{font-family:var(--disp);font-size:20px;letter-spacing:1px;color:#fff;text-align:center;margin-bottom:16px;}
+.sheet-teams{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;}
+.sheet-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
+.sheet-team .fl,.sheet-team .club-logo{width:38px;height:38px;font-size:32px;}
+.sheet-team-name{font-size:12px;font-weight:700;color:#fff;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.sheet-team-user{font-size:10px;color:var(--accent);text-align:center;}
+.sheet-vs{font-family:var(--disp);font-size:16px;color:var(--muted);flex-shrink:0;}
+.sheet-score-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px;}
+.sheet-score-box{width:64px;height:64px;text-align:center;background:var(--bg3);border:1.5px solid var(--border);border-radius:16px;
+  color:#fff;font-family:var(--disp);font-size:28px;outline:none;-moz-appearance:textfield;}
+.sheet-score-box::-webkit-outer-spin-button,.sheet-score-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.sheet-score-box:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(139,92,246,.18);}
+.sheet-score-sep{font-family:var(--disp);font-size:22px;color:var(--muted);}
+.sheet-actions{display:flex;gap:10px;}
+.sheet-btn{flex:1;padding:15px;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer;border:none;text-align:center;}
+.sheet-btn.cancel{background:var(--bg3);border:1px solid var(--border);color:var(--muted);}
+.sheet-btn.submit{background:var(--grad);color:#fff;box-shadow:0 8px 24px -6px rgba(139,92,246,.6);}
+.sheet-btn.submit:active,.sheet-btn.cancel:active{transform:scale(.97);}
+.sheet-action-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:transform .12s;}
+.sheet-action-row:active{transform:scale(.97);}
+.sheet-action-ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sheet-action-txt{flex:1;}
+.sheet-action-title{font-size:13px;font-weight:700;color:#fff;}
+.sheet-action-sub{font-size:10.5px;color:var(--muted);margin-top:1px;}
+
+/* Kompakt "Natija kiritish" tugmasi (sheet-ni ochadi) */
+.score-open-btn{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:1px dashed rgba(139,92,246,.45);
+  background:rgba(139,92,246,.08);color:var(--accent);font-weight:700;font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;}
+.score-open-btn:active{transform:scale(.98);}
+.match-menu-btn{width:32px;height:32px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.35);border-radius:10px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
 .info-strip{margin:12px 16px 0;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
 .info-num{text-align:center;}
 .info-val{font-family:'Roboto',sans-serif;font-size:24px;font-weight:900;color:var(--accent);}
@@ -487,7 +610,7 @@ body{background:
     <div class="menu-sub" id="draw-sub">Jamoalar aralashtirilmoqda...</div>
   </div>
   <div style="text-align:center;padding:10px 20px 6px;">
-    <div id="draw-reel-name" style="font-family:var(--disp);font-size:34px;color:var(--accent);letter-spacing:1px;min-height:48px;text-shadow:0 0 18px rgba(198,255,61,.5);">🎲</div>
+    <div id="draw-reel-name" style="font-family:var(--disp);font-size:34px;color:var(--accent);letter-spacing:1px;min-height:48px;text-shadow:0 0 18px rgba(139,92,246,.5);">🎲</div>
   </div>
   <div id="draw-result-list" style="padding:16px 16px 100px;"></div>
 </div>
@@ -723,6 +846,9 @@ body{background:
 
 </div>
 <div class="toast" id="toast"></div>
+<div class="sheet-overlay" id="sheet-overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet-panel"></div>
+</div>
 
 <script>
 const ADMIN_PIN = "1234";
@@ -1001,13 +1127,24 @@ function findConfirmedResult(resultsArr, h, a){
 }
 
 // Konteyner uchun jadval obyektini yaratadi/qaytaradi (hali boshlanmagan bo'lishi mumkin).
+// MUHIM: "order" endi TUR (round) darajasida — har bir element bitta turdagi
+// BARCHA juftliklar ro'yxati (masalan [{h,a},{h,a},...]). Shu bilan "kuniga 1 ta
+// o'yin" emas, balki "kuniga 1 TUR (round)" ochiladi — bir turdagi barcha o'yinlar
+// birgalikda ochiladi va oldingi tur birgalikda yopiladi.
 function ensureDailySchedule(containerId, order){
   let sch = window.dailySchedules[containerId];
   if(!sch){
     sch = { startDate:null, order:order||[], currentIndex:0, lastCheckedDate:null };
     window.dailySchedules[containerId] = sch;
   } else if(order && order.length && (!sch.order || sch.order.length!==order.length)){
-    sch.order = order; // fikstura yangilangan bo'lsa (masalan qura), yangilab qo'yamiz
+    // Eski (bitta-o'yin darajasidagi) formatdan yangi (bitta-tur darajasidagi)
+    // formatga o'tilganda, joriy kun sonini qayta hisoblab, currentIndex'ni
+    // to'g'rilaymiz — aks holda eski indeks yangi tuzilmada noto'g'ri o'rinni
+    // ko'rsatib qolishi mumkin edi.
+    sch.order = order;
+    if(sch.startDate){
+      sch.currentIndex = Math.min(daysBetween(sch.startDate, todayStr()), order.length);
+    }
   }
   return sch;
 }
@@ -1015,7 +1152,7 @@ function isDailyScheduleActive(containerId){
   const sch = window.dailySchedules[containerId];
   return !!(sch && sch.startDate);
 }
-// Kunlik jadvalni ishga tushiradi (bugundan boshlab, 1-o'yin ochiladi).
+// Kunlik jadvalni ishga tushiradi (bugundan boshlab, 1-tur ochiladi).
 function startDailySchedule(containerId, order){
   const sch = ensureDailySchedule(containerId, order);
   if(!sch.startDate){
@@ -1023,12 +1160,12 @@ function startDailySchedule(containerId, order){
     sch.currentIndex = 0;
     sch.lastCheckedDate = todayStr();
     saveData();
-    showToast('📅 Kunlik jadval ishga tushdi — kuniga 1 ta o\'yin ochiladi');
+    showToast('📅 Kunlik jadval ishga tushdi — kuniga 1 tur ochiladi');
   }
   return sch;
 }
 // Ilova ochilganda (yoki istalgan vaqt) chaqiriladi: kun o'tgan bo'lsa navbatdagi
-// o'yin(lar)ni yopadi (natija bo'lmasa 0:0 bilan avto-yakunlaydi) va yangi kun uchun ochadi.
+// TUR(lar)ni yopadi (natija bo'lmasa 0:0 bilan avto-yakunlaydi) va yangi kun uchun ochadi.
 function advanceDailySchedule(containerId, resultsArr){
   const sch = window.dailySchedules[containerId];
   if(!sch || !sch.startDate || !sch.order || !sch.order.length) return false;
@@ -1037,17 +1174,19 @@ function advanceDailySchedule(containerId, resultsArr){
   const targetIndex = Math.min(daysBetween(sch.startDate, today), sch.order.length);
   let changed = false;
   while(sch.currentIndex < targetIndex && sch.currentIndex < sch.order.length){
-    const pair = sch.order[sch.currentIndex];
-    if(pair && pair.h && pair.a){
-      const existing = findConfirmedResult(resultsArr, pair.h, pair.a);
-      if(!existing){
-        for(let i=resultsArr.length-1;i>=0;i--){
-          const r=resultsArr[i];
-          if((r.h===pair.h&&r.a===pair.a)||(r.h===pair.a&&r.a===pair.h)) resultsArr.splice(i,1);
+    const round = sch.order[sch.currentIndex] || [];
+    round.forEach(pair=>{
+      if(pair && pair.h && pair.a){
+        const existing = findConfirmedResult(resultsArr, pair.h, pair.a);
+        if(!existing){
+          for(let i=resultsArr.length-1;i>=0;i--){
+            const r=resultsArr[i];
+            if((r.h===pair.h&&r.a===pair.a)||(r.h===pair.a&&r.a===pair.h)) resultsArr.splice(i,1);
+          }
+          resultsArr.push({h:pair.h, a:pair.a, hs:0, as:0, auto:true});
         }
-        resultsArr.push({h:pair.h, a:pair.a, hs:0, as:0, auto:true});
       }
-    }
+    });
     sch.currentIndex++;
     changed = true;
   }
@@ -1055,14 +1194,14 @@ function advanceDailySchedule(containerId, resultsArr){
   if(changed) saveData();
   return changed;
 }
-// matchIndex — shu konteynerdagi o'yinning ketma-ket (0 dan boshlab) tartib raqami.
+// roundIndex — shu konteynerdagi TURning ketma-ket (0 dan boshlab) tartib raqami.
 // Qaytaradi: 'not_started' (jadval hali yoqilmagan — eski tizim ishlatilsin),
 // 'open' (bugun ochiq), 'closed' (allaqachon o'tgan — natija bor), 'locked' (navbati kelmagan).
-function getDailyMatchStatus(containerId, matchIndex){
+function getDailyMatchStatus(containerId, roundIndex){
   const sch = window.dailySchedules[containerId];
   if(!sch || !sch.startDate) return 'not_started';
-  if(matchIndex < sch.currentIndex) return 'closed';
-  if(matchIndex === sch.currentIndex) return 'open';
+  if(roundIndex < sch.currentIndex) return 'closed';
+  if(roundIndex === sch.currentIndex) return 'open';
   return 'locked';
 }
 // Barcha faol (boshlangan) kunlik jadvallarni bir martada oldinga suradi.
@@ -1071,6 +1210,7 @@ function advanceAllDailySchedules(){
   Object.keys(GROUPS||{}).forEach(grp=>{
     const cid = 'wc_'+grp;
     if(isDailyScheduleActive(cid)){
+      ensureDailySchedule(cid, getWcGroupOrder(grp)); // eski formatdan migratsiya (agar kerak bo'lsa)
       if(!results[grp]) results[grp]=[];
       advanceDailySchedule(cid, results[grp]);
     }
@@ -1078,6 +1218,7 @@ function advanceAllDailySchedules(){
   (CLUB_LEAGUES||[]).forEach(lg=>{
     const cid = 'league_'+lg.id;
     if(isDailyScheduleActive(cid)){
+      ensureDailySchedule(cid, getLeagueOrder(lg.id)); // eski formatdan migratsiya (agar kerak bo'lsa)
       if(!results[lg.id]) results[lg.id]=[];
       advanceDailySchedule(cid, results[lg.id]);
     }
@@ -1188,32 +1329,29 @@ function backToMenuFromIntl(){
 function renderIntlList(){
   const wrap = document.getElementById('intl-tourn-list');
   if(!wrap) return;
-  wrap.innerHTML = INTL_TOURNAMENTS.map(t=>{
+  wrap.innerHTML = `<div class="tourn-rows">` + INTL_TOURNAMENTS.map(t=>{
     const champs = (window.champions||[]).filter(c=>c.league===t.league);
     const latest = champs.length ? champs.reduce((a,b)=> a.season>b.season?a:b) : null;
 
-    let eyeCls = '', eyeTxt;
+    let pillCls='open', pillTxt="Ochiq", subTxt;
     if(latest){
-      eyeCls = 'champ';
-      eyeTxt = `🏆 Chempion: ${latest.username} — ${latest.flag||''} ${latest.team}`;
+      pillCls='champ'; pillTxt='🏆 G\'olib';
+      subTxt = `Chempion: ${latest.username} — ${latest.team}`;
     } else if(t.league===CURRENT_LEAGUE){
       const allTaken = Object.keys(GROUPS).every(g => GROUPS[g].every(x=>x.user && x.user!=='—'));
-      eyeCls = allTaken ? 'locked' : '';
-      eyeTxt = allTaken ? "Yopiq — barcha o'rinlar to'ldi" : "Ochiq — Ro'yxat davom etmoqda";
+      pillCls = allTaken ? 'wait' : 'open';
+      pillTxt = allTaken ? "To'ldi" : "Ochiq";
+      subTxt = allTaken ? "Barcha o'rinlar to'ldi" : t.sub;
     } else {
-      eyeCls = 'locked';
-      eyeTxt = "Ma'lumot yo'q";
+      pillCls='locked'; pillTxt='🔒 Qulf';
+      subTxt = "Ma'lumot yo'q";
     }
-
-    const subTxt = latest ? `Mavsum ${latest.season} yakunlandi` : t.sub;
-
-    return `<div class="mnu-card wc" onclick="${t.open}()">
-      <div class="mc-eye ${eyeCls}">${eyeTxt}</div>
-      <div class="mc-title">${t.icon} ${t.name}</div>
-      <div class="mc-sub">${subTxt}</div>
-      <div class="mc-badge">${t.badge}</div>
+    return `<div class="trow" onclick="${t.open}()">
+      <div class="trow-ic">${t.icon}</div>
+      <div class="trow-info"><div class="trow-name">${t.name}</div><div class="trow-sub">${subTxt}</div></div>
+      <div class="trow-pill ${pillCls}">${pillTxt}</div>
     </div>`;
-  }).join('');
+  }).join('') + `</div>`;
 }
 
 // ============================================================================
@@ -1245,54 +1383,77 @@ function renderClubsList(){
   const wrap = document.getElementById('clubs-list');
   if(!wrap) return;
   const activeIdx = getActiveLeagueIndex();
-  wrap.innerHTML = CLUB_LEAGUES.map((lg,idx)=>{
+
+  function statusFor(lg, idx){
     const champ = (window.champions||[]).find(c=>c.league===lg.id && c.season===LEAGUE_SEASON);
     const unlocked = idx <= activeIdx;
     const drawn = isLeagueDrawn(lg.id);
-    let eyeCls='', eyeTxt, subTxt, action;
+    const taken = CLUB_GROUPS[lg.id].filter(t=>t.user && t.user!=='—').length;
+    const total = lg.teams.length;
+    const allTaken = taken===total;
+    let pillCls='locked', pillTxt='Qulf', subTxt=`${taken}/${total} o'yinchi`, action, rd=0, totalRd=0;
     if(champ){
-      eyeCls='champ'; eyeTxt = `🏆 Chempion: ${champ.username} — ${champ.team}`;
-      subTxt = `${lg.teams.length} jamoa · Mavsum yakunlandi`;
+      pillCls='champ'; pillTxt='🏆 G\'olib';
+      subTxt = `Chempion: ${champ.username}`;
       action = `openLeague('${lg.id}')`;
-    } else if(idx===activeIdx){
-      const allTaken = CLUB_GROUPS[lg.id].every(t=>t.user && t.user!=='—');
-      if(allTaken && !drawn){
-        eyeCls='champ'; eyeTxt = "🎲 To'ldi — qura kutilmoqda";
-        subTxt = `${lg.teams.length} jamoa · Qura o'tkazish kerak`;
-        action = isAdmin() ? `startLeagueDraw('${lg.id}')` : `showToast('⏳ Admin qura tashlashini kutmoqda')`;
-      } else if(allTaken && drawn){
-        eyeCls=''; eyeTxt='Faol — o\'yinlar davom etmoqda';
-        const rd = getActiveLeagueRound(lg.id), totalRd = (window.leagueSchedule[lg.id]||[]).length;
-        subTxt = `${lg.teams.length} jamoa · ${Math.min(rd+1,totalRd)}-tur / ${totalRd}`;
-        action = `openLeague('${lg.id}')`;
-      } else {
-        eyeCls=''; eyeTxt = "Faol — Ro'yxat davom etmoqda";
-        subTxt = `${lg.teams.length} jamoa`;
-        action = `openLeague('${lg.id}')`;
-      }
-    } else if(unlocked){
-      if(!drawn){
-        eyeCls='champ'; eyeTxt = "🎲 To'ldi — qura kutilmoqda";
-        subTxt = `${lg.teams.length} jamoa · Qura o'tkazish kerak`;
-        action = isAdmin() ? `startLeagueDraw('${lg.id}')` : `showToast('⏳ Admin qura tashlashini kutmoqda')`;
-      } else {
-        eyeCls=''; eyeTxt='Faol — o\'yinlar davom etmoqda';
-        const rd = getActiveLeagueRound(lg.id), totalRd = (window.leagueSchedule[lg.id]||[]).length;
-        subTxt = `${lg.teams.length} jamoa · ${Math.min(rd+1,totalRd)}-tur / ${totalRd}`;
-        action = `openLeague('${lg.id}')`;
-      }
-    } else {
-      eyeCls='locked'; eyeTxt = 'Qulflangan — oldingi liga tugashi kerak';
-      subTxt = `${lg.teams.length} jamoa`;
+    } else if(!unlocked){
+      pillCls='locked'; pillTxt='🔒 Qulf';
+      subTxt = `${taken}/${total} o'yinchi · oldingi liga kutilmoqda`;
       action = `showToast('🔒 Avval oldingi liga yakunlanishi kerak')`;
+    } else if(allTaken && !drawn){
+      pillCls='wait'; pillTxt="🎲 Qura";
+      subTxt = `${taken}/${total} o'yinchi · qura kutilmoqda`;
+      action = isAdmin() ? `startLeagueDraw('${lg.id}')` : `showToast('⏳ Admin qura tashlashini kutmoqda')`;
+    } else if(allTaken && drawn){
+      rd = getActiveLeagueRound(lg.id); totalRd = (window.leagueSchedule[lg.id]||[]).length;
+      pillCls='open'; pillTxt='● Faol';
+      subTxt = `${Math.min(rd+1,totalRd)}-tur / ${totalRd} tur`;
+      action = `openLeague('${lg.id}')`;
+    } else {
+      pillCls='open'; pillTxt="Ro'yxat";
+      subTxt = `${taken}/${total} o'yinchi ro'yxatdan o'tdi`;
+      action = `openLeague('${lg.id}')`;
     }
-    return `<div class="mnu-card wc" style="${unlocked?'':'opacity:.5;'}" onclick="${action}">
-      <div class="mc-eye ${eyeCls}">${eyeTxt}</div>
-      <div class="mc-title">${lg.icon} ${lg.name}</div>
-      <div class="mc-sub">${subTxt}</div>
-      <div class="mc-badge ${unlocked?'':'locked'}">${unlocked?(lg.short+' →'):'🔒 Yopiq'}</div>
+    return {champ,unlocked,drawn,taken,total,allTaken,pillCls,pillTxt,subTxt,action,rd,totalRd};
+  }
+
+  let heroHTML = '';
+  if(activeIdx < CLUB_LEAGUES.length){
+    const lg = CLUB_LEAGUES[activeIdx];
+    const s = statusFor(lg, activeIdx);
+    const tag = s.champ ? "MAVSUM YAKUNLANDI" : (s.allTaken && s.drawn ? "FAOL MAVSUM" : (s.allTaken ? "QURA KUTILMOQDA" : "RO'YXAT OCHIQ"));
+    heroHTML = `
+    <div class="tourn-hero">
+      <div class="th-tag">🏟 ${tag}</div>
+      <div class="th-icrow">
+        <div class="th-ic">${lg.icon}</div>
+        <div>
+          <div class="th-title">${lg.name}</div>
+          <div class="th-sub">${s.subTxt}</div>
+        </div>
+      </div>
+      <div class="th-stats">
+        <div class="th-stat"><b>${s.taken}</b><span>O'yinchi</span></div>
+        <div class="th-stat"><b>${s.total}</b><span>Maksimal</span></div>
+        <div class="th-stat"><b>${s.drawn?(s.totalRd||'—'):'—'}</b><span>Jami tur</span></div>
+      </div>
+      <button class="th-cta" onclick="${s.action}">${s.champ?'Natijalarni ko\'rish →':(s.allTaken&&!s.drawn?"Qura kutilmoqda":"Ligani ochish →")}</button>
+    </div>`;
+  }
+
+  const rowsHTML = CLUB_LEAGUES.map((lg,idx)=>{
+    const s = statusFor(lg, idx);
+    return `<div class="trow ${idx===activeIdx?'active-now':''}" style="${s.unlocked?'':'opacity:.55;'}" onclick="${s.action}">
+      <div class="trow-ic">${lg.icon}</div>
+      <div class="trow-info">
+        <div class="trow-name">${lg.name}</div>
+        <div class="trow-sub">${s.subTxt}</div>
+      </div>
+      <div class="trow-pill ${s.pillCls}">${s.pillTxt}</div>
     </div>`;
   }).join('');
+
+  wrap.innerHTML = heroHTML + `<div class="tourn-list-lbl">Liga tanlash</div><div class="tourn-rows" style="padding-bottom:16px;">${rowsHTML}</div>`;
 }
 
 function openLeague(leagueId){
@@ -1431,7 +1592,7 @@ function tblHTMLClub(leagueId){
   const rest = t.slice(1);
   const leaderBanner = `
     <div class="league-leader-banner">
-      <div class="llb-crown">👑</div>
+      <div class="llb-crown">${clubLogoHTML(leader.name, '👑', 40)}</div>
       <div class="llb-info">
         <div class="llb-tag">Liga yetakchisi</div>
         <div class="llb-name">${leader.name}</div>
@@ -1448,7 +1609,7 @@ function tblHTMLClub(leagueId){
       const qualified = rank<=6;
       return `<div class="grp-rw ${qualified?'ucl':''}">
       <div class="rk">${rank}${qualified?'<span class="ucl-badge">★</span>':''}</div>
-      <div class="nm"><div><div class="cname">${p.name}</div><div class="uname">${p.user}</div></div></div>
+      <div class="nm" style="display:flex;align-items:center;gap:8px;">${clubLogoHTML(p.name, cfg.icon, 24)}<div><div class="cname">${p.name}</div><div class="uname">${p.user}</div></div></div>
       <div class="st">${p.p}</div><div class="st">${p.w}</div><div class="st">${p.d}</div><div class="st">${p.l}</div>
       <div class="pts">${p.pts}</div>
     </div>`;
@@ -1466,20 +1627,28 @@ function renderLeagueAwards(leagueId){
   const table = getClubStats(leagueId);
   const played = table.filter(t=>t.p>0);
 
-  const champHTML = champ ? `
-    <div class="award-hero">
-      <div class="aw-ic">🏆</div>
-      <div class="aw-title">${cfg.short.toUpperCase()} CHEMPIONI</div>
-      <div class="aw-name">${champ.team}</div>
-      <div class="aw-sub">${champ.username}</div>
+  const champCard = champ ? `
+    <div class="trophy-mini t-gold">
+      <div class="tm-ic">🏆</div>
+      <div class="tm-info"><div class="tm-lbl">${cfg.short} chempioni</div><div class="tm-name">${champ.team}</div><div class="tm-sub">${champ.username}</div></div>
     </div>` : `
-    <div class="award-hero" style="opacity:.6;">
-      <div class="aw-ic">🏆</div>
-      <div class="aw-title">${cfg.short.toUpperCase()} CHEMPIONI</div>
-      <div class="aw-sub" style="margin-top:8px;">Hali aniqlanmagan — mavsum davom etmoqda</div>
+    <div class="trophy-mini t-gold" style="opacity:.55;">
+      <div class="tm-ic">🏆</div>
+      <div class="tm-info"><div class="tm-lbl">${cfg.short} chempioni</div><div class="tm-name">Hali aniqlanmagan</div><div class="tm-sub">Mavsum davom etmoqda</div></div>
     </div>`;
 
   const scorers = [...played].sort((a,b)=>b.gf-a.gf).slice(0,3);
+  const topScorer = scorers[0];
+  const scorerCard = topScorer ? `
+    <div class="trophy-mini t-violet">
+      <div class="tm-ic">👟</div>
+      <div class="tm-info"><div class="tm-lbl">Eng ko'p gol</div><div class="tm-name">${topScorer.name}</div><div class="tm-sub">${topScorer.user}</div></div>
+      <div class="tm-stat">${topScorer.gf}⚽</div>
+    </div>` : `
+    <div class="trophy-mini t-violet" style="opacity:.55;">
+      <div class="tm-ic">👟</div>
+      <div class="tm-info"><div class="tm-lbl">Eng ko'p gol</div><div class="tm-name">Hali o'yin yo'q</div></div>
+    </div>`;
   const scorersHTML = scorers.length ? scorers.map((t,i)=>`
     <div class="award-row p${i+1}">
       <div class="aw-pos">${i+1}</div>
@@ -1488,6 +1657,17 @@ function renderLeagueAwards(leagueId){
     </div>`).join('') : `<div class="empty"><div class="empty-ic">⚽</div><div>Hali o'yin yo'q</div></div>`;
 
   const defenders = [...played].sort((a,b)=>a.ga-b.ga).slice(0,3);
+  const topDef = defenders[0];
+  const defCard = topDef ? `
+    <div class="trophy-mini t-cyan">
+      <div class="tm-ic">🛡️</div>
+      <div class="tm-info"><div class="tm-lbl">Eng yaxshi himoya</div><div class="tm-name">${topDef.name}</div><div class="tm-sub">${topDef.user}</div></div>
+      <div class="tm-stat" style="color:var(--teal);">${topDef.ga}🛡️</div>
+    </div>` : `
+    <div class="trophy-mini t-cyan" style="opacity:.55;">
+      <div class="tm-ic">🛡️</div>
+      <div class="tm-info"><div class="tm-lbl">Eng yaxshi himoya</div><div class="tm-name">Hali o'yin yo'q</div></div>
+    </div>`;
   const defendersHTML = defenders.length ? defenders.map((t,i)=>`
     <div class="award-row p${i+1}">
       <div class="aw-pos">${i+1}</div>
@@ -1496,10 +1676,10 @@ function renderLeagueAwards(leagueId){
     </div>`).join('') : `<div class="empty"><div class="empty-ic">🛡️</div><div>Hali o'yin yo'q</div></div>`;
 
   wrap.innerHTML = `
-    ${champHTML}
-    <div class="slb">⚽ Eng ko'p gol urgan</div>
+    <div class="trophy-grid">${champCard}${scorerCard}${defCard}</div>
+    <div class="slb">⚽ Eng ko'p gol urgan — TOP 3</div>
     <div class="award-list">${scorersHTML}</div>
-    <div class="slb" style="margin-top:10px;">🛡️ Eng yaxshi himoya</div>
+    <div class="slb" style="margin-top:10px;">🛡️ Eng yaxshi himoya — TOP 3</div>
     <div class="award-list" style="padding-bottom:20px;">${defendersHTML}</div>
   `;
 }
@@ -1516,7 +1696,7 @@ function renderLeagueProfile(leagueId){
   const rounds = window.leagueSchedule[leagueId]||[];
   if(!rounds.length){
     wrap.innerHTML = `<div style="padding:16px;">
-      <div class="prof-card"><div class="prof-avatar">👤</div><div class="prof-info"><div class="prof-name">${found.user}</div><div class="prof-team">${found.flag} ${found.name}</div></div></div>
+      <div class="prof-card"><div class="prof-avatar">👤</div><div class="prof-info"><div class="prof-name">${found.user}</div><div class="prof-team">${clubLogoHTML(found.name, found.flag, 20)} ${found.name}</div></div></div>
     </div>${noDrawHTML(leagueId)}`;
     return;
   }
@@ -1550,7 +1730,7 @@ function renderLeagueProfile(leagueId){
         <div class="prof-avatar">👤</div>
         <div class="prof-info">
           <div class="prof-name">${found.user}</div>
-          <div class="prof-team">${found.flag} ${found.name}</div>
+          <div class="prof-team">${clubLogoHTML(found.name, found.flag, 20)} ${found.name}</div>
         </div>
       </div>
     </div>
@@ -1569,19 +1749,23 @@ function renderLeagueProfile(leagueId){
         const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):(m.pending?'TASDIQ KUTILMOQDA':'KUTILMOQDA');
         const oppUserClean = m.opp && m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
         const canChat = !!oppUserClean;
-        const dayIdx = getLeagueOrderIndex(leagueId, m.h, m.a);
-        const dailyStatus = getDailyMatchStatus('league_'+leagueId, dayIdx);
+        const dailyStatus = getDailyMatchStatus('league_'+leagueId, m.ri);
         const isCurrentRound = dailyStatus==='not_started' ? (m.ri===activeRound) : (dailyStatus==='open');
         const lockMsg = dailyStatus==='locked'
           ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 ta o'yin ochiladi`
           : `🔒 ${m.ri+1}-tur hali ochilmagan`;
+        const myTeamName = m.isHome?found.name:(m.opp?m.opp.name:m.a);
+        const oppTeamName = m.isHome?(m.opp?m.opp.name:m.a):found.name;
+        const homeName = m.h, awayName = m.a;
+        const homeFlag = (m.isHome?found.flag:(m.opp?m.opp.flag:'⚽'))||'⚽';
+        const awayFlag = (m.isHome?(m.opp?m.opp.flag:'⚽'):found.flag)||'⚽';
+        const openSheetCall = `openScoreSheet({title:'${(m.ri+1)}-tur natijasi',
+          homeFlag:'${homeFlag}', homeName:'${homeName.replace(/'/g,"\\'")}',
+          awayFlag:'${awayFlag}', awayName:'${awayName.replace(/'/g,"\\'")}',
+          hId:'lsc-h-${leagueId}-${i}', aId:'lsc-a-${leagueId}-${i}',
+          onSubmit:\"submitLeagueScore('${leagueId}',${i})\"})`;
         const inputBlock = (!m.done && !m.pending) ? (isCurrentRound ? `
-        <div class="score-entry">
-            <div class="score-col"><input type="number" id="lsc-h-${leagueId}-${i}" class="score-box" placeholder="0" min="0" max="20" inputmode="numeric"><div class="score-lbl">MEN</div></div>
-            <span class="score-sep">:</span>
-            <div class="score-col"><input type="number" id="lsc-a-${leagueId}-${i}" class="score-box" placeholder="0" min="0" max="20" inputmode="numeric"><div class="score-lbl">RAQIB</div></div>
-            <button onclick="submitLeagueScore('${leagueId}',${i})" class="score-submit-btn">Yuborish ✓</button>
-          </div>` : `
+          <button class="score-open-btn" onclick="${openSheetCall}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(100,116,139,.08);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
             ${lockMsg}
           </div>`) : '';
@@ -1595,22 +1779,17 @@ function renderLeagueProfile(leagueId){
           <div style="display:flex;align-items:center;gap:8px;">
             <div style="font-size:11px;color:var(--muted);font-weight:600;min-width:44px;"><span style="font-size:9px;color:var(--accent);">${m.ri+1}-TUR</span></div>
             <div style="display:flex;align-items:center;gap:6px;flex:1;font-size:13px;font-weight:700;justify-content:center;">
-              <span>${m.isHome?found.name:m.opp?m.opp.name:m.a}</span>
+              ${clubLogoHTML(myTeamName, '⚽', 18)}<span>${myTeamName}</span>
               <span style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:${m.done?'var(--text)':'var(--muted)'};">${scoreStr}</span>
-              <span>${m.isHome?(m.opp?m.opp.name:m.a):found.name}</span>
+              <span>${oppTeamName}</span>${clubLogoHTML(oppTeamName, '⚽', 18)}
             </div>
             <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 8px;border-radius:8px;
               ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
                 statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
                 statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
                 'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
-            <div style="display:flex;gap:5px;flex-shrink:0;">
-            ${canChat?`<button onclick="openChat('${oppUserClean}')" title="Raqibga to'g'ridan-to'g'ri yozish"
-              style="width:32px;height:32px;background:rgba(23,184,166,.15);border:1px solid rgba(23,184,166,.35);border-radius:10px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
-              <button onclick="openBotChat('${oppUserClean}','${leagueId}')" title="Bot orqali yozish"
-              style="width:32px;height:32px;background:rgba(198,255,61,.12);border:1px solid rgba(198,255,61,.35);border-radius:10px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🤖</button>`
-              :`<div style="width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.4;">🔒</div>`}
-            </div>
+            ${canChat?`<button class="match-menu-btn" onclick="openMatchActionSheet('${oppUserClean}','${leagueId}','${oppTeamName.replace(/'/g,"\\'")}')" title="Raqib bilan bog'lanish">💬</button>`
+              :`<div class="match-menu-btn" style="opacity:.4;cursor:default;">🔒</div>`}
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:52px;">${m.opp? (m.opp.user+ (m.isHome? ' (mehmon)':' (uy egasi)')) : ''}</div>
           ${inputBlock}
@@ -1644,6 +1823,7 @@ function submitLeagueScore(leagueId, idx){
   results[leagueId].push({h:target.h, a:target.a, hs, as, pending:true, time:Date.now()});
   saveData();
   showToast('📨 Natija yuborildi! Raqib tasdiqlashi kerak');
+  closeSheet();
   renderLeagueProfile(leagueId);
 }
 
@@ -1690,9 +1870,16 @@ function renderLeagueAdmin(leagueId){
       <select id="la-match" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;"></select>
       <input id="la-score" placeholder="2-1" maxlength="5" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;">
       <div style="display:flex;gap:8px;">
-        <button onclick="adminSaveLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;">✅ Saqlash</button>
+        <button onclick="adminSaveLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">✅ Saqlash</button>
         <button onclick="adminDeleteLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;">🗑 O'chirish</button>
       </div>
+    </div>
+    <div class="slb" style="margin-top:16px;">Jamoani bo'shatish (noto'g'ri/ikki marta yozilgan holatlar uchun)</div>
+    <div style="padding:0 16px;">
+      <select id="la-free-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
+        ${(CLUB_GROUPS[leagueId]||[]).map(t=>`<option value="${t.name}">${t.name} — ${t.user&&t.user!=='—'?t.user:'bo\'sh'}</option>`).join('')}
+      </select>
+      <button onclick="adminFreeClubTeam('${leagueId}')" style="width:100%;padding:13px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;">🧹 Tanlangan jamoani bo'shatish</button>
     </div>
     <div class="slb" style="margin-top:16px;">Qura</div>
     <div style="padding:0 16px;">
@@ -1700,6 +1887,19 @@ function renderLeagueAdmin(leagueId){
     </div>
   `;
   loadAdminLeagueMatches(leagueId);
+}
+function adminFreeClubTeam(leagueId){
+  const sel = document.getElementById('la-free-team');
+  if(!sel || !sel.value){ showToast('❌ Jamoa tanlang'); return; }
+  const team = CLUB_GROUPS[leagueId] && CLUB_GROUPS[leagueId].find(t=>t.name===sel.value);
+  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
+  if(!team.user || team.user==='—'){ showToast("ℹ️ Bu jamoa allaqachon bo'sh"); return; }
+  const prevUser = team.user;
+  team.user = '—';
+  saveShared();
+  showToast(`✅ ${team.name} bo'shatildi (avval: ${prevUser})`);
+  renderLeagueAdmin(leagueId);
+  renderClubsList();
 }
 function loadAdminLeagueMatches(leagueId){
   const ri = parseInt(document.getElementById('la-round').value);
@@ -1845,16 +2045,8 @@ function getRoundNumber(grp, teamA, teamB){
 function getWcGroupOrder(grp){
   const teams = GROUPS[grp];
   if(!teams) return [];
-  const order=[];
-  ROUND_SCHEDULE.forEach(round=>{
-    round.forEach(([i,j])=>{ order.push({h:teams[i].name, a:teams[j].name}); });
-  });
-  return order;
-}
-// Berilgan juftlikning shu guruh ichidagi ketma-ket (0-based) tartib raqami.
-function getWcGroupOrderIndex(grp, teamA, teamB){
-  const order = getWcGroupOrder(grp);
-  return order.findIndex(p=>(p.h===teamA&&p.a===teamB)||(p.h===teamB&&p.a===teamA));
+  // Har bir element — bitta TURdagi barcha juftliklar ro'yxati
+  return ROUND_SCHEDULE.map(round=>round.map(([i,j])=>({h:teams[i].name, a:teams[j].name})));
 }
 
 // ============================================================================
@@ -1873,8 +2065,123 @@ const CURRENT_SEASON = 1;
 // GitHub'da shu massivni tahrirlab, istalgan vaqt to'g'irlash mumkin.
 // ============================================================================
 const LEAGUE_SEASON = 1;
+const CLUB_LOGOS = (()=>{
+  const B = 'https://cdn.prod.website-files.com/68f550992570ca0322737dc2/';
+  return {
+    // APL
+    'Arsenal': B+'6a178ec82da16e223f7547fd_68f587d4b29d49b3350c891b_arsenal-footballlogos-org.webp',
+    'Aston Villa': B+'68f5871564515d34fc6e69f4_aston-villa-footballlogos-org.svg',
+    'Bournemouth': B+'68f5873f20f16768d7c35294_bournemouth-footballlogos-org.svg',
+    'Brentford': B+'6a178ed926b22fa10e5b2434_68f58776bf90e7defd70a271_brentford-footballlogos-org.webp',
+    'Brighton': B+'6a178edab1e4c275dd410694_68f587a8a5f97b713d376c08_brighton-hove-footballlogos-org.webp',
+    'Burnley': B+'68f5880a33480946aa8663c4_burnley-footballlogos-org.svg',
+    'Chelsea': B+'6a463a7160b2ce42d1b54153_chelsea-logo-2026-footylogos.png',
+    'Crystal Palace': B+'6a178ef0d2fd6310dfe28c57_68f589a4dfbd72754cd0bf10_crystal-palace-footballlogos-org.webp',
+    'Everton': B+'6a178ef72d8f5c730d574704_68f5890d41b4461e46a27fed_everton-footballlogos-org.png',
+    'Fulham': B+'6a178f05566fbd119b77aa10_68f5893a2daa993a7aeadc27_fulham-footballlogos-org.webp',
+    'Leeds United': B+'6a178f171fdaacf23f0f86b6_68f589cc025fb2e82c913a2c_leeds-united-footballlogos-org.webp',
+    'Liverpool': B+'6a178f1a827b5502993ff572_68f5896aeac0eecdd6a3e7de_liverpool-fc-footballlogos-org.webp',
+    'Manchester City': B+'6a178f1d8d373abfdd66b82c_68f589f820f16768d7c38be2_manchester-city-footballlogos-org.webp',
+    'Manchester United': B+'68f58a2606fdd830398bc400_manchester-united-footballlogos-org.svg',
+    'Newcastle United': B+'6a178f27566fbd119b77ad29_68f58a3f5c91d9f5a918ce5a_england_newcastle_1500x1500.webp',
+    'Nottingham Forest': B+'6a178f2aaa3f837f06d145e9_68f58a7aa0f964641d5abfaf_nottingham-forest-footballlogos-org.webp',
+    'Sunderland': B+'6a178f57c47ba0e1d1409a08_68f58aa40cc312bb0bdb1587_sunderland-footballlogos-org.webp',
+    'Tottenham': B+'6a178f5bd2fd6310dfe29844_68f58ad6ad88bd62cc1e7dfa_tottenham-hotspur-footballlogos-org.webp',
+    'West Ham': B+'6a178f6aacf41661f84ebaeb_68f58b0326d71ee27bf684e7_west-ham-united-footballlogos-org.webp',
+    'Wolves': B+'68f58b56dfbd72754cd0ee78_wolverhampton-wanderers-footballlogos-org.svg',
+    // La Liga
+    'Alaves': B+'68f574c28abeb45efd9bbd68_deportivo-alaves-footballlogos-org.webp',
+    'Athletic Bilbao': B+'68f575de11002aa249f5bbee_athletic-club-bilbao-footballlogos-org.webp',
+    'Atletico Madrid': B+'6a2dabd10d1b3a11100dcb09_68f57ae622e0827f30d03d63_atletico-madrid-footballlogos-org.webp',
+    'Barcelona': B+'6a2dabef6002e4fd2eefe0d1_6a2778f4e987d98a27cb54d3_fc-barcelona-footylogos.webp',
+    'Celta Vigo': B+'68f573c734dc0a249b2a0f2d_celta-vigo-footballlogos-org.webp',
+    'Elche': B+'68f57542899b8f879ba21192_elche-cf-footballlogos-org.webp',
+    'Espanyol': B+'68f57a5d8abeb45efd9c4cfb_rcd-espanyol-footballlogos-org.webp',
+    'Getafe': B+'68f57702504a85f4611ace49_getafe-cf-footballlogos-org.svg',
+    'Girona': B+'68f578ba6fbc8de137b1bbe5_girona-fc-footballlogos-org.webp',
+    'Levante': B+'68f5778556a1aa8ba501971d_levante-ud-footballlogos-org.webp',
+    'Mallorca': B+'68f57c30f79bc28af844c630_rcd-mallorca-footballlogos-org.webp',
+    'Osasuna': B+'68f57672b033f646ad86671a_osasuna-footballlogos-org.webp',
+    'Rayo Vallecano': B+'68f579a0578a1e6baf9a05bf_rayo-vallecano-footballlogos-org.webp',
+    'Real Betis': B+'68f5653c93bf6ab9aaa80c01_real-betis-footballlogos-org.webp',
+    'Real Madrid': B+'6a2dac1f7b5b0788752f5fbb_68f556587d8c261145a647f7_real-madrid-footballlogos-org.webp',
+    'Real Oviedo': B+'68f57b6ddb43ee158566f641_real-oviedo-footballlogos-org.webp',
+    'Real Sociedad': B+'68f57ccfe3385206395a2940_real-sociedad-footballlogos-org.webp',
+    'Sevilla': B+'68f57d4cd858cff37cd779c0_sevilla-fc-footballlogos-org.svg',
+    'Valencia': B+'68f57dd9ef436c4d8079a6c3_valencia-cf-footballlogos-org.webp',
+    'Villarreal': B+'68f56451311816a40ac12bf6_villarreal-cf-footballlogos-org.webp',
+    // Serie A (Verona, Cremonese, Pisa hozircha topilmadi — emoji fallback ishlatiladi)
+    'Atalanta': B+'6a18dc636c0dc2b32f114cb9_atalanta-footylogos.png',
+    'Bologna': B+'68f590332f7e2e5f2f5c3c77_bologna-footballlogos-org.webp',
+    'Cagliari': B+'68f58fb0f8b72e10fcca8279_cagliari-footballlogos-org.webp',
+    'Como': B+'68f58fe39039ffc9b88a657e_como-1907-footballlogos-org.webp',
+    'Fiorentina': B+'6a2dabf259cd193f6f9a9ee8_68f58f8cf8b72e10fcca7f4e_fiorentina-footballlogos-org.webp',
+    'Genoa': B+'68f590871f0d9bd8bb64af24_genoa-footballlogos-org.webp',
+    'Inter': B+'6a2dabf8be544df394f36f0b_68f590dc82d343819638a796_inter-milan-footballlogos-org.webp',
+    'Juventus': B+'6a2dabfe3f65f5442c3327cf_68f591085f8ea61de0a1cc6a_juventus-footballlogos-org.webp',
+    'Lazio': B+'68f591295ba37a0850ada7ff_lazio-footballlogos-org.webp',
+    'Lecce': B+'68f591503b74d5a9a7f6435c_lecce-footballlogos-org.webp',
+    'Milan': B+'6a2dabc3c4421c75c1c638d4_68f59173c54aab3bb289682d_ac-milan-footballlogos-org.webp',
+    'Napoli': B+'6a2dac0f635d5e15f396735b_69fb26f9f2009903393e5eff_napoli-footylogos.webp',
+    'Parma': B+'68f591c871c3891858936f5c_parma-footballlogos-org.webp',
+    'Roma': B+'69f685fdf9803881d891451c_roma-footylogos.webp',
+    'Sassuolo': B+'68f5923bdfbd72754cd17a3c_sassuolo-footballlogos-org.webp',
+    'Torino': B+'68f5926167bb453c3fe7cec0_torino-footballlogos-org.webp',
+    'Udinese': B+'68f5928a0decdd9736d3a737_udinese-footballlogos-org.webp',
+    'Verona': B+'68f590b664ace7f9ba281df6_hellas-verona-footballlogos-org.png',
+    'Cremonese': B+'68f5900bf887e78f3cdb0ff1_cremonese-footballlogos-org.png',
+    'Pisa': B+'68f5920fe7be271bf8e28d91_pisa-footballlogos-org.png',
+    // Bundesliga (Wolfsburg, Heidenheim, St. Pauli hozircha topilmadi — emoji fallback ishlatiladi)
+    'Bayern Munich': B+'6a178ed1970a1f21ba7e65fa_68f5938f22e0827f30d2bdbb_bayern-munich-footballlogos-org.png',
+    'Bayer Leverkusen': B+'6a178ed1c527a0f357c450e0_68f59363f8048e80334715fe_bayer-leverkusen-footballlogos-org.png',
+    'RB Leipzig': B+'6a178f3ce26efe4dcc7765c4_68f592fe9617d4298294417c_rb-leipzig-footballlogos-org.png',
+    'Borussia Dortmund': B+'6a178ed53598132e63f2e3f7_68f592d7b5c9d747c139b5bc_borussia-dortmund-footballlogos-org.png',
+    'Eintracht Frankfurt': B+'6a178ef5d0a0bd93c809ded4_68f593f09634c1188f0d6e82_eintracht-frankfurt-footballlogos-org.png',
+    'Freiburg': B+'6a178f43ad7992cf1fdfada1_68f5947474f0b7adc83135b0_sc-freiburg-footballlogos-org.png',
+    'Mainz 05': B+'6a178f1daa667d8d7d91ce80_68f59501342cf2fd4bb67052_mainz-05-footballlogos-org.png',
+    'Borussia Monchengladbach': B+'6a178ed6299ebed0395250ad_68f59336c8cb89dc144d4b1f_borussia-monchengladbach-footballlogos-org.png',
+    'Werder Bremen': B+'6a178f68c4c836a09c3e08fb_68f5944f31f228ee9a411e09_werder-bremen-footballlogos-org.png',
+    'VfB Stuttgart': B+'6a178f61070156fbb28bbc06_68f593bc83f453d8fa1cb870_vfb-stuttgart-footballlogos-org.png',
+    'Union Berlin': B+'6a178f5fb9f731047597ad04_68f595257c58f576d0693632_union-berlin-footballlogos-org.png',
+    'Augsburg': B+'6a178ef93b109f5aabd1be84_68f594d074ca90e509d69beb_fc-augsburg-footballlogos-org.png',
+    'Hamburger SV': B+'6a178f0a827b5502993ff417_68fad519b9cffbf61d265c12_hamburger-sv-footballlogos-org.png',
+    'FC Koln': B+'6a178ebbc08d0acccb7776b1_68f595b5c6a552d1f3b65913_1-fc-koln-footballlogos-org.png',
+    'Hoffenheim': B+'6a178f59a36a496031b3c86a_68f5949c237af0cc71c1a36d_tsg-hoffenheim-footballlogos-org.png',
+    'Wolfsburg': B+'6a0b39f75b0414cc33908e0f_69ffa3dc20b1bcba438115a7_wolfsburg-footylogos.webp',
+    'Heidenheim': B+'6a178efb719f7ecaa2875f7c_68f59581aa98c1dc46912d42_fc-heidenheim-footballlogos-org.webp',
+    'St. Pauli': B+'6a178f006204d20ba413ef2d_68f596027d8c261145ace8bc_st-pauli-footballlogos-org.webp',
+    // Ligue 1
+    'PSG': B+'68f600ecd5c3338dd7b8791a_paris-saint-germain-footballlogos-org.svg',
+    'Marseille': B+'69f3f418117ceba672d60345_marseille-footylogos.png',
+    'Monaco': B+'68f601bc2d95f01cf7da34fc_as-monaco-footballlogos-org.svg',
+    'Lille': B+'68f60227a28dc9b483bf1ab7_losc-lille-footballlogos-org.svg',
+    'Lyon': B+'68f601f4555ff54bb38a9743_olympique-lyonnais-footballlogos-org.svg',
+    'Nice': B+'68f60156f059b025091ea26e_ofc-nice-footballlogos-org.svg',
+    'Lens': B+'68f60258dd4d4729426f3082_rc-lens-footballlogos-org.svg',
+    'Rennes': B+'68f602903fd5f4df637cbe5b_stade-rennais-footballlogos-org.svg',
+    'Strasbourg': B+'68f602be5a5d10d0cabe9a5c_rc-strasbourg-alsace-footballlogos-org.svg',
+    'Toulouse': B+'68f602ea024ee46f704e7e95_toulouse-fc-footballlogos-org.svg',
+    'Nantes': B+'68f6037717f207f26068359f_fc-nantes-footballlogos-org.svg',
+    'Brest': B+'68f6031ff8cd65c6ad62fa0e_brest-footballlogos-org.svg',
+    'Auxerre': B+'68f604000025e698ff8be374_aj-auxerre-footballlogos-org.svg',
+    'Angers': B+'68f6044473059916e3a126b6_angers-sco-footballlogos-org.svg',
+    'Le Havre': B+'68f6034b2c4dba4d15325577_le-havre-ac-footballlogos-org.svg',
+    'Metz': B+'68f603d9c19d41ee7ff7f9a2_fc-metz-footballlogos-org.svg',
+    'Paris FC': B+'68f604733a591a18ae67f120_paris-fc-footballlogos-org.svg',
+    'Lorient': B+'68f603b4555e8b80e10e6e00_fc-lorient-footballlogos-org.svg',
+  };
+})();
+// Klub logotipini <img> sifatida qaytaradi; rasm topilmasa yoki yuklanmasa (404/tarmoq xatosi)
+// avtomatik ravishda liga emojisiga (fallback) almashtiriladi — sahifa hech qachon "singan rasm" ko'rsatmaydi.
+function clubLogoHTML(teamName, fallbackEmoji, sizePx){
+  const url = CLUB_LOGOS[teamName];
+  const sz = sizePx || 22;
+  if(!url) return `<span style="font-size:${sz}px;line-height:1;">${fallbackEmoji||'⚽'}</span>`;
+  return `<img src="${url}" alt="" style="width:${sz}px;height:${sz}px;object-fit:contain;border-radius:50%;background:#fff;padding:2px;vertical-align:middle;flex-shrink:0;" onerror="this.outerHTML='<span style=&quot;font-size:${sz}px;line-height:1;&quot;>${fallbackEmoji||'⚽'}</span>'">`;
+}
+
 const CLUB_LEAGUES = [
-  { id:'APL', name:"Angliya Premer-Ligasi", short:'APL', icon:'🏴',
+  { id:'APL', name:"Angliya Premer-Ligasi", short:'APL', icon:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     teams:['Arsenal','Aston Villa','Bournemouth','Brentford','Brighton','Burnley','Chelsea','Crystal Palace','Everton','Fulham','Leeds United','Liverpool','Manchester City','Manchester United','Newcastle United','Nottingham Forest','Sunderland','Tottenham','West Ham','Wolves'] },
   { id:'LALIGA', name:'Ispaniya La Liga', short:'La Liga', icon:'🇪🇸',
     teams:['Alaves','Athletic Bilbao','Atletico Madrid','Barcelona','Celta Vigo','Elche','Espanyol','Getafe','Girona','Levante','Mallorca','Osasuna','Rayo Vallecano','Real Betis','Real Madrid','Real Oviedo','Real Sociedad','Sevilla','Valencia','Villarreal'] },
@@ -1928,14 +2235,8 @@ function isLeagueDrawn(leagueId){ return !!(window.leagueDraws && window.leagueD
 
 // Liganing BARCHA turlarini yagona ketma-ket ro'yxatga tekislaydi (kunlik jadval uchun).
 function getLeagueOrder(leagueId){
-  const rounds = window.leagueSchedule[leagueId]||[];
-  const order=[];
-  rounds.forEach(rd=>rd.forEach(p=>order.push({h:p.h,a:p.a})));
-  return order;
-}
-function getLeagueOrderIndex(leagueId, teamA, teamB){
-  const order = getLeagueOrder(leagueId);
-  return order.findIndex(p=>(p.h===teamA&&p.a===teamB)||(p.h===teamB&&p.a===teamA));
+  // Har bir element — bitta TURdagi barcha juftliklar ro'yxati
+  return window.leagueSchedule[leagueId]||[];
 }
 function shuffleArray(arr){
   const a = arr.slice();
@@ -2052,7 +2353,7 @@ function finishLeagueDraw(leagueId){
       <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:center;">vs</div>
       <div style="flex:1;font-size:13px;font-weight:600;text-align:right;">${p.a}</div>
     </div>`).join('')}
-    <button onclick="closeDrawPage(true)" style="width:100%;margin-top:14px;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:1px;">Ligaga o'tish →</button>
+    <button onclick="closeDrawPage(true)" style="width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:1px;">Ligaga o'tish →</button>
   `;
   showToast('🎲 Qura tashlandi!');
 }
@@ -2068,7 +2369,7 @@ function noDrawHTML(leagueId){
   return `<div class="empty" style="padding-top:40px;">
     <div class="empty-ic">🎲</div>
     <div>${!full ? "Ro'yxat hali yakunlanmagan — barcha jamoalar band bo'lgach qura o'tkaziladi" : (admin ? "Qura hali o'tkazilmagan" : "Qura hali o'tkazilmagan — admin kutilmoqda")}</div>
-    ${full && admin ? `<button onclick="startLeagueDraw('${leagueId}')" style="margin-top:14px;padding:12px 22px;background:var(--accent);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;">🎲 Qura tashlash</button>` : ''}
+    ${full && admin ? `<button onclick="startLeagueDraw('${leagueId}')" style="margin-top:14px;padding:12px 22px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🎲 Qura tashlash</button>` : ''}
   </div>`;
 }
 
@@ -2112,26 +2413,45 @@ function initClubRegUI(){
     <select id="club-rf-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
       ${teams.map(t=>{ const taken = t.user && t.user!=='—'; return `<option value="${t.name}" ${taken?'disabled':''}>${t.name}${taken?' (band)':''}</option>`; }).join('')}
     </select>
-    <button onclick="registerClubTeam()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">Ro'yxatdan o'tish →</button>`;
+    <button onclick="registerClubTeam()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">Ro'yxatdan o'tish →</button>`;
 }
 function registerClubTeam(){
   const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   if(!tgUser || !tgUser.username){ showToast('❌ Telegram username sozlanmagan'); return; }
   const myUsername = '@'+tgUser.username;
-  if(myClubTeamAnywhere(myUsername)){ showToast('❌ Siz allaqachon boshqa ligada ro\'yxatdansiz'); initClubRegUI(); return; }
   const activeIdx = getActiveLeagueIndex();
   if(activeIdx >= CLUB_LEAGUES.length){ showToast("🔒 Barcha ligalarda joylar to'ldi"); return; }
   const active = CLUB_LEAGUES[activeIdx];
   const sel = document.getElementById('club-rf-team');
   if(!sel || !sel.value){ showToast('❌ Jamoa tanlang'); return; }
-  const team = CLUB_GROUPS[active.id].find(t=>t.name===sel.value);
-  if(!team){ showToast('❌ Jamoa topilmadi'); return; }
-  if(team.user && team.user!=='—'){ showToast('❌ Bu jamoa allaqachon band!'); initClubRegUI(); return; }
-  team.user = myUsername;
-  saveShared();
-  showToast(`✅ ${team.name} — ro'yxatdan o'tdingiz!`);
-  initClubRegUI();
-  renderClubsList();
+  const teamName = sel.value;
+  // Ikki marta bosishni yoki qayta-qayta so'rov yuborishni bloklaymiz
+  const regBtn = document.querySelector('#club-reg-box button');
+  if(regBtn){
+    if(regBtn.disabled) return; // allaqachon jarayonda
+    regBtn.disabled = true;
+    regBtn.textContent = 'Tekshirilmoqda...';
+  }
+  // MUHIM: yozishdan oldin JSONBin'dan ENG SO'NGGI holatni qayta yuklaymiz, shundan
+  // keyingina "band emasmi" deb tekshiramiz. Shu orqali ikki qurilma/sessiya bir vaqtda
+  // ro'yxatdan o'tishga urinsa ham (eski, keshlangan holat asosida emas), haqiqiy
+  // eng so'nggi ma'lumot asosida tekshiruv o'tkaziladi — bitta odam ikkita jamoaga
+  // yozilib qolish (yoki bitta jamoaga ikki kishi yozilib qolish) ehtimoli deyarli yo'qoladi.
+  loadShared(()=>{
+    if(myClubTeamAnywhere(myUsername)){
+      showToast('❌ Siz allaqachon boshqa ligada ro\'yxatdansiz');
+      initClubRegUI(); renderClubsList();
+      return;
+    }
+    const team = CLUB_GROUPS[active.id] && CLUB_GROUPS[active.id].find(t=>t.name===teamName);
+    if(!team){ showToast('❌ Jamoa topilmadi'); initClubRegUI(); return; }
+    if(team.user && team.user!=='—'){ showToast('❌ Bu jamoa allaqachon band! Boshqasini tanlang'); initClubRegUI(); renderClubsList(); return; }
+    team.user = myUsername;
+    saveShared();
+    showToast(`✅ ${team.name} — ro'yxatdan o'tdingiz!`);
+    initClubRegUI();
+    renderClubsList();
+  });
 }
 
 const XP_BASE = 100; // 1-> 2 darajaga o'tish uchun kerakli XP, har darajada 1.25x oshadi
@@ -2172,7 +2492,7 @@ function getPlayoffRecordForTeam(teamName){
   return {w,d,l,gf,ga,bigWins};
 }
 
-// O'yinchi profilida "Playoff O'yinlarim" bo'limi uchun: bitta jamoaning
+// O'yinchi proflida "Playoff O'yinlarim" bo'limi uchun: bitta jamoaning
 // barcha bosqichlardagi (r32..final) playoff o'yinlarini yig'ib beradi.
 const PLAYOFF_ROUND_LABELS = {r32:"1/16 FINAL", r16:"1/8 FINAL", qf:"CHORAK FINAL", sf:"YARIM FINAL", third:"3-O'RIN", final:"FINAL"};
 function getMyPlayoffMatches(teamName){
@@ -2250,21 +2570,29 @@ function renderAwardsInner(){
 
   // 1) Liga chempioni
   const champ = (window.champions||[]).find(c=>c.league===CURRENT_LEAGUE && c.season===CURRENT_SEASON);
-  const champHTML = champ ? `
-    <div class="award-hero">
-      <div class="aw-ic">🏆</div>
-      <div class="aw-title">LIGA CHEMPIONI</div>
-      <div class="aw-name">${champ.flag||''} ${champ.team}</div>
-      <div class="aw-sub">${champ.username}</div>
+  const champCard = champ ? `
+    <div class="trophy-mini t-gold">
+      <div class="tm-ic">🏆</div>
+      <div class="tm-info"><div class="tm-lbl">Liga chempioni</div><div class="tm-name">${champ.flag||''} ${champ.team}</div><div class="tm-sub">${champ.username}</div></div>
     </div>` : `
-    <div class="award-hero" style="opacity:.6;">
-      <div class="aw-ic">🏆</div>
-      <div class="aw-title">LIGA CHEMPIONI</div>
-      <div class="aw-sub" style="margin-top:8px;">Hali aniqlanmagan — Final o'ynalmagan</div>
+    <div class="trophy-mini t-gold" style="opacity:.55;">
+      <div class="tm-ic">🏆</div>
+      <div class="tm-info"><div class="tm-lbl">Liga chempioni</div><div class="tm-name">Hali aniqlanmagan</div><div class="tm-sub">Final o'ynalmagan</div></div>
     </div>`;
 
   // 2) Eng ko'p gol urgan (top 3)
   const scorers = [...teams].filter(t=>t.p>0).sort((a,b)=>b.gf-a.gf).slice(0,3);
+  const topScorer = scorers[0];
+  const scorerCard = topScorer ? `
+    <div class="trophy-mini t-violet">
+      <div class="tm-ic">👟</div>
+      <div class="tm-info"><div class="tm-lbl">Eng ko'p gol</div><div class="tm-name">${topScorer.flag} ${topScorer.name}</div><div class="tm-sub">${topScorer.user}</div></div>
+      <div class="tm-stat">${topScorer.gf}⚽</div>
+    </div>` : `
+    <div class="trophy-mini t-violet" style="opacity:.55;">
+      <div class="tm-ic">👟</div>
+      <div class="tm-info"><div class="tm-lbl">Eng ko'p gol</div><div class="tm-name">Hali o'yin yo'q</div></div>
+    </div>`;
   const scorersHTML = scorers.length ? scorers.map((t,i)=>`
     <div class="award-row p${i+1}">
       <div class="aw-pos">${i+1}</div>
@@ -2274,6 +2602,17 @@ function renderAwardsInner(){
 
   // 3) Eng yaxshi himoya — eng kam gol o'tkazgan (top 3)
   const defenders = [...teams].filter(t=>t.p>0).sort((a,b)=>a.ga-b.ga).slice(0,3);
+  const topDef = defenders[0];
+  const defCard = topDef ? `
+    <div class="trophy-mini t-cyan">
+      <div class="tm-ic">🛡️</div>
+      <div class="tm-info"><div class="tm-lbl">Eng yaxshi himoya</div><div class="tm-name">${topDef.flag} ${topDef.name}</div><div class="tm-sub">${topDef.user}</div></div>
+      <div class="tm-stat" style="color:var(--teal);">${topDef.ga}🛡️</div>
+    </div>` : `
+    <div class="trophy-mini t-cyan" style="opacity:.55;">
+      <div class="tm-ic">🛡️</div>
+      <div class="tm-info"><div class="tm-lbl">Eng yaxshi himoya</div><div class="tm-name">Hali o'yin yo'q</div></div>
+    </div>`;
   const defendersHTML = defenders.length ? defenders.map((t,i)=>`
     <div class="award-row p${i+1}">
       <div class="aw-pos">${i+1}</div>
@@ -2282,10 +2621,10 @@ function renderAwardsInner(){
     </div>`).join('') : `<div class="empty"><div class="empty-ic">🛡️</div><div>Hali o'yin yo'q</div></div>`;
 
   wrap.innerHTML = `
-    ${champHTML}
-    <div class="slb">⚽ Eng ko'p gol urgan</div>
+    <div class="trophy-grid">${champCard}${scorerCard}${defCard}</div>
+    <div class="slb">⚽ Eng ko'p gol urgan — TOP 3</div>
     <div class="award-list">${scorersHTML}</div>
-    <div class="slb" style="margin-top:10px;">🛡️ Eng yaxshi himoya</div>
+    <div class="slb" style="margin-top:10px;">🛡️ Eng yaxshi himoya — TOP 3</div>
     <div class="award-list" style="padding-bottom:20px;">${defendersHTML}</div>
   `;
 }
@@ -2349,8 +2688,7 @@ function renderPlayersInner(){
     const opp = ht.name===myTeam.name ? at : ht;
     const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
     const turNum = getRoundNumber(myTeam.grp, ht.name, at.name); // barqaror, ikki tomon uchun bir xil
-    const dayIdx = getWcGroupOrderIndex(myTeam.grp, ht.name, at.name);
-    const dailyStatus = getDailyMatchStatus('wc_'+myTeam.grp, dayIdx);
+    const dailyStatus = getDailyMatchStatus('wc_'+myTeam.grp, turNum-1);
     let myScore=null, oppScore=null, done=!!r, win=false, draw=false;
     if(r){
       myScore = r.h===myTeam.name?r.hs:r.as;
@@ -2420,15 +2758,14 @@ function renderPlayersInner(){
         const lockMsg = m.dailyStatus==='locked'
           ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 ta o'yin ochiladi`
           : `🔒 ${m.turNum}-tur yopiq — admin tomonidan bloklangan`;
+        const homeFlagWc = myTeam.flag, awayFlagWc = m.opp.flag;
+        const openSheetCallWc = `openScoreSheet({title:'${m.turNum}-tur natijasi',
+          homeFlag:'${homeFlagWc}', homeName:'${(m.myName||'').replace(/'/g,"\\'")}',
+          awayFlag:'${awayFlagWc}', awayName:'${(m.oppName||'').replace(/'/g,"\\'")}',
+          hId:'sc-h-${m.matchNum}', aId:'sc-a-${m.matchNum}',
+          onSubmit:\"submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')\"})`;
         const inputBlock = !m.done ? (turOpen ? `
-        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-            <input id="sc-${m.matchNum}" placeholder="2-1" maxlength="5"
-              style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
-            <button onclick="submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')"
-              style="padding:9px 16px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
-              Kiritish ✓
-            </button>
-          </div>` : `
+          <button class="score-open-btn" onclick="${openSheetCallWc}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;font-size:12px;color:var(--red);text-align:center;">
             ${lockMsg}
           </div>`) : '';
@@ -2458,8 +2795,8 @@ function renderPlayersInner(){
                 statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
                 statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
                 'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
-            ${canChat?`<button onclick="openChat('${oppUserClean}')"
-              style="width:36px;height:36px;background:rgba(23,184,166,.15);border:1px solid rgba(23,184,166,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
+            ${canChat?`<button class="match-menu-btn" onclick="openMatchActionSheet('${oppUserClean}','${m.grp}','${(m.opp.name||'').replace(/'/g,"\\'")}')"
+              style="width:36px;height:36px;">💬</button>`
               :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${m.opp.flag} ${m.opp.name} · ${m.opp.user}</div>
@@ -2487,7 +2824,7 @@ function renderPlayersInner(){
             <input id="po-sc-${m.round}-${m.idx}" placeholder="2-1" maxlength="5"
               style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
             <button onclick="submitPlayoffScore('${m.round}',${m.idx})"
-              style="padding:9px 16px;background:var(--accent);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+              style="padding:9px 16px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
               Kiritish ✓
             </button>
           </div>` : `
@@ -2521,7 +2858,7 @@ function renderPlayersInner(){
                 statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
                 'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
             ${canChat?`<button onclick="openChat('${oppUserClean}')"
-              style="width:36px;height:36px;background:rgba(23,184,166,.15);border:1px solid rgba(23,184,166,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
+              style="width:36px;height:36px;background:rgba(78,127,255,.15);border:1px solid rgba(78,127,255,.35);border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</button>`
               :`<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4;flex-shrink:0;">🔒</div>`}
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:38px;">${oppFlag} ${oppNameTxt} · ${oppUserTxt}</div>
@@ -2577,16 +2914,17 @@ function confirmPlayoffScore(round, idx, approve){
 }
 
 function submitMyScore(matchNum, myName, oppName, grp){
-  const inp = document.getElementById('sc-'+matchNum);
-  if(!inp) return;
-  const raw = inp.value.trim();
-  const p = raw.split('-');
-  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  const hInp = document.getElementById('sc-h-'+matchNum);
+  const aInp = document.getElementById('sc-a-'+matchNum);
+  if(!hInp || !aInp) return;
+  const hs = hInp.value.trim(), as = aInp.value.trim();
+  if(hs===''||as===''||isNaN(hs)||isNaN(as)){ showToast('❌ Ikkala hisobni ham kiriting'); return; }
   if(!results[grp]) results[grp]=[];
   results[grp] = results[grp].filter(r=>!((r.h===myName&&r.a===oppName)||(r.h===oppName&&r.a===myName)));
-  results[grp].push({h:myName,a:oppName,hs:parseInt(p[0]),as:parseInt(p[1]),pending:true});
+  results[grp].push({h:myName,a:oppName,hs:parseInt(hs),as:parseInt(as),pending:true});
   saveData();
   showToast('📨 Natija yuborildi! Admin tasdiqlaydi');
+  closeSheet();
   renderPlayers();
 }
 
@@ -2630,6 +2968,61 @@ function openBotChat(oppUsername, leagueId){
     window.open(url,'_blank');
   }
 }
+
+// ============================================================================
+// BOTTOM SHEET — umumiy komponent (natija kiritish, raqib bilan bog'lanish)
+// ============================================================================
+function openSheet(html){
+  const ov = document.getElementById('sheet-overlay');
+  const panel = document.getElementById('sheet-panel');
+  if(!ov || !panel) return;
+  panel.innerHTML = `<div class="sheet-handle"></div>` + html;
+  ov.classList.add('show');
+}
+function closeSheet(){
+  const ov = document.getElementById('sheet-overlay');
+  if(ov) ov.classList.remove('show');
+}
+
+// Natija kiritish sheet'ini ochadi. onSubmit — funksiya nomi (string), h/a — 0 yoki 1 (kim uy egasi emasligi muhim emas, faqat ko'rsatish uchun).
+function openScoreSheet(opts){
+  const {title, homeFlag, homeName, homeUser, awayFlag, awayName, awayUser, onSubmit, hId, aId} = opts;
+  const hInpId = hId || 'sheet-score-h', aInpId = aId || 'sheet-score-a';
+  openSheet(`
+    <div class="sheet-title">${title||'Natija kiritish'}</div>
+    <div class="sheet-teams">
+      <div class="sheet-team"><span class="fl">${homeFlag||'⚽'}</span><div class="sheet-team-name">${homeName}</div>${homeUser?`<div class="sheet-team-user">${homeUser}</div>`:''}</div>
+      <div class="sheet-vs">VS</div>
+      <div class="sheet-team"><span class="fl">${awayFlag||'⚽'}</span><div class="sheet-team-name">${awayName}</div>${awayUser?`<div class="sheet-team-user">${awayUser}</div>`:''}</div>
+    </div>
+    <div class="sheet-score-row">
+      <input type="number" id="${hInpId}" class="sheet-score-box" placeholder="0" min="0" max="20" inputmode="numeric">
+      <span class="sheet-score-sep">:</span>
+      <input type="number" id="${aInpId}" class="sheet-score-box" placeholder="0" min="0" max="20" inputmode="numeric">
+    </div>
+    <div class="sheet-actions">
+      <button class="sheet-btn cancel" onclick="closeSheet()">Bekor</button>
+      <button class="sheet-btn submit" onclick="${onSubmit}">Yuborish ✓</button>
+    </div>
+  `);
+}
+
+// Raqib bilan bog'lanish sheet'ini ochadi (to'g'ridan-to'g'ri chat + bot orqali tanishtirish).
+function openMatchActionSheet(oppUsername, leagueOrGrp, oppTeamName){
+  openSheet(`
+    <div class="sheet-title">${oppTeamName||'Raqib'}</div>
+    <div class="sheet-action-row" onclick="closeSheet();openChat('${oppUsername}')">
+      <div class="sheet-action-ic" style="background:rgba(34,211,238,.15);color:var(--teal);">💬</div>
+      <div class="sheet-action-txt"><div class="sheet-action-title">Chatni ochish</div><div class="sheet-action-sub">@${oppUsername} bilan to'g'ridan-to'g'ri yozishish</div></div>
+    </div>
+    <div class="sheet-action-row" onclick="closeSheet();openBotChat('${oppUsername}','${leagueOrGrp}')">
+      <div class="sheet-action-ic" style="background:rgba(139,92,246,.15);color:var(--accent);">🤖</div>
+      <div class="sheet-action-txt"><div class="sheet-action-title">Bot orqali tanishtirish</div><div class="sheet-action-sub">Bot ikkalangizni bir-biringizga tanishtiradi</div></div>
+    </div>
+    <button class="sheet-btn cancel" style="width:100%;margin-top:4px;" onclick="closeSheet()">Yopish</button>
+  `);
+}
+
 
 function ensurePlayoff(po){
   const def={r32:[],r16:[],qf:[],sf:[],third:[{h:null,a:null,hs:null,as:null}],final:[{h:null,a:null,hs:null,as:null}]};
@@ -2965,14 +3358,14 @@ function renderRatingInner(){
   html+=`</div>`;
 
   html+=`<div class="slb">2-O'rinlar (12 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
-  secondPlaces.forEach(t=>{ html+=qualCard(t,'#2','background:rgba(198,255,61,.1);color:var(--accent);border:1px solid rgba(198,255,61,.2);'); });
+  secondPlaces.forEach(t=>{ html+=qualCard(t,'#2','background:rgba(139,92,246,.1);color:var(--accent);border:1px solid rgba(139,92,246,.2);'); });
   html+=`</div>`;
 
   html+=`<div class="slb">Eng yaxshi 3-O'rinlar (8 ta) — Play-off ✅</div><div style="padding:0 16px;">`;
   if(best3rds.length===0){
     html+=`<div class="empty" style="padding:20px;"><div class="empty-ic">📊</div><div>O'yinlar tugagach aniqlanadi</div></div>`;
   } else {
-    best3rds.forEach((t,i)=>{ html+=qualCard(t,`#3 (${i+1})`, 'background:rgba(23,184,166,.15);color:#17B8A6;border:1px solid rgba(23,184,166,.3);'); });
+    best3rds.forEach((t,i)=>{ html+=qualCard(t,`#3 (${i+1})`, 'background:rgba(78,127,255,.15);color:#4E7FFF;border:1px solid rgba(78,127,255,.3);'); });
   }
   html+=`</div>`;
 
@@ -2991,11 +3384,12 @@ function renderDailyScheduleStatus(){
   }
   const order = getWcGroupOrder(grp);
   const idx = Math.min(sch.currentIndex, order.length-1);
-  const cur = order[idx];
+  const cur = order[idx] || [];
   const finished = sch.currentIndex >= order.length;
+  const curTxt = cur.map(p=>`${p.h} vs ${p.a}`).join(', ');
   wrap.innerHTML = finished
-    ? `🟢 Kunlik jadval yakunlandi — barcha ${order.length} o'yin o'tkazildi (boshlangan: ${sch.startDate})`
-    : `🟢 Faol — boshlangan: <b>${sch.startDate}</b><br>Bugungi o'yin (#${sch.currentIndex+1}/${order.length}): <b>${cur.h} vs ${cur.a}</b>`;
+    ? `🟢 Kunlik jadval yakunlandi — barcha ${order.length} tur o'tkazildi (boshlangan: ${sch.startDate})`
+    : `🟢 Faol — boshlangan: <b>${sch.startDate}</b><br>Bugungi tur (#${sch.currentIndex+1}/${order.length}): <b>${curTxt}</b>`;
 }
 function adminStartWcDailySchedule(){
   const grp = document.getElementById('ds-grp').value;
@@ -3274,9 +3668,8 @@ function initRegGroupBtns(){
     grpSel.innerHTML = Object.keys(GROUPS).map(g=>`<option value="${g}">${g} Guruh</option>`).join('');
     loadRegTeams();
   }
-}
-
-function loadRegTeams(){
+  }
+  function loadRegTeams(){
   const grpSel = document.getElementById('rf-grp');
   const teamSel = document.getElementById('rf-team');
   if(!grpSel || !teamSel) return;
