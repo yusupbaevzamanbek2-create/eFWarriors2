@@ -2897,15 +2897,13 @@ function renderPlayersInner(){
         const oppNameTxt = m.opp ? (m.opp.name||'TBD') : 'TBD';
         const oppUserTxt = m.opp ? (m.opp.user||'—') : '—';
         // Natija kiritish (faqat hali natija kiritilmagan + raqib aniq bo'lsa)
+        const openSheetCallPo = `openScoreSheet({title:'${(m.roundLabel||'Playoff').replace(/'/g,"\\'")} natijasi',
+          homeFlag:'${myTeam.flag}', homeName:'${(myTeam.name||'').replace(/'/g,"\\'")}',
+          awayFlag:'${oppFlag}', awayName:'${(oppNameTxt||'').replace(/'/g,"\\'")}',
+          hId:'po-sc-h-${m.round}-${m.idx}', aId:'po-sc-a-${m.round}-${m.idx}',
+          onSubmit:\"submitPlayoffScore('${m.round}',${m.idx})\"})`;
         const inputBlock = !m.hasScore ? (oppKnown ? `
-        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-            <input id="po-sc-${m.round}-${m.idx}" placeholder="2-1" maxlength="5"
-              style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;">
-            <button onclick="submitPlayoffScore('${m.round}',${m.idx})"
-              style="padding:9px 16px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
-              Kiritish ✓
-            </button>
-          </div>` : `
+          <button class="score-open-btn" onclick="${openSheetCallPo}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.2);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
             ⏳ Raqib hali aniqlanmagan
           </div>`) : '';
@@ -2948,28 +2946,28 @@ function renderPlayersInner(){
   `;
 }
 
-function submitPlayoffScore(round, idx){
-  const inp = document.getElementById('po-sc-'+round+'-'+idx);
-  if(!inp) return;
-  const raw = inp.value.trim();
-  const p = raw.split('-');
-  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  function submitPlayoffScore(round, idx){
+  const hInp = document.getElementById('po-sc-h-'+round+'-'+idx);
+  const aInp = document.getElementById('po-sc-a-'+round+'-'+idx);
+  if(!hInp || !aInp) return;
+  const myScoreRaw = hInp.value.trim(), oppScoreRaw = aInp.value.trim();
+  if(myScoreRaw===''||oppScoreRaw===''||isNaN(myScoreRaw)||isNaN(oppScoreRaw)){ showToast('❌ Ikkala hisobni ham kiriting'); return; }
   const m = playoff[round] && playoff[round][idx];
   if(!m || !m.h || !m.a){ showToast('❌ O\'yin topilmadi'); return; }
-  // Kiritayotgan o'yinchi h yoki a ekanini profil orqali aniqlaymiz (myTeamni topamiz)
   const myUsername = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? '@'+tg.initDataUnsafe.user.username : null;
   const isHome = m.h && myUsername && m.h.user===myUsername;
   const isAway = m.a && myUsername && m.a.user===myUsername;
   if(!isHome && !isAway){ showToast('❌ Siz bu o\'yin ishtirokchisi emassiz'); return; }
-  const myScore = parseInt(p[0]), oppScore = parseInt(p[1]);
+  const myScore = parseInt(myScoreRaw), oppScore = parseInt(oppScoreRaw);
   m.hs = isHome ? myScore : oppScore;
   m.as = isHome ? oppScore : myScore;
   m.pending = true;
   saveData();
   showToast('📨 Natija yuborildi! Raqib tasdiqlaydi');
+  closeSheet();
   if(typeof renderPlayers==='function') renderPlayers();
   if(typeof renderBracket==='function') renderBracket();
-}
+  }
 
 function confirmPlayoffScore(round, idx, approve){
   const m = playoff[round] && playoff[round][idx];
