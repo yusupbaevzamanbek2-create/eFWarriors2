@@ -130,7 +130,7 @@ TEXTS = {
         "check_btn": "✅ Obunani tekshirish",
         "not_subscribed": "❌ Siz hali obuna bo'lmagansiz!",
         "subscribed": "✅ Obuna tasdiqlandi!",
-        "open_app": "🎮 O'yinga kirish uchun quyidagi tugmani bosing:",
+        "open_app": "🎮 Botga kirish uchun quyidagi tugmani bosing:",
         "open_btn": "🎮 eF Warriors ga kirish",
     },
     "ru": {
@@ -148,7 +148,7 @@ TEXTS = {
         "check_btn": "✅ Check subscription",
         "not_subscribed": "❌ You are not subscribed yet!",
         "subscribed": "✅ Subscription confirmed!",
-        "open_app": "🎮 Press the button below to enter the game:",
+        "open_app": "🎮 Press the button below to enter the bot :",
         "open_btn": "🎮 Open eF Warriors",
     },
 }
