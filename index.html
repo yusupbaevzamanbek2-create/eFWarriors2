@@ -141,7 +141,18 @@ body{
 /* SECTION LABEL */
 .slb{font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;padding:16px 16px 8px;position:relative;padding-left:22px;}
 .slb::before{content:'';position:absolute;left:16px;top:50%;transform:translateY(-50%);width:8px;height:2px;background:var(--accent);}
-
+  
+/* QOIDALAR (rules) card — liga/guruh va playoff sahifalarida ko'rsatiladi */
+.rules-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin:0 0 12px;}
+.rules-head{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:#fff;margin-bottom:12px;}
+.rules-head .ric{font-size:18px;}
+.rules-item{display:flex;gap:8px;font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.rules-item:last-of-type{margin-bottom:0;}
+.rules-item b{color:var(--accent2);font-weight:800;}
+.rules-arrow{color:var(--accent2);flex-shrink:0;}
+.rules-admin{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+.rules-admin b{color:var(--accent);}
+  
 /* GROUP BUTTONS */
 .gbtns{padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
 .gbtn{padding:12px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:var(--disp);font-size:18px;letter-spacing:1px;font-weight:400;cursor:pointer;text-align:center;transition:all .15s;}
@@ -712,8 +723,11 @@ body{
       </div>
     </div>
     <div class="slb">Guruh tanlang</div>
-    <div class="gbtns" id="mg-btns"></div>
-    <div style="padding:0 16px;margin-top:4px;" id="mg-list"></div>
+    <div class="gbtns" id="hg-btns"></div>
+    <div id="hg-table"></div>
+    <div class="slb" style="margin-top:4px;">So'nggi natijalar</div>
+    <div style="padding:0 16px;" id="hg-recent"></div>
+    <div style="padding:0 16px;margin-top:4px;" id="wc-rules-group"></div>
   </div>
 
   <!-- TAB: PLAYOFF -->
@@ -726,6 +740,7 @@ body{
         <div class="hero-sub">Chapdan o'ngga: 1/8 → 1/4 → Yarim → Final</div>
       </div>
     </div>
+    <div style="padding:0 16px;margin-top:4px;" id="wc-rules-knockout"></div>
     <div id="bracket-wrap" class="playoff-wrap"></div>
   </div>
 
@@ -1605,7 +1620,9 @@ function renderLeagueMatches(leagueId){
   const seasonDone = activeRound >= rounds.length;
 
   listEl.innerHTML = `<div style="padding:0 16px 16px;">
-
+  
+   ${rulesCardHTML(false)}
+   
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;text-align:center;">
       <div><div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;color:var(--accent);">${confirmed.length}</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;">O'YNALGAN</div></div>
       <div><div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900;">${seasonDone?'—':(activeRound+1)+'/'+rounds.length}</div><div style="font-size:9px;color:var(--muted);letter-spacing:1px;">${seasonDone?'YAKUNLANDI':'JORIY TUR'}</div></div>
@@ -2084,6 +2101,8 @@ function initHomeTab(){
   const el=document.getElementById('hg-btns');
   el.innerHTML=Object.keys(GROUPS).map(g=>`<div class="gbtn ${g===hGrp?'on':''}" onclick="selHG('${g}',this)">${g}</div>`).join('');
   document.getElementById('hg-table').innerHTML=tblHTML(hGrp);
+  const rulesEl = document.getElementById('wc-rules-group');
+  if(rulesEl) rulesEl.innerHTML = rulesCardHTML(false);
   renderRecent();
 }
 function selHG(g,el){
@@ -3136,6 +3155,29 @@ function openBotChat(oppUsername, leagueId){
   }
 }
 
+  // ============================================================================
+// QOIDALAR — liga/guruh bosqichi va playoff/knockout uchun qoidalar kartochkasi.
+// isKnockout=false -> liga/guruh bosqichi (extra time va penalti YO'Q)
+// isKnockout=true  -> playoff/knockout bosqichi (durang bo'lsa extra time + penalti bor)
+// ============================================================================
+function rulesCardHTML(isKnockout){
+  const extraRule = isKnockout
+    ? `Durang holatida <b>Extra time va penalti</b> o'ynaladi.`
+    : `<b>Extra time va penalti yo'q</b>.`;
+  return `
+    <div class="rules-card">
+      <div class="rules-head"><span class="ric">📋</span> Qoidalar</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> O'yin <b>8 daqiqa</b> davom etadi.</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> Ikkitalik himoya yoqish <b>mumkin emas</b>.</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> O'yinchilar holati <b>"Excellent"</b> bo'lishi kerak.</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> ${extraRule}</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> Bir o'yinda to'pni tepib yuborish (очистить) soni <b>5 ta</b>. Undan oshsa video isbot bilan adminga murojaat qiling.</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> Dedlayn har kuni tungi soat <b>00:00</b> da.</div>
+      <div class="rules-item"><span class="rules-arrow">▸</span> Agar raqib javob bermasa yoki hisobni noto'g'ri kiritsa — <b>rasm yoki video bilan adminga murojaat qiling</b>.</div>
+      <div class="rules-admin">👤 Admin: <b>@yusupbaevvvv</b></div>
+    </div>`;
+}
+  
 // ============================================================================
 // TOAST — qisqa bildirishnoma (masalan "Natija yuborildi ✓")
 // Eslatma: bu funksiya avval umuman yozilmagan edi — shu sabab showToast()
@@ -3416,6 +3458,8 @@ function teamBox(t,score,isWin,isBronze){
 
 function renderBracket(){
   const wrap=document.getElementById('bracket-wrap');
+  const rulesEl = document.getElementById('wc-rules-knockout');
+  if(rulesEl) rulesEl.innerHTML = rulesCardHTML(true);
   if(!playoff.r32||!playoff.r32.length){
     wrap.innerHTML='<div class="empty"><div class="empty-ic">🏆</div><div>Admin "Playoff setkasini yaratish" tugmasini bossin</div></div>';
     return;
