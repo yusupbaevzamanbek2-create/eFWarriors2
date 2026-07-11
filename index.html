@@ -1844,21 +1844,21 @@ function renderLeagueProfile(leagueId){
           </div>` : '';
         return `
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="font-size:11px;color:var(--muted);font-weight:600;min-width:44px;"><span style="font-size:9px;color:var(--accent);">${m.ri+1}-TUR</span></div>
-            <div style="display:flex;align-items:center;gap:6px;flex:1;font-size:13px;font-weight:700;justify-content:center;">
-              ${clubLogoHTML(myTeamName, '⚽', 18)}<span>${myTeamName}</span>
-              <span style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:${m.done?'var(--text)':'var(--muted)'};">${scoreStr}</span>
-              <span>${oppTeamName}</span>${clubLogoHTML(oppTeamName, '⚽', 18)}
-            </div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 8px;border-radius:8px;
-              ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
-                statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
-                statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
-                'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
-            ${canChat?`<button class="match-menu-btn" onclick="openMatchActionSheet('${oppUserClean}','${leagueId}','${oppTeamName.replace(/'/g,"\\'")}')" title="Raqib bilan bog'lanish">💬</button>`
-              :`<div class="match-menu-btn" style="opacity:.4;cursor:default;">🔒</div>`}
-          </div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <div style="font-size:11px;color:var(--muted);font-weight:600;flex-shrink:0;"><span style="font-size:9px;color:var(--accent);">${m.ri+1}-TUR</span></div>
+    <div style="display:flex;align-items:center;gap:6px;flex:1 1 150px;min-width:0;font-size:13px;font-weight:700;justify-content:center;flex-wrap:wrap;">
+      ${clubLogoHTML(myTeamName, '⚽', 18)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px;">${myTeamName}</span>
+      <span style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:900;color:${m.done?'var(--text)':'var(--muted)'};flex-shrink:0;">${scoreStr}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px;">${oppTeamName}</span>${clubLogoHTML(oppTeamName, '⚽', 18)}
+    </div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0;
+      ${statusCls==='win'?'background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);':
+        statusCls==='draw'?'background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.3);':
+        statusCls==='loss'?'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);':
+        'background:rgba(255,182,39,.1);color:var(--gold);border:1px solid rgba(255,182,39,.2);'}">${statusTxt}</div>
+    ${canChat?`<button class="match-menu-btn" style="flex-shrink:0;" onclick="openMatchActionSheet('${oppUserClean}','${leagueId}','${oppTeamName.replace(/'/g,"\\'")}')" title="Raqib bilan bog'lanish">💬</button>`
+      :`<div class="match-menu-btn" style="opacity:.4;cursor:default;flex-shrink:0;">🔒</div>`}
+  </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;padding-left:52px;">${m.opp? (m.opp.user+ (m.isHome? ' (mehmon)':' (uy egasi)')) : ''}</div>
           ${inputBlock}
           ${confirmBlock}
@@ -1930,18 +1930,20 @@ function renderLeagueAdmin(leagueId){
     return;
   }
   wrap.innerHTML = `
-    <div class="slb">Natijani kiritish / o'zgartirish</div>
-    <div style="padding:0 16px;">
-      <select id="la-round" onchange="loadAdminLeagueMatches('${leagueId}')" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
-        ${rounds.map((r,i)=>`<option value="${i}">${i+1}-tur</option>`).join('')}
-      </select>
-      <select id="la-match" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;"></select>
-      <input id="la-score" placeholder="2-1" maxlength="5" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;">
-      <div style="display:flex;gap:8px;">
-        <button onclick="adminSaveLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">✅ Saqlash</button>
-        <button onclick="adminDeleteLeagueResult('${leagueId}')" style="flex:1;padding:13px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;">🗑 O'chirish</button>
-      </div>
+  <div class="slb">Natijani kiritish / o'zgartirish</div>
+  <div class="adm-c" style="margin:0 16px 14px;">
+    <label class="flb">Tur</label>
+    <select class="fsel" id="la-round" onchange="loadAdminLeagueMatches('${leagueId}')">
+      ${rounds.map((r,i)=>`<option value="${i}">${i+1}-tur</option>`).join('')}
+    </select>
+    <label class="flb">O'yin</label>
+    <select class="fsel" id="la-match" onchange="renderAdminScoreBoard('${leagueId}')" style="margin-bottom:14px;"></select>
+    <div id="la-scoreboard"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button onclick="adminSaveLeagueResult('${leagueId}')" class="fbtn" style="margin:0;">✅ Saqlash</button>
+      <button onclick="adminDeleteLeagueResult('${leagueId}')" class="fbtn-r" style="margin:0;">🗑 O'chirish</button>
     </div>
+  </div>
     <div class="slb" style="margin-top:16px;">Jamoani bo'shatish (noto'g'ri/ikki marta yozilgan holatlar uchun)</div>
     <div style="padding:0 16px;">
       <select id="la-free-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
@@ -1978,21 +1980,52 @@ function loadAdminLeagueMatches(leagueId){
     const tag = r ? ` (${r.hs}-${r.as}${r.pending?' ⏳':''})` : '';
     return `<option value="${pair.h}|||${pair.a}">${pair.h} vs ${pair.a}${tag}</option>`;
   }).join('');
+  renderAdminScoreBoard(leagueId);
+}
+// Tanlangan o'yin uchun jamoa gerbi + katta hisob-kiritish maydonchalarini chizadi
+// (o'yinchilar ko'radigan "Natija kiritish" oynasi bilan bir xil zamonaviy ko'rinish).
+function renderAdminScoreBoard(leagueId){
+  const box = document.getElementById('la-scoreboard');
+  const sel = document.getElementById('la-match');
+  if(!box || !sel || !sel.value) { if(box) box.innerHTML=''; return; }
+  const [h,a] = sel.value.split('|||');
+  const found = CLUB_GROUPS[leagueId] ? CLUB_GROUPS[leagueId].find(t=>t.name===h) : null;
+  const foundA = CLUB_GROUPS[leagueId] ? CLUB_GROUPS[leagueId].find(t=>t.name===a) : null;
+  const r = (results[leagueId]||[]).find(x=>x.h===h && x.a===a);
+  box.innerHTML = `
+    <div class="score-board">
+      <div class="sb-team">
+        <div class="sb-badge">${clubLogoHTML(h, (found&&found.flag)||'⚽', 30)}</div>
+        <div class="sb-name">${h}</div>
+        ${found&&found.user&&found.user!=='—'?`<div class="sb-user">${found.user}</div>`:''}
+      </div>
+      <div class="sb-score">
+        <input type="number" id="la-score-h" class="sb-box" placeholder="0" min="0" max="20" inputmode="numeric" value="${r?r.hs:''}">
+        <span class="sb-colon">:</span>
+        <input type="number" id="la-score-a" class="sb-box" placeholder="0" min="0" max="20" inputmode="numeric" value="${r?r.as:''}">
+      </div>
+      <div class="sb-team">
+        <div class="sb-badge">${clubLogoHTML(a, (foundA&&foundA.flag)||'⚽', 30)}</div>
+        <div class="sb-name">${a}</div>
+        ${foundA&&foundA.user&&foundA.user!=='—'?`<div class="sb-user">${foundA.user}</div>`:''}
+      </div>
+    </div>
+    ${r&&r.pending?`<div style="text-align:center;font-size:11px;color:var(--gold);margin-top:8px;">⏳ Raqib tasdiqlashini kutmoqda — saqlasangiz tasdiqlangan hisoblanadi</div>`:''}
+  `;
 }
 function adminSaveLeagueResult(leagueId){
   const sel = document.getElementById('la-match').value;
   if(!sel){ showToast('❌ O\'yin tanlanmagan'); return; }
   const [h,a] = sel.split('|||');
-  const raw = document.getElementById('la-score').value.trim();
-  const p = raw.split('-');
-  if(p.length!==2||isNaN(p[0])||isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
+  const hInp = document.getElementById('la-score-h'), aInp = document.getElementById('la-score-a');
+  const hs = hInp ? hInp.value.trim() : '', as = aInp ? aInp.value.trim() : '';
+  if(hs===''||as===''||isNaN(hs)||isNaN(as)){ showToast('❌ Ikkala hisobni ham kiriting'); return; }
   if(!results[leagueId]) results[leagueId]=[];
   results[leagueId] = results[leagueId].filter(r=>!(r.h===h&&r.a===a));
-  results[leagueId].push({h, a, hs:parseInt(p[0]), as:parseInt(p[1]), time:Date.now()});
+  results[leagueId].push({h, a, hs:parseInt(hs), as:parseInt(as), time:Date.now()});
   saveData();
   checkLeagueCompletion(leagueId);
-  showToast(`✅ ${h} ${p[0]}-${p[1]} ${a} saqlandi`);
-  document.getElementById('la-score').value='';
+  showToast(`✅ ${h} ${hs}-${as} ${a} saqlandi`);
   loadAdminLeagueMatches(leagueId);
 }
 function adminDeleteLeagueResult(leagueId){
@@ -3079,9 +3112,26 @@ function openBotChat(oppUsername, leagueId){
 }
 
 // ============================================================================
+// TOAST — qisqa bildirishnoma (masalan "Natija yuborildi ✓")
+// Eslatma: bu funksiya avval umuman yozilmagan edi — shu sabab showToast()
+// chaqirilganda JS xatolik berib, undan keyingi kod (closeSheet, ro'yxatni
+// yangilash va h.k.) ham ishlamay qolardi. Endi to'g'rilandi.
+// ============================================================================
+let toastTimer=null;
+function showToast(msg){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.classList.remove('show'); }, 2400);
+}
+
+// ============================================================================
 // BOTTOM SHEET — umumiy komponent (natija kiritish, raqib bilan bog'lanish)
 // ============================================================================
 function openSheet(html){
+
   const ov = document.getElementById('sheet-overlay');
   const panel = document.getElementById('sheet-panel');
   if(!ov || !panel) return;
