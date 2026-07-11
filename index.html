@@ -221,6 +221,37 @@ body{
     padding:2px;
 }
 .cname{font-size:12px;font-weight:600;}
+/* JAMOA TANLASH KARTOCHKALARI (ro'yxatdan o'tish) — native select o'rniga */
+.team-pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;max-height:360px;overflow-y:auto;padding:2px 2px 2px 0;}
+.team-pick-card{position:relative;background:var(--bg3);border:1.5px solid var(--border);border-radius:14px;
+  padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+  transition:transform .12s,border-color .15s,background .15s;}
+.team-pick-card:active{transform:scale(.94);}
+.team-pick-card.sel{border-color:var(--accent);background:rgba(139,92,246,.14);box-shadow:0 0 0 3px rgba(139,92,246,.16);}
+.team-pick-card.taken{opacity:.35;cursor:not-allowed;filter:grayscale(.7);}
+.team-pick-logo{width:32px;height:32px;display:flex;align-items:center;justify-content:center;}
+.team-pick-name{font-size:10.5px;font-weight:700;color:#fff;text-align:center;line-height:1.25;min-height:26px;display:flex;align-items:center;justify-content:center;}
+.team-pick-taken{font-size:8px;font-weight:700;color:var(--red);letter-spacing:.6px;text-transform:uppercase;background:rgba(239,68,68,.12);border-radius:6px;padding:2px 6px;}
+.team-pick-radio{width:13px;height:13px;border-radius:50%;border:2px solid var(--border);transition:all .15s;}
+.team-pick-card.sel .team-pick-radio{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.28);}
+#club-reg-submit-btn{transition:opacity .2s;}
+#club-reg-submit-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* HISOB (NATIJA) KIRITISH — bir qatorli "scoreboard" ko'rinishi */
+.score-board{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:18px;padding:16px 10px;margin-bottom:20px;}
+.sb-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
+.sb-badge{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);flex-shrink:0;}
+.sb-badge img{width:30px;height:30px;}
+.sb-name{font-size:11px;font-weight:700;color:#fff;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.sb-user{font-size:9px;color:var(--accent);text-align:center;}
+.sb-score{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sb-box{width:52px;height:58px;text-align:center;background:var(--bg2);border:1.5px solid var(--accent);
+  border-radius:14px;color:#fff;font-family:var(--disp);font-size:26px;outline:none;-moz-appearance:textfield;}
+.sb-box::-webkit-outer-spin-button,.sb-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.sb-box:focus{box-shadow:0 0 0 4px rgba(139,92,246,.25);}
+.sb-colon{font-family:var(--disp);font-size:20px;color:var(--muted);}
 .uname{font-size:10px;color:var(--accent);}
 .st{font-size:12px;color:var(--muted);text-align:center;}
 .pts{font-size:14px;font-weight:700;color:var(--gold);text-align:center;}
@@ -2433,11 +2464,32 @@ function initClubRegUI(){
     return;
   }
   box.innerHTML = `
-    <div style="font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;">${active.icon} ${active.short} — ro'yxatdan o'tish</div>
-    <select id="club-rf-team" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;-webkit-appearance:none;">
-      ${teams.map(t=>{ const taken = t.user && t.user!=='—'; return `<option value="${t.name}" ${taken?'disabled':''}>${t.name}${taken?' (band)':''}</option>`; }).join('')}
+    <div style="font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:10px;">${active.icon} ${active.short} — jamoa tanlang</div>
+    <div class="team-pick-grid" id="team-pick-grid">
+      ${teams.map(t=>{
+        const taken = t.user && t.user!=='—';
+        const safe = t.name.replace(/'/g,"\\'");
+        return `<div class="team-pick-card ${taken?'taken':''}" data-team="${t.name.replace(/"/g,'&quot;')}" ${taken?'':`onclick="selectClubTeamCard('${safe}')"`}>
+          <div class="team-pick-logo">${clubLogoHTML(t.name, active.icon, 32)}</div>
+          <div class="team-pick-name">${t.name}</div>
+          ${taken?`<div class="team-pick-taken">Band</div>`:`<div class="team-pick-radio"></div>`}
+        </div>`;
+      }).join('')}
+    </div>
+    <select id="club-rf-team" style="display:none;">
+      ${teams.map(t=>{ const taken = t.user && t.user!=='—'; return `<option value="${t.name}" ${taken?'disabled':''}>${t.name}</option>`; }).join('')}
     </select>
-    <button onclick="registerClubTeam()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">Ro'yxatdan o'tish →</button>`;
+    <button id="club-reg-submit-btn" onclick="registerClubTeam()" disabled style="width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-size:13.5px;font-weight:700;cursor:pointer;letter-spacing:.5px;">Yuqoridan jamoa tanlang</button>`;
+}
+function selectClubTeamCard(teamName){
+  document.querySelectorAll('#team-pick-grid .team-pick-card').forEach(el=>el.classList.remove('sel'));
+  document.querySelectorAll('#team-pick-grid .team-pick-card').forEach(el=>{
+    if(el.getAttribute('data-team')===teamName.replace(/\\'/g,"'")) el.classList.add('sel');
+  });
+  const sel = document.getElementById('club-rf-team');
+  if(sel) sel.value = teamName;
+  const btn = document.getElementById('club-reg-submit-btn');
+  if(btn){ btn.disabled=false; btn.textContent = `✅ ${teamName} — Ro'yxatdan o'tish →`; }
 }
 function registerClubTeam(){
   const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
@@ -3016,15 +3068,22 @@ function openScoreSheet(opts){
   const hInpId = hId || 'sheet-score-h', aInpId = aId || 'sheet-score-a';
   openSheet(`
     <div class="sheet-title">${title||'Natija kiritish'}</div>
-    <div class="sheet-teams">
-      <div class="sheet-team"><span class="fl">${homeFlag||'⚽'}</span><div class="sheet-team-name">${homeName}</div>${homeUser?`<div class="sheet-team-user">${homeUser}</div>`:''}</div>
-      <div class="sheet-vs">VS</div>
-      <div class="sheet-team"><span class="fl">${awayFlag||'⚽'}</span><div class="sheet-team-name">${awayName}</div>${awayUser?`<div class="sheet-team-user">${awayUser}</div>`:''}</div>
-    </div>
-    <div class="sheet-score-row">
-      <input type="number" id="${hInpId}" class="sheet-score-box" placeholder="0" min="0" max="20" inputmode="numeric">
-      <span class="sheet-score-sep">:</span>
-      <input type="number" id="${aInpId}" class="sheet-score-box" placeholder="0" min="0" max="20" inputmode="numeric">
+    <div class="score-board">
+      <div class="sb-team">
+        <div class="sb-badge">${clubLogoHTML(homeName, homeFlag||'⚽', 30)}</div>
+        <div class="sb-name">${homeName}</div>
+        ${homeUser?`<div class="sb-user">${homeUser}</div>`:''}
+      </div>
+      <div class="sb-score">
+        <input type="number" id="${hInpId}" class="sb-box" placeholder="0" min="0" max="20" inputmode="numeric">
+        <span class="sb-colon">:</span>
+        <input type="number" id="${aInpId}" class="sb-box" placeholder="0" min="0" max="20" inputmode="numeric">
+      </div>
+      <div class="sb-team">
+        <div class="sb-badge">${clubLogoHTML(awayName, awayFlag||'⚽', 30)}</div>
+        <div class="sb-name">${awayName}</div>
+        ${awayUser?`<div class="sb-user">${awayUser}</div>`:''}
+      </div>
     </div>
     <div class="sheet-actions">
       <button class="sheet-btn cancel" onclick="closeSheet()">Bekor</button>
