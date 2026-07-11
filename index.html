@@ -1060,6 +1060,7 @@ function loadShared(cb){
       applyClubGroupRegs((backup&&backup.clubGroups) || null);
       window.leagueDraws = (backup&&backup.draws) || {};
       rebuildDrawnSchedules();
+      checkAutoDrawsAllLeagues();
       window.pendingRegs = (backup&&backup.pending) || [];
       window.champions = (backup&&backup.champ) || [];
       window.dailySchedules = (backup&&backup.dsch) || {};
@@ -1081,6 +1082,7 @@ function loadShared(cb){
         applyClubGroupRegs(rec.clubGroups || null);
         window.leagueDraws = rec.draws || {};
         rebuildDrawnSchedules();
+        checkAutoDrawsAllLeagues();
         window.pendingRegs = rec.pending || [];
         window.champions = rec.champ || [];
         window.dailySchedules = rec.dsch || {};
@@ -1113,8 +1115,12 @@ function loadData(cb){ loadShared(cb); }
 if(!window.dailySchedules) window.dailySchedules = {};
 
 function todayStr(){
-  const d = new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  try{
+    return new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Tashkent', year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date());
+  }catch(e){
+    const d = new Date(Date.now() + 5*3600000);
+    return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
+  }
 }
 function daysBetween(dateStrA, dateStrB){
   const a = new Date(dateStrA+'T00:00:00');
@@ -2222,6 +2228,7 @@ function initClubLeagues(){
     if(!results[lg.id]) results[lg.id] = [];
   });
   rebuildDrawnSchedules();
+  checkAutoDrawsAllLeagues();
 }
 // Faqat qura o'tkazilgan ligalar uchun jadval quriladi — buni har safar ulashilgan
 // ma'lumot (JSONBin) yuklangandan keyin ham qayta chaqirish kerak.
@@ -2357,6 +2364,23 @@ function finishLeagueDraw(leagueId){
   `;
   showToast('🎲 Qura tashlandi!');
 }
+  function autoDrawIfFull(leagueId){
+  if(isLeagueDrawn(leagueId)) return false;
+  if(!isLeagueRegFull(leagueId)) return false;
+  const cfg = getLeagueCfg(leagueId);
+  if(!cfg) return false;
+  const shuffled = shuffleArray(cfg.teams);
+  if(!window.leagueDraws) window.leagueDraws = {};
+  window.leagueDraws[leagueId] = shuffled;
+  window.leagueSchedule[leagueId] = buildLeagueSchedule(shuffled);
+  startDailySchedule('league_'+leagueId, getLeagueOrder(leagueId));
+  saveShared();
+  showToast(`🎲 ${cfg.short} — barcha joylar to'ldi! Qura avtomatik tashlandi, 1-tur ochildi.`);
+  return true;
+}
+function checkAutoDrawsAllLeagues(){
+  (CLUB_LEAGUES||[]).forEach(lg=>{ autoDrawIfFull(lg.id); });
+}
 function closeDrawPage(goLeague){
   const leagueId = window._drawingLeagueId;
   document.getElementById('page-draw').classList.remove('on');
@@ -2448,6 +2472,7 @@ function registerClubTeam(){
     if(team.user && team.user!=='—'){ showToast('❌ Bu jamoa allaqachon band! Boshqasini tanlang'); initClubRegUI(); renderClubsList(); return; }
     team.user = myUsername;
     saveShared();
+    if(!autoDrawIfFull(active.id)){
     showToast(`✅ ${team.name} — ro'yxatdan o'tdingiz!`);
     initClubRegUI();
     renderClubsList();
