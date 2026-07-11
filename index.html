@@ -1951,12 +1951,37 @@ function renderLeagueAdmin(leagueId){
       </select>
       <button onclick="adminFreeClubTeam('${leagueId}')" style="width:100%;padding:13px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;">🧹 Tanlangan jamoani bo'shatish</button>
     </div>
-    <div class="slb" style="margin-top:16px;">Qura</div>
+<div class="slb" style="margin-top:16px;">Qura</div>
     <div style="padding:0 16px;">
       <button onclick="startLeagueDraw('${leagueId}')" style="width:100%;padding:13px;background:var(--card);border:1px solid var(--gold);border-radius:10px;color:var(--gold);font-weight:700;font-size:13px;cursor:pointer;">🎲 Qayta qura tashlash (ehtiyot bo'ling — mavjud natijalar saqlanadi, lekin jadval o'zgaradi)</button>
     </div>
+    <div class="slb" style="margin-top:16px;">Ligani qaytadan boshlash</div>
+    <div style="padding:0 16px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Turlar aralashib/oynalib ketgan bo'lsa shu tugma orqali BARCHA natijalarni bekor qilib, jadvalni bugundan (1-tur) qaytadan boshlashingiz mumkin. Jamoalar va o'yinlar tartibi (kim kim bilan o'ynashi) o'zgarmaydi — faqat natijalar va kunlik hisoblagich reset bo'ladi.</div>
+      <button onclick="adminResetLeagueSchedule('${leagueId}')" style="width:100%;padding:13px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;">♻️ Barcha natijalarni bekor qilib, bugundan 1-turni boshlash</button>
+    </div>
   `;
   loadAdminLeagueMatches(leagueId);
+}
+// Liga aralashib/oynalib ketganda ishlatiladi: barcha natijalarni tozalaydi va
+// kunlik jadvalni BUGUNDAN (1-tur, currentIndex=0) qaytadan boshlaydi. Jamoalar
+// va fixture tartibi (window.leagueSchedule) o'zgarmay qoladi.
+function adminResetLeagueSchedule(leagueId){
+  if(!isAdmin()) return;
+  const cfg = getLeagueCfg(leagueId);
+  const ok = confirm(`${cfg?cfg.short:leagueId}: barcha natijalar o'chiriladi va 1-tur BUGUNDAN qayta boshlanadi. Davom etasizmi?`);
+  if(!ok) return;
+  results[leagueId] = [];
+  if(!window.dailySchedules) window.dailySchedules = {};
+  window.dailySchedules['league_'+leagueId] = {
+    startDate: todayStr(),
+    order: getLeagueOrder(leagueId),
+    currentIndex: 0,
+    lastCheckedDate: todayStr()
+  };
+  saveData();
+  showToast(`♻️ ${cfg?cfg.short:leagueId} qaytadan boshlandi — 1-tur bugundan ochiq`);
+  renderLeagueAdmin(leagueId);                     
 }
 function adminFreeClubTeam(leagueId){
   const sel = document.getElementById('la-free-team');
