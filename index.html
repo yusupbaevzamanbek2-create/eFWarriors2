@@ -2869,6 +2869,7 @@ function renderPlayersInner(){
           : m.dailyStatus==='closed'
           ? `✅ ${m.turNum}-tur yakunlandi (natija yangilanmoqda...)`
           : `🔒 ${m.turNum}-tur yopiq — admin tomonidan bloklangan`;
+        const homeFlagWc = myTeam.flag, awayFlagWc = m.opp.flag;
         const openSheetCallWc = `openScoreSheet({title:'${m.turNum}-tur natijasi',
           homeFlag:'${homeFlagWc}', homeName:'${(m.myName||'').replace(/'/g,"\\'")}',
           awayFlag:'${awayFlagWc}', awayName:'${(m.oppName||'').replace(/'/g,"\\'")}',
