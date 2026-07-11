@@ -1800,7 +1800,7 @@ function renderLeagueProfile(leagueId){
           homeFlag:'${homeFlag}', homeName:'${homeName.replace(/'/g,"\\'")}',
           awayFlag:'${awayFlag}', awayName:'${awayName.replace(/'/g,"\\'")}',
           hId:'lsc-h-${leagueId}-${i}', aId:'lsc-a-${leagueId}-${i}',
-          onSubmit:\"submitLeagueScore('${leagueId}',${i})\"})`;
+          onSubmit:&quot;submitLeagueScore('${leagueId}',${i})&quot;})`;
         const inputBlock = (!m.done && !m.pending) ? (isCurrentRound ? `
           <button class="score-open-btn" onclick="${openSheetCall}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(100,116,139,.08);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
@@ -2841,7 +2841,7 @@ function renderPlayersInner(){
           homeFlag:'${homeFlagWc}', homeName:'${(m.myName||'').replace(/'/g,"\\'")}',
           awayFlag:'${awayFlagWc}', awayName:'${(m.oppName||'').replace(/'/g,"\\'")}',
           hId:'sc-h-${m.matchNum}', aId:'sc-a-${m.matchNum}',
-          onSubmit:\"submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')\"})`;
+          onSubmit:&quot;submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')&quot;})`;
         const inputBlock = !m.done ? (turOpen ? `
           <button class="score-open-btn" onclick="${openSheetCallWc}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;font-size:12px;color:var(--red);text-align:center;">
@@ -2901,7 +2901,7 @@ function renderPlayersInner(){
           homeFlag:'${myTeam.flag}', homeName:'${(myTeam.name||'').replace(/'/g,"\\'")}',
           awayFlag:'${oppFlag}', awayName:'${(oppNameTxt||'').replace(/'/g,"\\'")}',
           hId:'po-sc-h-${m.round}-${m.idx}', aId:'po-sc-a-${m.round}-${m.idx}',
-          onSubmit:\"submitPlayoffScore('${m.round}',${m.idx})\"})`;
+          onSubmit:&quot;submitPlayoffScore('${m.round}',${m.idx})&quot;})`;
         const inputBlock = !m.hasScore ? (oppKnown ? `
           <button class="score-open-btn" onclick="${openSheetCallPo}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.2);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
