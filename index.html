@@ -1230,7 +1230,34 @@ function advanceDailySchedule(containerId, resultsArr){
   sch.lastCheckedDate = today;
   if(changed) saveData();
   return changed;
+  }
+
+function repairDailySchedule(containerId, resultsArr){
+  const sch = window.dailySchedules[containerId];
+  if(!sch || !sch.startDate || !sch.order || !sch.order.length) return false;
+  let changed = false;
+  for(let idx=0; idx<sch.currentIndex && idx<sch.order.length; idx++){
+    const round = sch.order[idx] || [];
+    round.forEach(pair=>{
+      if(pair && pair.h && pair.a){
+        const existing = findConfirmedResult(resultsArr, pair.h, pair.a);
+        if(!existing){
+          for(let i=resultsArr.length-1;i>=0;i--){
+            const r=resultsArr[i];
+            if((r.h===pair.h&&r.a===pair.a)||(r.h===pair.a&&r.a===pair.h)) resultsArr.splice(i,1);
+          }
+          resultsArr.push({h:pair.h, a:pair.a, hs:0, as:0, auto:true});
+          changed = true;
+        }
+      }
+    });
+  }
+  if(changed) saveData();
+  return changed;
 }
+
+// roundIndex — shu konteynerdagi TURning ketma-ket (0 dan boshlab) tartib raqami.
+
 // roundIndex — shu konteynerdagi TURning ketma-ket (0 dan boshlab) tartib raqami.
 // Qaytaradi: 'not_started' (jadval hali yoqilmagan — eski tizim ishlatilsin),
 // 'open' (bugun ochiq), 'closed' (allaqachon o'tgan — natija bor), 'locked' (navbati kelmagan).
@@ -1250,6 +1277,7 @@ function advanceAllDailySchedules(){
       ensureDailySchedule(cid, getWcGroupOrder(grp)); // eski formatdan migratsiya (agar kerak bo'lsa)
       if(!results[grp]) results[grp]=[];
       advanceDailySchedule(cid, results[grp]);
+      repairDailySchedule(cid, results[grp]);
     }
   });
   (CLUB_LEAGUES||[]).forEach(lg=>{
@@ -1258,6 +1286,7 @@ function advanceAllDailySchedules(){
       ensureDailySchedule(cid, getLeagueOrder(lg.id)); // eski formatdan migratsiya (agar kerak bo'lsa)
       if(!results[lg.id]) results[lg.id]=[];
       advanceDailySchedule(cid, results[lg.id]);
+      repairDailySchedule(cid, results[lg.id]);
     }
   });
 }
@@ -1789,7 +1818,9 @@ function renderLeagueProfile(leagueId){
         const dailyStatus = getDailyMatchStatus('league_'+leagueId, m.ri);
         const isCurrentRound = dailyStatus==='not_started' ? (m.ri===activeRound) : (dailyStatus==='open');
         const lockMsg = dailyStatus==='locked'
-          ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 ta o'yin ochiladi`
+          ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 tur ochiladi`
+          : dailyStatus==='closed'
+          ? `✅ ${m.ri+1}-tur yakunlandi (natija yangilanmoqda...)`
           : `🔒 ${m.ri+1}-tur hali ochilmagan`;
         const myTeamName = m.isHome?found.name:(m.opp?m.opp.name:m.a);
         const oppTeamName = m.isHome?(m.opp?m.opp.name:m.a):found.name;
@@ -2835,8 +2866,9 @@ function renderPlayersInner(){
           : m.dailyStatus === 'open';
         const lockMsg = m.dailyStatus==='locked'
           ? `⏳ Bu o'yin hali navbatga kelmagan — kuniga 1 ta o'yin ochiladi`
+          : m.dailyStatus==='closed'
+          ? `✅ ${m.turNum}-tur yakunlandi (natija yangilanmoqda...)`
           : `🔒 ${m.turNum}-tur yopiq — admin tomonidan bloklangan`;
-        const homeFlagWc = myTeam.flag, awayFlagWc = m.opp.flag;
         const openSheetCallWc = `openScoreSheet({title:'${m.turNum}-tur natijasi',
           homeFlag:'${homeFlagWc}', homeName:'${(m.myName||'').replace(/'/g,"\\'")}',
           awayFlag:'${awayFlagWc}', awayName:'${(m.oppName||'').replace(/'/g,"\\'")}',
