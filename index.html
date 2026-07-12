@@ -698,29 +698,22 @@ body{
 
   <!-- TAB: GROUPS -->
   <div id="wc-home" class="tab on" style="padding-bottom:20px;">
-    <div class="hero-banner">
-      <div class="hero-img-overlay"></div>
-      <div class="hero-content">
-        <div class="hero-eyebrow">World Cup 2026</div>
-        <div class="hero-title">Guruh <span>Bosqichi</span></div>
-        <div class="hero-sub">12 guruh · Har guruhdan top-2 o'tadi</div>
-      </div>
-    </div>
+    ...
     <div class="slb">Guruh tanlang</div>
     <div class="gbtns" id="hg-btns"></div>
     <div id="hg-table"></div>
     <div class="slb" style="margin-top:4px;">So'nggi natijalar</div>
     <div style="padding:0 16px;" id="hg-recent"></div>
+    <div style="padding:0 16px;margin-top:4px;" id="wc-rules-group"></div>
   </div>
 
   <!-- TAB: MATCHES -->
   <div id="wc-matches" class="tab" style="padding-bottom:20px;">
-    <div class="hero-banner">
-      <div class="hero-img-overlay"></div>
-      <div class="hero-content">
-        <div class="hero-eyebrow">O'yinlar</div>
-        <div class="hero-title">Guruh <span>O'yinlari</span></div>
-      </div>
+    ...
+    <div class="slb">Guruh tanlang</div>
+    <div class="gbtns" id="mg-btns"></div>
+    <div style="padding:0 16px;margin-top:4px;" id="mg-list"></div>
+  </div>
     </div>
     <div class="slb">Guruh tanlang</div>
     <div class="gbtns" id="hg-btns"></div>
@@ -804,8 +797,11 @@ body{
           <label class="flb">2-Jamoa</label>
           <select class="fsel" id="a-away"></select>
           <label class="flb">Natija (2-1)</label>
-          <input class="fin" id="a-score" placeholder="2-1">
-          <button class="fbtn" onclick="saveResult()">Saqlash ✓</button>
+          <input class="fin" id="po-score" placeholder="2-1">
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="fbtn" style="margin:0;flex:1;" onclick="savePlayoff()">Saqlash ✓</button>
+            <button class="fbtn-r" style="margin:0;flex:1;" onclick="deletePlayoffResult()">🗑 O'chirish</button>
+          </div>
         </div>
         <div class="adm-c">
           <div class="adm-ct">🗑 Natijani o'chirish</div>
@@ -1793,13 +1789,14 @@ function renderLeagueProfile(leagueId){
       const oppName = isHome ? pair.a : pair.h;
       const opp = teamInLeague(leagueId, oppName);
       const r = res.find(x=>x.h===pair.h && x.a===pair.a);
-      let myScore=null, oppScore=null, done=false, pending=false, win=false, draw=false;
+      let myScore=null, oppScore=null, done=false, pending=false, win=false, draw=false, submittedByMe=false;
       if(r){
         done = !r.pending; pending = !!r.pending;
         myScore = isHome? r.hs : r.as; oppScore = isHome? r.as : r.hs;
         win = myScore>oppScore; draw = myScore===oppScore;
+        submittedByMe = pending && r.by===found.user;
       }
-      myMatches.push({ri, h:pair.h, a:pair.a, isHome, opp, myScore, oppScore, done, pending, win, draw});
+      myMatches.push({ri, h:pair.h, a:pair.a, isHome, opp, myScore, oppScore, done, pending, win, draw, submittedByMe});
     });
   });
 
@@ -1854,11 +1851,14 @@ function renderLeagueProfile(leagueId){
           <div style="margin-top:10px;padding:9px 12px;background:rgba(100,116,139,.08);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
             ${lockMsg}
           </div>`) : '';
-        const confirmBlock = m.pending ? `
+        const confirmBlock = m.pending ? (m.submittedByMe ? `
+          <div style="margin-top:10px;padding:9px 12px;background:rgba(255,182,39,.08);border:1px solid rgba(255,182,39,.2);border-radius:10px;font-size:12px;color:var(--gold);text-align:center;">
+            ⏳ Natija yuborildi — raqibingiz tasdiqlashini kuting
+          </div>` : `
           <div class="confirm-actions">
             <button onclick="confirmLeagueScore('${leagueId}',${i},true)" class="btn-confirm">✅ Tasdiqlash</button>
             <button onclick="confirmLeagueScore('${leagueId}',${i},false)" class="btn-reject">✕ Rad etish</button>
-          </div>` : '';
+          </div>`) : '';
         return `
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;">
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -1905,10 +1905,37 @@ function submitLeagueScore(leagueId, idx){
   const as = isHome ? parseInt(oppScore) : parseInt(myScore);
   if(!results[leagueId]) results[leagueId]=[];
   results[leagueId] = results[leagueId].filter(r=>!((r.h===target.h&&r.a===target.a)));
-  results[leagueId].push({h:target.h, a:target.a, hs, as, pending:true, time:Date.now()});
+  results[leagueId].push({h:target.h, a:target.a, hs, as, pending:true, by:found.user, time:Date.now()});
   saveData();
   showToast('📨 Natija yuborildi! Raqib tasdiqlashi kerak');
   closeSheet();
+  renderLeagueProfile(leagueId);
+}
+
+function confirmLeagueScore(leagueId, idx, approve){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
+  const found = (CLUB_GROUPS[leagueId]||[]).find(t=>t.user===myUsername);
+  if(!found) return;
+  const rounds = window.leagueSchedule[leagueId]||[];
+  const myMatches = [];
+  rounds.forEach((round,ri)=>{ round.forEach(pair=>{ if(pair.h===found.name || pair.a===found.name) myMatches.push({ri, h:pair.h, a:pair.a}); }); });
+  const target = myMatches[idx];
+  if(!target) return;
+  const r = (results[leagueId]||[]).find(x=>x.h===target.h && x.a===target.a);
+  if(r && r.pending && r.by && r.by===found.user){
+    showToast('❌ O\'zingiz kiritgan natijani o\'zingiz tasdiqlay olmaysiz — raqib tasdiqlashi kerak');
+    return;
+  }
+  if(approve){
+    if(r) delete r.pending;
+    showToast('✅ Natija tasdiqlandi!');
+  } else {
+    results[leagueId] = (results[leagueId]||[]).filter(r=>!(r.h===target.h && r.a===target.a));
+    showToast('❌ Natija rad etildi');
+  }
+  saveData();
+  checkLeagueCompletion(leagueId);
   renderLeagueProfile(leagueId);
 }
 
@@ -2681,7 +2708,7 @@ function getPlayoffRecordForTeam(teamName){
 // O'yinchi proflida "Playoff O'yinlarim" bo'limi uchun: bitta jamoaning
 // barcha bosqichlardagi (r32..final) playoff o'yinlarini yig'ib beradi.
 const PLAYOFF_ROUND_LABELS = {r32:"1/16 FINAL", r16:"1/8 FINAL", qf:"CHORAK FINAL", sf:"YARIM FINAL", third:"3-O'RIN", final:"FINAL"};
-function getMyPlayoffMatches(teamName){
+function getMyPlayoffMatches(teamName, myUsername){
   const out=[];
   ['r32','r16','qf','sf','third','final'].forEach(rnd=>{
     (playoff[rnd]||[]).forEach((m,idx)=>{
@@ -2693,6 +2720,7 @@ function getMyPlayoffMatches(teamName){
       const hasScore = m.hs!==null && m.hs!==undefined && m.as!==null && m.as!==undefined;
       const pending = hasScore && !!m.pending;
       const done = hasScore && !m.pending;
+      const submittedByMe = pending && !!myUsername && m.by===myUsername;
       let myScore=null, oppScore=null, win=false, draw=false;
       if(hasScore){
         myScore = isHome ? m.hs : m.as;
@@ -2700,7 +2728,7 @@ function getMyPlayoffMatches(teamName){
         win = myScore>oppScore; draw = myScore===oppScore;
       }
       out.push({round:rnd, idx, roundLabel:PLAYOFF_ROUND_LABELS[rnd]||rnd, opp, isHome,
-        myName:teamName, oppName: opp?opp.name:null, hasScore, pending, done, myScore, oppScore, win, draw});
+        myName:teamName, oppName: opp?opp.name:null, hasScore, pending, done, submittedByMe, myScore, oppScore, win, draw});
     });
   });
   return out;
@@ -2875,13 +2903,15 @@ function renderPlayersInner(){
     const matchNum = getMatchNumber(myTeam.grp, ht.name, at.name);
     const turNum = getRoundNumber(myTeam.grp, ht.name, at.name); // barqaror, ikki tomon uchun bir xil
     const dailyStatus = getDailyMatchStatus('wc_'+myTeam.grp, turNum-1);
-    let myScore=null, oppScore=null, done=!!r, win=false, draw=false;
+    let myScore=null, oppScore=null, done=false, pending=false, win=false, draw=false, submittedByMe=false;
     if(r){
+      done = !r.pending; pending = !!r.pending;
       myScore = r.h===myTeam.name?r.hs:r.as;
       oppScore = r.h===myTeam.name?r.as:r.hs;
       win=myScore>oppScore; draw=myScore===oppScore;
+      submittedByMe = pending && r.by===myTeam.user;
     }
-    grpMatches.push({opp, myScore, oppScore, done, win, draw, matchNum, turNum, dailyStatus,
+    grpMatches.push({opp, myScore, oppScore, done, pending, submittedByMe, win, draw, matchNum, turNum, dailyStatus,
       myName:myTeam.name, oppName:opp.name, grp:myTeam.grp});
   }
 
@@ -2932,9 +2962,9 @@ function renderPlayersInner(){
     <div class="slb" style="margin-top:12px;">Mening O'yinlarim</div>
     <div style="padding:0 16px ${myPoMatches.length?'12px':'80px'};">
       ${grpMatches.map(m=>{
-        const scoreStr = m.done ? `${m.myScore}:${m.oppScore}` : '—:—';
+        const scoreStr = m.done ? `${m.myScore}:${m.oppScore}` : (m.pending ? '⏳' : '—:—');
         const statusCls = m.done?(m.win?'win':m.draw?'draw':'loss'):'wait';
-        const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):'KUTILMOQDA';
+        const statusTxt = m.done?(m.win?"G'ALABA":m.draw?'DURANG':"MAG'LUBIYAT"):(m.pending?'TASDIQ KUTILMOQDA':'KUTILMOQDA');
         const oppUserClean = m.opp.user && m.opp.user!=='—' ? m.opp.user.replace('@','') : null;
         const canChat = !!oppUserClean;
         // Natija kiritish: agar kunlik jadval faol bo'lsa — shu bo'yicha, aks holda eski tur tizimi bo'yicha
@@ -2952,7 +2982,7 @@ function renderPlayersInner(){
           awayFlag:'${awayFlagWc}', awayName:'${(m.oppName||'').replace(/'/g,"\\'")}',
           hId:'sc-h-${m.matchNum}', aId:'sc-a-${m.matchNum}',
           onSubmit:&quot;submitMyScore(${m.matchNum},'${m.myName}','${m.oppName}','${m.grp}')&quot;})`;
-        const inputBlock = !m.done ? (turOpen ? `
+        const inputBlock = (!m.done && !m.pending) ? (turOpen ? `
           <button class="score-open-btn" onclick="${openSheetCallWc}">⚽ Natija kiritish</button>` : `
           <div style="margin-top:10px;padding:9px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;font-size:12px;color:var(--red);text-align:center;">
             ${lockMsg}
@@ -3017,8 +3047,11 @@ function renderPlayersInner(){
           <div style="margin-top:10px;padding:9px 12px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.2);border-radius:10px;font-size:12px;color:var(--muted);text-align:center;">
             ⏳ Raqib hali aniqlanmagan
           </div>`) : '';
-        // Tasdiq/rad tugmalari (natija kiritilgan, lekin hali tasdiqlanmagan bo'lsa)
-        const confirmBlock = m.pending ? `
+        // Tasdiq/rad tugmalari (natija kiritilgan, lekin hali tasdiqlanmagan bo'lsa — faqat raqibga ko'rinadi)
+        const confirmBlock = m.pending ? (m.submittedByMe ? `
+          <div style="margin-top:10px;padding:9px 12px;background:rgba(255,182,39,.08);border:1px solid rgba(255,182,39,.2);border-radius:10px;font-size:12px;color:var(--gold);text-align:center;">
+            ⏳ Natija yuborildi — raqibingiz tasdiqlashini kuting
+          </div>` : `
           <div style="margin-top:8px;display:flex;gap:6px;">
             <button onclick="confirmPlayoffScore('${m.round}',${m.idx},true)"
               style="flex:1;padding:8px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;">
@@ -3028,7 +3061,7 @@ function renderPlayersInner(){
               style="flex:1;padding:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;">
               ❌ Rad
             </button>
-          </div>` : '';
+          </div>`) : '';
         return `
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:8px;">
@@ -3072,6 +3105,7 @@ function renderPlayersInner(){
   m.hs = isHome ? myScore : oppScore;
   m.as = isHome ? oppScore : myScore;
   m.pending = true;
+  m.by = myUsername;
   saveData();
   showToast('📨 Natija yuborildi! Raqib tasdiqlaydi');
   closeSheet();
@@ -3082,8 +3116,14 @@ function renderPlayersInner(){
 function confirmPlayoffScore(round, idx, approve){
   const m = playoff[round] && playoff[round][idx];
   if(!m){ return; }
+  const myUsername = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? '@'+tg.initDataUnsafe.user.username : null;
+  if(m.pending && m.by && m.by===myUsername){
+    showToast('❌ O\'zingiz kiritgan natijani o\'zingiz tasdiqlay olmaysiz — raqib tasdiqlashi kerak');
+    return;
+  }
   if(approve){
     delete m.pending;
+    delete m.by;
     if(typeof autoAdvance==='function') autoAdvance(round, idx);
     if(typeof recordChampionIfFinal==='function') recordChampionIfFinal(round, m);
     saveData();
@@ -3091,6 +3131,7 @@ function confirmPlayoffScore(round, idx, approve){
   } else {
     m.hs = null; m.as = null;
     delete m.pending;
+    delete m.by;
     saveData();
     showToast('❌ Natija rad etildi');
   }
@@ -3105,22 +3146,28 @@ function submitMyScore(matchNum, myName, oppName, grp){
   if(!hInp || !aInp) return;
   const hs = hInp.value.trim(), as = aInp.value.trim();
   if(hs===''||as===''||isNaN(hs)||isNaN(as)){ showToast('❌ Ikkala hisobni ham kiriting'); return; }
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
   if(!results[grp]) results[grp]=[];
   results[grp] = results[grp].filter(r=>!((r.h===myName&&r.a===oppName)||(r.h===oppName&&r.a===myName)));
-  results[grp].push({h:myName,a:oppName,hs:parseInt(hs),as:parseInt(as),pending:true});
+  results[grp].push({h:myName,a:oppName,hs:parseInt(hs),as:parseInt(as),pending:true,by:myUsername});
   saveData();
-  showToast('📨 Natija yuborildi! Admin tasdiqlaydi');
+  showToast('📨 Natija yuborildi! Raqib tasdiqlashi kerak');
   closeSheet();
   renderPlayers();
 }
 
 function confirmScore(matchNum, myName, oppName, grp, approve){
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const myUsername = tgUser ? '@'+tgUser.username : null;
+  const r = (results[grp]||[]).find(x=>(x.h===myName&&x.a===oppName)||(x.h===oppName&&x.a===myName));
+  if(r && r.pending && r.by && r.by===myUsername){
+    showToast('❌ O\'zingiz kiritgan natijani o\'zingiz tasdiqlay olmaysiz — raqib tasdiqlashi kerak');
+    return;
+  }
   if(approve){
     // Tasdiqlash — pending ni olib tashlash
-    if(results[grp]){
-      const r = results[grp].find(x=>(x.h===myName&&x.a===oppName)||(x.h===oppName&&x.a===myName));
-      if(r) delete r.pending;
-    }
+    if(r) delete r.pending;
     saveData();
     showToast('✅ Natija tasdiqlandi!');
   } else {
@@ -3741,6 +3788,8 @@ function savePlayoff(){
   if(p.length!==2 || isNaN(p[0]) || isNaN(p[1])){ showToast('❌ Format: 2-1'); return; }
   m.hs = parseInt(p[0]);
   m.as = parseInt(p[1]);
+  delete m.pending;
+  delete m.by;
   if(typeof autoAdvance==='function') autoAdvance(round, idx);
   saveData();
   showToast('✅ Playoff natijasi saqlandi');
@@ -3749,6 +3798,29 @@ function savePlayoff(){
   if(typeof renderBracket==='function') renderBracket();
   if(typeof renderRating==='function') renderRating();
 }
+
+// Playoff o'yinining kiritilgan natijasini TO'LIQ o'chiradi (hs/as/pending/by).
+// Eslatma: agar bu g'alaba keyingi bosqichga jamoani allaqachon o'tkazib yuborgan
+// bo'lsa, keyingi bosqichdagi mos o'yinni admin qo'lda tekshirib qo'yishi kerak —
+// bracketning avtomatik "orqaga qaytarish" logikasi murakkab bo'lgani uchun bu yerda amalga oshirilmagan.
+function deletePlayoffResult(){
+  const round = document.getElementById('po-round').value;
+  const idx = parseInt(document.getElementById('po-match').value);
+  if(isNaN(idx)){ showToast('❌ O\'yin tanlanmagan'); return; }
+  const m = playoff[round] && playoff[round][idx];
+  if(!m){ showToast('❌ Topilmadi'); return; }
+  if(m.hs===null||m.hs===undefined){ showToast('❌ Bu o\'yinda natija kiritilmagan'); return; }
+  m.hs = null; m.as = null;
+  delete m.pending;
+  delete m.by;
+  saveData();
+  showToast('🗑 Playoff natijasi o\'chirildi (keyingi bosqichni qo\'lda tekshiring)');
+  document.getElementById('po-score').value='';
+  loadPoMatches();
+  if(typeof renderBracket==='function') renderBracket();
+  if(typeof renderRating==='function') renderRating();
+  if(typeof renderPlayers==='function') renderPlayers();
+  }
 
 // Tur holatlari: {grp: {1: 'open'/'closed', 2: ..., 3: ...}}
 if(!window.turStatus) window.turStatus = {};
